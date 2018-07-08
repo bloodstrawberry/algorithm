@@ -1,0 +1,31 @@
+//baekjoon_11051
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int DP[1010][1010];
+
+int main(void)
+{
+	int N, K;
+	
+	int i, j;
+
+	scanf("%d %d", &N, &K);
+
+	for (i = 0; i <= 1000;i++)
+	{
+		DP[i][0] = 1;
+		DP[i][i] = 1;
+	}
+
+	for (i = 2; i <= 1000;i++)
+	{
+		for (j = 1; j < i;j++)
+		{
+			DP[i][j] = (DP[i - 1][j - 1] + DP[i - 1][j]) % 10007;
+		}
+	}
+
+	printf("%d\n", DP[N][K]);
+
+}
