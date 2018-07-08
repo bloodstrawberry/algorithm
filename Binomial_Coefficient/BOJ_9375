@@ -1,0 +1,78 @@
+//baekjoon_9375
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+typedef struct st
+{
+	char cloth[25];
+	int num;
+}CLOTH;
+
+CLOTH Cloth[35];
+int cntCloth;
+
+char str[25];
+
+int strcmp(char *a, char *b)
+{
+	while ((*a) || (*b)) if (*a++ != *b++) return 1;
+	return 0;
+}
+
+void strcpy(char *a, char *b)
+{
+	while ((*b)) *a++ = *b++;
+	*a++ = '\0';
+}
+
+int main(void)
+{
+	int T, N, tc, i, k;
+	unsigned long long int Ans;
+
+	scanf("%d", &T);
+
+	for (tc = 0; tc < T;tc++)
+	{
+		scanf("%d", &N);
+
+		cntCloth = 0;
+		for (i = 0; i < 31;i++)
+		{
+			Cloth[i].num = 0;
+			strcpy(Cloth[i].cloth, "");
+		}
+
+		if (N == 0) printf("0\n");
+		else
+		{
+			for (i = 0; i < N;i++)
+			{
+				scanf("%s", str);
+				scanf("%s", str);
+
+				for (k = 0; k < 31;k++)
+				{
+					if (!strcmp(Cloth[k].cloth, str))
+					{
+						Cloth[k].num++;
+						break;
+					}
+					else if (!strcmp(Cloth[k].cloth, ""))
+					{
+						strcpy(Cloth[k].cloth, str);
+						Cloth[k].num = 1;
+						cntCloth++;
+						break;
+					}
+				}
+			}
+
+			Ans = 1;
+			for (i = 0; i < cntCloth; i++)
+				Ans *= Cloth[i].num + 1;
+
+			printf("%llu\n", Ans - 1);
+		}
+	}
+}
