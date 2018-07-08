@@ -1,0 +1,59 @@
+//baekjoon_2407
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+unsigned long long DP[105][105];
+unsigned long long DP2[105][105];
+
+int len(unsigned long long num)
+{
+	int cnt = 0;
+
+	while (num)
+	{
+		cnt++;
+		num /= 10;
+	}
+
+	return cnt;
+}
+
+int main(void)
+{
+	int N, K;
+	int i, j;
+	
+	scanf("%d %d", &N, &K);
+
+	for (i = 0; i <= 102;i++)
+	{
+		DP[i][0] = 1;
+		DP[i][i] = 1;
+	}
+
+	for (i = 2; i <= 102;i++)
+	{
+		for (j = 1; j < i;j++)
+		{
+			DP[i][j] = (DP[i - 1][j - 1] + DP[i - 1][j]);
+			DP2[i][j] = (DP2[i - 1][j - 1] + DP2[i - 1][j]);
+
+			if (DP[i][j] >= 10000000000000000)
+			{
+				DP2[i][j]++;
+				DP[i][j] -= 10000000000000000;
+			}
+		}
+	}
+
+	if (DP2[N][K] == 0) printf("%lld\n", DP[N][K]);
+	else 
+	{
+		int zeroCnt = len(1000000000000000) - len(DP[N][K]);
+		
+		printf("%lld", DP2[N][K]);
+		for (i = 0; i < zeroCnt;i++) printf("0");
+		printf("%lld\n", DP[N][K]);
+	}
+
+}
