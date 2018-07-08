@@ -1,0 +1,33 @@
+//baekjoon_6591
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int main(void)
+{
+	int N, K;
+
+	unsigned long long int ans;
+	int div;
+
+	while (1)
+	{
+		scanf("%d %d", &N, &K);
+		if (N == 0 && K == 0) break;
+
+		ans = 1;
+		div = 1;
+
+		if (N - K < K)
+		{
+			K = N - K;
+		}
+
+		while (K-- > 0)
+		{
+			ans *= N--;
+			ans /= div++;
+		}
+
+		printf("%llu\n", ans);
+	}
+}
