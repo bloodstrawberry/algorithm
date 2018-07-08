@@ -1,0 +1,73 @@
+//baekjoon_1676
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+
+
+int cnt2, cnt5;
+
+int count2(int num)
+{
+	int cnt;
+	
+	if (num == 0) return 0;
+
+	cnt = 0;
+	while (1)
+	{
+		if (num % 2 == 0)
+		{
+			cnt++;
+			num /= 2;
+		}
+		else break;
+	}
+
+	return cnt;
+}
+
+int count5(int num)
+{
+	int cnt;
+
+	if (num == 0) return 0;
+
+	cnt = 0;
+	while (1)
+	{
+		if (num % 5 == 0)
+		{
+			cnt++;
+			num /= 5;
+		}
+		else break;
+	}
+
+	return cnt;
+}
+
+int min(int a, int b)
+{
+	return (a < b) ? a : b;
+}
+
+
+int main(void)
+{
+	int N;
+	int cnt, i;
+	
+	scanf("%d", &N);
+	
+	for (i = 0; i <= N;i++)
+	{
+		cnt2 += count2(i);
+		cnt5 += count5(i);
+	}
+
+	cnt = min(cnt2, cnt5);
+
+	printf("%d\n", cnt);
+
+	return 0;
+}
