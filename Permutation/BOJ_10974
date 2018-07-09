@@ -1,0 +1,48 @@
+//baekjoon_10974
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N;
+int LIST[10];
+int VISIT[10];
+
+void outputList()
+{
+	int i;
+	for (i = 0; i < N;i++)
+		printf("%d ", LIST[i]);
+
+	putchar('\n');
+}
+
+void DFS(int L)
+{
+	int i;
+
+	if (L > N - 1)
+	{
+		outputList();
+		return;
+	}
+
+	for (i = 1; i <= N;i++)
+	{
+		if (VISIT[i] == 1) continue;
+		
+		LIST[L] = i;
+		VISIT[i] = 1;
+		
+		DFS(L + 1);
+		
+		VISIT[i] = 0;
+	}
+	
+}
+
+int main() {
+
+	scanf("%d", &N);
+	DFS(0);
+
+	return 0;
+}
