@@ -1,0 +1,32 @@
+//baekjoon_1182
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int a[20];
+
+int main() 
+{
+	int i, k;
+	int n, s, ans;
+	int num,sum;
+
+	scanf("%d %d", &n, &s);
+
+	for (i = 0; i < n;i++)
+		scanf("%d", &a[i]);
+	
+	ans = 0;
+	num = 1 << n;
+	for (i = 1; i < num;i++)
+	{
+		sum = 0;
+		for (k = 0; k < n;k++)
+			if (i & (1 << k)) sum += a[k];
+
+		if (sum == s) ans++;
+	}
+
+	printf("%d\n", ans);
+	
+	return 0;
+}
