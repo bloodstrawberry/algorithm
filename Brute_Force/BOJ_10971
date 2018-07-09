@@ -1,0 +1,56 @@
+//baekjoon_10971
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N;
+int W[15][15];
+int VISIT[10];
+
+int minANS = 0x7fff0000;
+
+void DFS(int L,int start, int S, int st)
+{
+	int i;
+
+	if (L == N)
+	{
+		if (W[start][st] == 0) return;
+
+		S += W[start][st];
+		if (S < minANS) minANS = S;
+
+		return;
+	}
+	
+	for (i = 1; i <= N;i++)
+	{
+		if (VISIT[i] == 1 || W[start][i] == 0) continue;
+
+		VISIT[i] = 1;
+		DFS(L + 1, i, S + W[start][i], st);
+		VISIT[i] = 0;
+	}
+
+}
+
+int main() {
+
+	int i, k;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			scanf("%d", &W[i][k]);
+	
+	for (i = 1; i <= N;i++)
+	{
+		VISIT[i] = 1;
+		DFS(1, i, 0, i);
+		VISIT[i] = 0;
+	}
+
+	printf("%d\n", minANS);
+
+	return 0;
+}
