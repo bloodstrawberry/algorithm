@@ -1,0 +1,60 @@
+//baekjoon_1107
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N;
+int M;
+int Remote[15];
+
+int possible(int c)
+{
+	int len;
+
+	if (c == 0)
+		return Remote[0] ? 0 : 1;
+
+	len = 0;
+	while (c > 0)
+	{
+		if (Remote[c % 10]) return -1;
+		c /= 10;
+		len++;
+	}
+
+	return len;
+}
+
+int main() {
+
+	int i, tmp;
+	int C; //Channel
+	int ans, press, len;
+
+	scanf("%d %d", &N, &M);
+
+	ans = N - 100;
+	
+	if (ans < 0) ans = -ans;
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%d", &tmp);
+		Remote[tmp] = 1;
+	}
+	
+	for (i = 0; i <= 1000000;i++)
+	{ 
+		C = i;
+		len = possible(C);
+		if (len > 0)
+		{
+			press = C - N;
+			if (press < 0) press = -press;
+			if (ans > len + press) ans = len + press;
+		}
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
