@@ -1,0 +1,80 @@
+//baekjoon_10819
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N;
+int ARR[10];
+int LIST[10];
+int VISIT[10];
+
+void outputList()
+{
+	int i;
+	
+	for (i = 0; i < N;i++)
+		printf("%d ", LIST[i]);
+
+	putchar('\n');
+}
+
+int abs(int a, int b)
+{
+	return (a > b) ? a - b : b - a;
+}
+
+int maxValue()
+{
+	int i, sum;
+
+	sum = 0;
+	for (i = 0; i < N - 1;i++)
+		sum += abs(LIST[i], LIST[i + 1]);
+
+	return sum;
+}
+
+int ANS;
+
+void DFS(int L)
+{
+
+	int i;
+	int tmpANS;
+
+	if (L == N)
+	{
+		//outputList();
+		
+		tmpANS = maxValue();
+		if (ANS < tmpANS) ANS = tmpANS;
+
+		return;
+	}
+
+	for (i = 0; i < N;i++)
+	{
+		if (VISIT[i] == 1) continue;
+
+		LIST[L] = ARR[i];
+		VISIT[i] = 1;
+
+		DFS(L + 1);
+
+		VISIT[i] = 0;
+	}
+}
+
+int main() {
+
+	int i;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++)
+		scanf("%d", &ARR[i]);
+
+	DFS(0);
+
+	printf("%d\n", ANS);
+	return 0;
+}
