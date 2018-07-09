@@ -1,0 +1,98 @@
+//baekjoon_2580
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int ARR[11][11];
+
+typedef struct st
+{
+	int r;
+	int c;
+}ZERO;
+
+ZERO Zero[100];
+int zeroCnt;
+
+void input()
+{
+	int i, j;
+	for (i = 1; i <= 9;i++)
+	{
+		for (j = 1; j <= 9;j++)
+		{
+			scanf("%d", &ARR[i][j]);
+			if (ARR[i][j] == 0)
+			{
+				Zero[zeroCnt].r = i;
+				Zero[zeroCnt++].c = j;
+			}
+		}
+	}
+}
+
+void output()
+{
+	int i, j;
+	for (i = 1; i <= 9;i++)
+	{
+		for (j = 1; j <= 9;j++)
+			printf("%d ", ARR[i][j]);
+		
+		putchar('\n');
+	}
+}
+
+int isPossible(int r, int c, int num)
+{
+	int i, k;
+	int tr, tc;
+
+	for (i = 1; i <= 9;i++)
+	{
+		if (ARR[i][c] == num) return -1;
+		if (ARR[r][i] == num) return -1;
+	}
+
+	tr = (r - 1) / 3 * 3 + 1;
+	tc = (c - 1) / 3 * 3 + 1;
+
+	for (i = tr; i <= tr + 2;i++)
+	{
+		for (k = tc; k <= tc + 2;k++)
+			if (ARR[i][k] == num) return -1;
+	}
+
+	return 0;
+}
+
+int FLAG = 0;
+
+void DFS(int L)
+{
+	int i;
+	if (FLAG) return;
+	if (L == zeroCnt)
+	{
+		output();
+		FLAG = 1;
+		return;
+	}
+
+	for (i = 1; i <= 9;i++)
+	{
+		if (!isPossible(Zero[L].r, Zero[L].c, i))
+		{
+			ARR[Zero[L].r][Zero[L].c] = i;
+			DFS(L + 1);
+			ARR[Zero[L].r][Zero[L].c] = 0;
+		}
+	}
+}
+
+int main() 
+{
+	input();
+	DFS(0);
+
+	return 0;
+}
