@@ -12,6 +12,8 @@ void DFS(int L,int start, int S, int st)
 {
 	int i;
 
+	if (S > minANS) return;
+
 	if (L == N)
 	{
 		if (W[start][st] == 0) return;
