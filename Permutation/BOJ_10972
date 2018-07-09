@@ -1,0 +1,55 @@
+//baekjoon_10972
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+#define MAX (10500)
+int Arr[MAX];
+int N;
+
+int next_permutation(int *a, int n)
+{
+	int i = n - 1;
+	int j = n - 1;
+	int tmp;
+
+	while (i > 0 && a[i - 1] >= a[i]) i -= 1;
+	if (i <= 0) return -1;
+	
+	while (a[j] <= a[i - 1]) j -= 1;
+
+	tmp = a[i - 1];
+	a[i - 1] = a[j];
+	a[j] = tmp;
+
+	j = n - 1;
+	while (i < j)
+	{
+		tmp = a[i];
+		a[i] = a[j];
+		a[j] = tmp;
+		i += 1;
+		j -= 1;
+	}
+	
+	return 0;
+}
+
+int main() {
+
+	int i;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++)
+		scanf("%d", &Arr[i]);
+
+	if (next_permutation(Arr, N) == -1) printf("-1");
+	else
+	{
+		for (i = 0; i < N;i++)
+			printf("%d ", Arr[i]);
+	}
+	putchar('\n');
+
+	return 0;
+}
