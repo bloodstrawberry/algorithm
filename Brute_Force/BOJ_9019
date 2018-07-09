@@ -1,0 +1,93 @@
+//baekjoon_9019
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int VISIT[10100];
+int FROM[10100];
+char HOW[10100];
+int QUE[10100];
+int WP, RP;
+
+void init()
+{
+	int i;
+	for (i = 0; i < 10100;i++)
+		VISIT[i] = FROM[i] = HOW[i] = 0;
+}
+
+void print(int m)
+{
+	if (FROM[m] == -1) return;
+	print(FROM[m]);
+	printf("%c", HOW[m]);
+}
+
+int main() 
+{
+	int T, tc, i;
+	int N, M;
+	int out, next;
+
+	scanf("%d", &T);
+
+	for (tc = 0; tc < T;tc++)
+	{
+		init();
+
+		scanf("%d %d", &N, &M);
+		
+		WP = RP = 0;
+		VISIT[N] = 1;
+		FROM[N] = -1;
+		QUE[WP++] = N;
+
+		while (WP > RP)
+		{
+			out = QUE[RP++];
+			if (out == M) break;
+
+			next = (out * 2) % 10000;
+			if (VISIT[next] == 0)
+			{
+				VISIT[next] = 1;
+				QUE[WP++] = next;
+				FROM[next] = out;
+				HOW[next] = 'D';
+			}
+
+			next = out - 1;
+			if (next == -1) next = 9999;
+			if (VISIT[next] == 0)
+			{
+				VISIT[next] = 1;
+				QUE[WP++] = next;
+				FROM[next] = out;
+				HOW[next] = 'S';
+			}
+
+			next = (out % 1000) * 10 + out / 1000;
+			if (VISIT[next] == 0)
+			{
+				VISIT[next] = 1;
+				QUE[WP++] = next;
+				FROM[next] = out;
+				HOW[next] = 'L';
+			}
+
+			next = (out / 10) + (out % 10) * 1000;
+			if (VISIT[next] == 0)
+			{
+				VISIT[next] = 1;
+				QUE[WP++] = next;
+				FROM[next] = out;
+				HOW[next] = 'R';
+			}
+		}
+
+		print(M);
+		putchar('\n');
+
+	}
+
+	return 0;
+}
