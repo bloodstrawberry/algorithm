@@ -1,0 +1,48 @@
+//baekjoon_1717
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int parent[1000100]; //parent[i] : i의 parent
+
+//Find : x가 어떤 집합에 포함되어 있는지 찾는 연산
+int Find(int x)
+{
+	if (x == parent[x]) return x;
+	else return parent[x] = Find(parent[x]); // 경로 압축
+}
+
+//Union : x와 y가 포함되어 있는 집합을 합치는 연산
+void Union(int x, int y) // y의 parent를 x로 설정
+{
+	x = Find(x);
+	y = Find(y);
+	if (x != y) parent[y] = x;
+}
+
+int main() 
+{
+	int i;
+	int N, M, W, X, Y;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N; i++)
+		parent[i] = i;
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%d %d %d", &W, &X, &Y);
+		
+		if (!W)	Union(X, Y);
+		else
+		{
+			X = Find(X);
+			Y = Find(Y);
+
+			if (X == Y) printf("YES\n");
+			else printf("NO\n");
+		}
+	}
+
+	return 0;
+}
