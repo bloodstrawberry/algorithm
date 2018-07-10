@@ -1,0 +1,89 @@
+//baekjoon_9935
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+char String[1000001];
+int Erase[1000001];
+char Bomb[100];
+
+typedef struct st
+{
+	int x;
+	int y;
+}STACK;
+
+STACK Stack[1000001];
+int SP;
+
+int strlen(char *a)
+{
+	int i;
+
+	i = 0;
+	while (*(a + i++));
+
+	return i - 1;
+}
+
+int main() 
+{
+	int i, k, cnt;
+	int len, lenBomb;
+
+	scanf("%s %s", String, Bomb);
+
+	len = strlen(String);
+	lenBomb = strlen(Bomb);
+	
+	if (lenBomb == 1)
+	{
+		for (i = 0; i < len;i++)
+			if (String[i] == Bomb[0]) Erase[i] = 1;
+	}
+	else
+	{
+		for (i = 0; i < len;i++)
+		{
+			if (String[i] == Bomb[0])
+			{
+				Stack[SP].x = i;
+				Stack[SP++].y = 0;
+			}
+			else
+			{
+				if (SP)
+				{
+					int p = Stack[SP - 1].y;
+					if (String[i] == Bomb[p + 1])
+					{
+						Stack[SP].x = i;
+						Stack[SP++].y = p + 1;
+
+						if (p + 1 == lenBomb - 1)
+						{
+							for (k = 0; k < lenBomb;k++)
+							{
+								Erase[Stack[SP - 1].x] = 1;
+								SP--;
+							}
+						}
+					}
+					else SP = 0;
+				}
+			}
+		}
+	}
+
+	cnt = 0;
+	for (i = 0; i < len;i++)
+	{
+		if (!Erase[i]) printf("%c", String[i]);
+		else cnt++;
+	}
+
+	if (cnt == len) printf("FRULA");
+
+	putchar('\n');
+	
+	return 0;
+}
