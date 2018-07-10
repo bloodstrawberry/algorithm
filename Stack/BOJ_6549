@@ -1,0 +1,68 @@
+//baekjoon_6549
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+long long int height[100100];
+long long int Stack[100100];
+int SP;
+
+int main() 
+{
+	int i;
+	int N;
+	long long int right, left, h;
+	long long int ANS;
+
+	while (1)
+	{
+		scanf("%d", &N);
+		
+		if (N == 0) break;
+
+		SP = 0;
+		for (i = 0; i < N;i++)
+			scanf("%lld", &height[i]);
+
+		ANS = 0;
+		for (i = 0; i < N;i++)
+		{
+			if (SP == 0) Stack[SP++] = i;
+			else
+			{
+				if (height[Stack[SP - 1]] <= height[i]) Stack[SP++] = i;
+				else
+				{
+					right = i - 1;
+					while (SP && height[Stack[SP - 1]] > height[i])
+					{
+						h = height[Stack[SP - 1]];
+
+						SP--;
+						if(SP) left = Stack[SP - 1] + 1;
+						else left = 0;
+
+						if (ANS < (right - left + 1) * h) ANS = (right - left + 1) * h;
+					}	
+
+					Stack[SP++] = i;
+				}
+			}			
+		}
+
+		right = Stack[SP - 1];
+		while (SP)
+		{
+			h = height[Stack[SP - 1]];
+
+			SP--;
+			if(SP) left = Stack[SP - 1] + 1;
+			else left = 0;
+
+			if (ANS < (right - left + 1) * h) ANS = (right - left + 1) * h;
+		}
+
+		printf("%lld\n", ANS);
+	}
+
+	return 0;
+}
