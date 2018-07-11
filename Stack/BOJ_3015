@@ -1,0 +1,50 @@
+//baekjoon_3015
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N;
+int A[500500];
+int STACK[500500];
+int C[500500];
+
+int SP1, SP2;
+
+int main() 
+{
+	int i, h, cnt;
+	long long int ANS;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++)
+		scanf("%d", &A[i]);
+
+	ANS = 0;
+	for (i = 0; i < N;i++)
+	{
+		h = A[i];
+		cnt = 1;
+		while (SP1)
+		{
+			if (STACK[SP1 - 1] <= A[i])
+			{
+				ANS += C[SP2 - 1];
+				if (STACK[SP1 - 1] == A[i]) 
+					cnt += C[SP2 - 1];
+
+				SP1--;
+				SP2--;
+			}
+			else break;
+		}
+
+		if (SP1) ANS++;
+
+		STACK[SP1++] = h;
+		C[SP2++] = cnt;
+	}
+
+	printf("%lld\n", ANS);
+	
+	return 0;
+}
