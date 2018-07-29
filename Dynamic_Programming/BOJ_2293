@@ -1,0 +1,31 @@
+//baekjoon_2293
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int DP[100100];
+
+int main(void)
+{
+	int i, k;
+	int N, K;
+	int coin[101];
+
+	scanf("%d %d", &N, &K);
+
+	for (i = 0; i < N;i++)
+		scanf("%d", &coin[i]);
+
+	DP[0] = 1;
+	for (k = 0; k < N;k++)
+	{
+		for (i = 1; i <= K;i++)
+		{
+			if (i - coin[k] >= 0)
+				DP[i] += DP[i - coin[k]];
+		}
+	}
+
+	printf("%d\n", DP[K]);
+
+	return 0;
+}
