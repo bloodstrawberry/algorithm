@@ -1,0 +1,122 @@
+//baekjoon_1005
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int T, N, K, W;
+int TIME[1100];
+int TIMENOW[1100];
+int EMAP[100500][2];
+int CNT[1100];
+int BUILD[1100];
+int BUILDNOW[1100];
+
+int QUE[100500];
+int WP, RP;
+
+void input()
+{
+	int i;
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%d", &TIME[i]);
+		TIMENOW[i] = TIME[i];
+	}
+		
+	for (i = 0; i <= N;i++)
+		CNT[i] = BUILD[i] = BUILDNOW[i] = 0;
+
+	for (i = 0; i < K;i++)
+	{
+		scanf("%d %d", &EMAP[i][0], &EMAP[i][1]);
+		CNT[EMAP[i][0]]++; // 시작점 count
+		BUILD[EMAP[i][1]]++;
+	}
+
+	for (i = 1; i <= N; i++) // i번째 정점은 cnt[i-1]부터 cnt[i]-1 까지
+		CNT[i] = CNT[i - 1] + CNT[i];
+}
+
+void output()
+{
+	int i;
+	for (i = 1; i <= N;i++)
+		printf("%d ", TIME[i]);
+	putchar('\n');
+
+	for (i = 0; i < K;i++)
+		printf("%d %d\n", EMAP[i][0], EMAP[i][1]);
+
+	for (i = 0; i <= N;i++)
+		printf("%d ", CNT[i]);
+	putchar('\n');
+
+	for (i = 0; i <= N;i++)
+		printf("%d ", BUILD[i]);
+	putchar('\n');
+
+}
+
+void BFS()
+{
+	int i, out;
+
+	WP = RP = 0;
+
+	for (i = 1; i <= N;i++)
+		if (BUILD[i] == 0) QUE[WP++] = i;
+
+	while (WP > RP)
+	{
+		out = QUE[RP++];
+		if (out == W && BUILDNOW[out] == BUILD[out]) break;
+
+		for (i = CNT[out - 1]; i <= CNT[out] - 1;i++)
+		{
+			int num = EMAP[i][1];
+			
+			BUILDNOW[num]++;
+		
+			if (TIMENOW[num] < TIME[num] + TIMENOW[out]) 
+				TIMENOW[num] = TIME[num] + TIMENOW[out];
+
+			if (BUILDNOW[num] == BUILD[num])
+				QUE[WP++] = num;
+		}
+	}
+}
+
+int comp(const void *a, const void *b)
+{
+	int(*ap)[2] = a;
+	int(*bp)[2] = b;
+
+	if ((*ap)[0] - (*bp)[0])
+	{
+		return (*ap)[0] - (*bp)[0];
+	}
+
+	return (*ap)[1] - (*bp)[1];
+}
+
+int main(void)
+{
+	int i, tc;
+
+	scanf("%d", &T);
+	for (tc = 0; tc < T;tc++)
+	{
+		scanf("%d %d", &N, &K);
+		
+		input();
+		qsort(EMAP, K, sizeof(EMAP[0]), comp);
+
+		scanf("%d", &W);
+
+		BFS();
+
+		printf("%d\n", TIMENOW[W]);
+	}
+
+}
