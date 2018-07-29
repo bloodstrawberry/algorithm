@@ -119,4 +119,5 @@ int main(void)
 		printf("%d\n", TIMENOW[W]);
 	}
 
+	return 0;
 }
