@@ -1,0 +1,92 @@
+//baekjoon_11066
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int Arr[505];
+int S[505];
+int DP[505][505]; // DP[i][j] = i번 장에서 j번 장까지 합치는 데 드는 최소값 
+int N;
+
+void input()
+{
+	int i, j;
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%d", &Arr[i]);
+		S[i] = S[i - 1] + Arr[i];
+	}
+		
+	for (i = 0; i <= N + 1;i++)
+	{
+		for (j = 0; j <= N + 1;j++)
+		{
+			if (i == j) DP[i][j] = 0; // i == j 면 비용이 들지 않는다.
+			else DP[i][j] = INF;
+		}
+	}
+			
+}
+
+int min(int a, int b)
+{
+	return (a < b) ? a : b;
+}
+
+void output()
+{
+	int i;
+
+	for (i = 0; i < N;i++)
+		printf("%d ", Arr[i]);
+	putchar('\n');
+}
+
+int sum(int a, int b)
+{
+	return S[b] - S[a-1];
+}
+
+int main()
+{
+	int T;
+	int tc, i, k, p;
+
+	scanf("%d", &T);
+
+	for (tc = 0; tc < T;tc++)
+	{
+		input();
+		//output();
+
+		for (i = 1; i < N;i++)
+			DP[i][i + 1] = Arr[i] + Arr[i + 1];
+
+		for (i = 2; i < N;i++)
+		{
+			for (k = 1; k < N-i+1;k++)
+			{
+				for (p = k; p <= k+i-1 ;p++)
+				{
+					DP[k][k + i] = min(DP[k][k + i], DP[k][p] + DP[p + 1][k + i] + sum(k, k + i)) ;
+				}
+			}
+		}
+
+		//for (i = 0; i <= N;i++)
+		//{
+		//	for (k = 0; k <= N;k++)
+		//	{
+		//		if (DP[i][k] == INF) printf("%d ", 0);
+		//		else printf("%d ", DP[i][k]);
+		//	}
+		//	putchar('\n');
+		//}
+
+		printf("%d\n", DP[1][N]);
+	}
+
+	return 0;
+}
