@@ -43,10 +43,14 @@ int make(int s, int e, int node)
 
 int find(int s, int e, int a, int b, int node)
 {
+	//구간이 전혀 겹치지 않는 경우.
 	if (b<s || e<a) return 0;
 
+	//a~b 내에 s~e가 포함되어 있다면 tree[node] 리턴, 
+	//3~9의 구간을 찾게 된다면 3~4 노드와 5~9 노드가 리턴되게 된다.
 	if (a <= s && e <= b) return tree[node];
 
+	//그 외의 경우는 다시 구간을 나눈다.
 	return find(s, (s + e) / 2, a, b, node * 2) + find((s + e) / 2 + 1, e, a, b, node * 2 + 1);
 }
 
