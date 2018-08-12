@@ -1,0 +1,75 @@
+//baekjoon_2357
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N, M;
+int Arr[100100];
+int maxtree[400100];
+int mintree[400100];
+
+int min(int a, int b)
+{
+	return (a < b) ? a : b;
+}
+
+int max(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+
+int initMin(int s, int e, int Node)
+{
+	if (s == e) return mintree[Node] = Arr[s];
+
+	return mintree[Node] = min(initMin(s, (s + e) / 2, Node * 2), initMin((s + e) / 2 + 1, e, Node * 2 + 1));
+}
+
+int initMax(int s, int e, int Node)
+{
+	if (s == e) return maxtree[Node] = Arr[s];
+
+	return maxtree[Node] = max(initMax(s, (s + e) / 2, Node * 2), initMax((s + e) / 2 + 1, e, Node * 2 + 1));
+}
+
+
+int findMin(int s, int e, int a, int b, int Node)
+{
+	if (e < a || b < s) return 0x7fff0000;
+	
+	if (a <= s && e <= b) return mintree[Node];
+
+	return min(findMin(s, (s + e) / 2, a, b, Node * 2), findMin((s + e) / 2 + 1, e, a, b, Node * 2 + 1));
+}
+
+int findMax(int s, int e, int a, int b, int Node)
+{
+	if (e < a || b < s) return 0;
+
+	if (a <= s && e <= b) return maxtree[Node];
+
+	return max(findMax(s, (s + e) / 2, a, b, Node * 2), findMax((s + e) / 2 + 1, e, a, b, Node * 2 + 1));
+}
+
+int main(void)
+{
+	int i;
+	int a, b;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N;i++)
+		scanf("%d", &Arr[i]);
+
+	initMax(1, N, 1);
+	initMin(1, N, 1);
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%d %d", &a, &b);
+		printf("%d %d\n", findMin(1, N, a, b, 1), findMax(1, N, a, b, 1));
+	}
+
+	return 0;
+}
+		
