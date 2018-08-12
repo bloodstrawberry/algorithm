@@ -1,4 +1,5 @@
 //baekjoon_1927
+//min_heap
 #pragma warning(disable : 4996)
 #include <stdio.h>
 
