@@ -1,0 +1,39 @@
+//baekjoon_11003
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N, L;
+int Arr[5000500];
+int Deque[5000500];
+int RP, WP;
+
+int main(void)
+{
+	int i, x;
+	
+	scanf("%d %d", &N, &L);
+
+	RP = WP = 100;
+	scanf("%d", &Arr[1]);
+	Deque[--RP] = Arr[1];
+
+	printf("%d ", Deque[RP]);
+	for (i = 2; i <= N;i++)
+	{
+		scanf("%d", &Arr[i]);
+	
+		//쓸모 없는 후보를 제거한다.
+		while (RP != WP && Deque[WP - 1] > Arr[i])	WP--;
+
+		Deque[WP++] = Arr[i];
+		
+		//현재 최소 값을 볼 필요가 없으면 제거한다.
+		if (i > L && Deque[RP] == Arr[i - L]) RP++;
+
+		printf("%d ", Deque[RP]);
+	}
+
+	putchar('\n');
+
+	return 0;
+}
