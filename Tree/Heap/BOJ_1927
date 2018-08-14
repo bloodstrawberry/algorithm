@@ -1,0 +1,73 @@
+//baekjoon_1927
+//min_heap
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int heap[100001];
+int hn;
+
+int pop()
+{
+	int i, tmp;
+	int ans = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--] = 0x7fffffff;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i] < heap[i * 2] && heap[i] < heap[i * 2 + 1]) break;
+		else if (heap[i * 2] < heap[i * 2 + 1])
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2];
+			heap[i * 2] = tmp;
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2 + 1];
+			heap[i * 2 + 1] = tmp;
+			i = i * 2 + 1;
+		}
+	}
+
+	return ans;
+}
+
+void push(int x)
+{
+	int i, tmp;
+
+	heap[++hn] = x; //마지막 위치에 삽입.
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2] > heap[i])
+		{
+			tmp = heap[i / 2];
+			heap[i / 2] = heap[i];
+			heap[i] = tmp;
+		}
+		else break;
+	}
+}
+
+int main() 
+{
+	int tc, i, T;
+	int X;
+
+	scanf("%d", &T);
+
+	for (tc = 0; tc < T;tc++)
+	{
+		scanf("%d", &X);
+
+		if (X == 0)
+			if (hn == 0) printf("0\n");
+			else printf("%d\n", pop());
+		else push(X);
+	}
+
+	return 0;
+}
