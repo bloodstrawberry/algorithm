@@ -1,0 +1,104 @@
+//baekjoon_1991
+//트리의 
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int N;
+
+typedef struct st
+{
+	char value;
+	struct st *left;
+	struct st *right;
+
+}Node;
+
+Node* CreateNode()
+{
+	Node *nd = (Node*)malloc(sizeof(Node));
+	nd->left = NULL;
+	nd->right = NULL;
+
+	return nd;
+}
+
+void setData(Node *nd, char ch)
+{
+	nd->value = ch;
+	return;
+}
+
+char getData(Node *nd)
+{
+	return nd->value;
+}
+
+void MakeLeft(Node *parent, Node *child)
+{
+	parent->left = child;
+}
+
+void MakeRight(Node *parent, Node *child)
+{
+	parent->right = child;
+}
+
+void preorder(Node *nd) //전위 순회
+{
+	if (nd == NULL) return;
+	
+	printf("%c", getData(nd));
+	preorder(nd->left);
+	preorder(nd->right);
+}
+
+void inorder(Node *nd) //중위 순회
+{
+	if (nd == NULL) return;
+
+	inorder(nd->left);
+	printf("%c", getData(nd));
+	inorder(nd->right);
+}
+
+void postorder(Node *nd) //후위 순회
+{
+	if (nd == NULL) return;
+
+	postorder(nd->left);
+	postorder(nd->right);
+	printf("%c", getData(nd));
+}
+
+int main(void)
+{
+	int i;
+	char a, b, c;
+	scanf("%d", &N);
+
+	Node **NdArr = (Node**)malloc(sizeof(Node*) * N);
+	
+	for (i = 0; i < N;i++)
+	{
+		NdArr[i] = CreateNode();
+		setData(NdArr[i], 'A' + i);
+	}
+
+	for (i = 0; i < N;i++)
+	{
+		scanf(" %c %c %c", &a, &b, &c);
+
+		if (b != '.') MakeLeft(NdArr[a - 'A'], NdArr[b - 'A']);
+		if (c != '.') MakeRight(NdArr[a - 'A'], NdArr[c - 'A']);
+	}
+
+	preorder(NdArr[0]);
+	putchar('\n');
+	inorder(NdArr[0]);
+	putchar('\n');
+	postorder(NdArr[0]);
+	putchar('\n');
+
+	return 0;
+}
