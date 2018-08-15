@@ -1,0 +1,193 @@
+//baekjoon_2696
+//
+#pragma warning(disable : 4996)
+
+#include <stdio.h>
+
+int T, M;
+int minheap[5001];
+int maxheap[5002];
+int minhn, maxhn;
+
+int mid;
+
+int minpop()
+{
+	int i, tmp, ans;
+
+	ans = minheap[1];
+	minheap[1] = minheap[minhn];
+	minheap[minhn--] = 0x7fff0000;
+
+	for (i = 1; i * 2 <= minhn;)
+	{
+		if (minheap[i] < minheap[i * 2] && minheap[i] < minheap[i * 2 + 1]) break;
+		else if (minheap[i * 2] < minheap[i * 2 + 1])
+		{
+			tmp = minheap[i * 2];
+			minheap[i * 2] = minheap[i];
+			minheap[i] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = minheap[i * 2 + 1];
+			minheap[i * 2 + 1] = minheap[i];
+			minheap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ans;
+}
+
+int maxpop()
+{
+	int i, tmp, ans;
+
+	ans = maxheap[1];
+	maxheap[1] = maxheap[maxhn];
+	maxheap[maxhn--] = 0x80000000;
+
+	for (i = 1; i * 2 <= maxhn;)
+	{
+		if (maxheap[i] > maxheap[i * 2] && maxheap[i] > maxheap[i * 2 + 1]) break;
+		else if (maxheap[i * 2] > maxheap[i * 2 + 1])
+		{
+			tmp = maxheap[i * 2];
+			maxheap[i * 2] = maxheap[i];
+			maxheap[i] = tmp;
+			
+			i = i * 2;
+		}
+		else
+		{
+			tmp = maxheap[i * 2 + 1];
+			maxheap[i * 2 + 1] = maxheap[i];
+			maxheap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ans;
+}
+
+void minpush(int x)
+{
+	int i, tmp;
+
+	minheap[++minhn] = x;
+
+	for (i = minhn; i > 1;i /= 2)
+	{
+		if (minheap[i] < minheap[i / 2])
+		{
+			tmp = minheap[i];
+			minheap[i] = minheap[i / 2];
+			minheap[i / 2] = tmp;
+		}
+		else break;
+	}
+}
+
+void maxpush(int x)
+{
+	int i, tmp;
+
+	maxheap[++maxhn] = x;
+
+	for (i = maxhn; i > 1;i /= 2)
+	{
+		if (maxheap[i] > maxheap[i/2])
+		{
+			tmp = maxheap[i];
+			maxheap[i] = maxheap[i / 2];
+			maxheap[i / 2] = tmp;
+		}
+		else break;
+	}
+}
+
+void output()
+{
+	int i;
+	printf("max\n");
+	for (i = 1; i <= maxhn;i++)
+		printf("%d ", maxheap[i]);
+
+	putchar('\n');
+	printf("min\n");
+	for (i = 1; i <= minhn;i++)
+		printf("%d ", minheap[i]);
+
+	putchar('\n');
+}
+
+int main(void)
+{
+	int i, tc, num, cnt;
+
+	scanf("%d", &T);
+
+	for (tc = 0; tc < T;tc++)
+	{
+		scanf("%d", &M);
+		printf("%d\n", M / 2 + 1);
+
+		scanf("%d", &mid);
+		printf("%d ", mid);
+		minhn = maxhn = 0;
+
+		cnt = 1;
+		for (i = 0; i < (M - 1) / 2;i++)
+		{
+			scanf("%d", &num);
+
+			if (num > mid) //중앙값 보다 큰 값이 들어온다면
+			{
+				//mid를 maxheap으로 보내고, num은 minheap으로 보낸다.
+				maxpush(mid);
+				minpush(num);
+				//printf("here");
+			}
+			else //
+			{
+				minpush(mid);
+				maxpush(num);
+			}
+			//output();
+			scanf("%d", &num);
+
+			if (maxheap[1] <= num && num <= minheap[1]) //다음 값이 maxheap보단 크고, minheap보다 작다면 중앙값이므로,
+			{
+				mid = num;
+			}
+			else if (minheap[1] < num) // minheap 보다 크다면
+			{
+				mid = minpop();
+				minpush(num);
+			}
+			else
+			{
+				mid = maxpop();
+				maxpush(num);
+			}
+
+			printf("%d ", mid);
+			cnt++;
+
+			if (cnt == 10)
+			{
+				putchar('\n');
+				cnt = 0;
+			}
+			//output();
+		}
+		putchar('\n');
+	}
+
+	return 0;
+}
