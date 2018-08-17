@@ -1,0 +1,59 @@
+//baekjoon_9663
+//N-Queen
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N;
+int Left[35];
+int Right[35];
+int VISIT[20]; // 가로
+
+// Right[R + C - 1] == 1 || Left[N - C + R] == 1
+
+int cnt;
+void DFS(int R)
+{
+	int C;
+
+	
+	for (C = 1; C <= N; C++)
+	{
+		if (VISIT[C] == 0 && Right[R + C - 1] == 0 && Left[N - C + R] == 0)
+		{
+			//printf("%d %d\n", R, C);
+			if (R == N)
+			{
+				cnt++;
+				return;
+			}
+			else
+			{
+				VISIT[C] = 1;
+				Right[R + C - 1] = 1;
+				Left[N - C + R] = 1;
+
+				DFS(R + 1);
+
+				VISIT[C] = 0;
+				Right[R + C - 1] = 0;
+				Left[N - C + R] = 0;
+
+			}
+		}
+		
+	}
+
+
+}
+
+
+int main()
+{
+	scanf("%d", &N);
+
+	DFS(1);
+
+	printf("%d\n", cnt);
+
+	return 0;
+}
