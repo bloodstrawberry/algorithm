@@ -1,0 +1,109 @@
+//baekjoon_9663
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N;
+int MAP[15][15];
+int Left[35];
+int Right[35];
+int VISIT[15];
+
+void input()
+{
+	int i, k;
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			scanf("%d", &MAP[i][k]);
+
+
+}
+
+void output()
+{
+	int i, k;
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+			printf("%d ", MAP[i][k]);
+		putchar('\n');
+	}
+
+	putchar('\n');
+}
+
+
+int MAX = 0;
+void DFS(int L, int R, int C, int put)
+{
+	//printf("%d %d %d %d %d\n", L, R, C, MAX, put);
+
+	if (R == N+1)
+	{
+		if (put > MAX) MAX = put;
+		//output();
+		//printf("%d %d %d\n", MAP[5][4], Right[5 + 4 - 1], Left[N - 4 + 5]);
+		return;
+	}
+
+	if (C >= N + 1)
+	{
+		R = R + 1;
+		if (C % 2) C = 2;
+		else C = 1;
+
+		DFS(L+1, R, C, put);
+	}
+	else
+	{
+		if (MAP[R][C] == 0 || Right[R + C - 1] == 1 || Left[N - C + R] == 1) // 놓을 수 없는 자리면
+			DFS(L + 1, R, C + 2, put + 0); // 통과
+		else
+		{
+			DFS(L + 1, R, C + 2, put + 0); // 안 놓고 DFS;
+
+			Right[R + C - 1] = 1;
+			Left[N - C + R] = 1;
+			MAP[R][C] = 2;
+
+			DFS(L + 1, R, C + 2, put + 1);
+			
+			MAP[R][C] = 1;
+			Right[R + C - 1] = 0;
+			Left[N - C + R] = 0;
+		}
+		
+	}
+	
+
+}
+
+
+int main()
+{
+	int i, k;
+
+	input();
+	//output();
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+		{
+			DFS(1, 1, 1, 0);
+			//printf("%d\n", MAX);
+
+			DFS(1, 1, 2, MAX);
+			printf("%d\n", MAX);
+
+			return 0;
+		}
+	}
+	
+
+	printf("%d\n", 0);
+
+	return 0;
+}
