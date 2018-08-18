@@ -1,0 +1,129 @@
+//baekjoon_1939
+//중량 제한, 이분 탐색, DFS
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int N, M;
+int S, E;
+int VISIT[10100];
+
+typedef struct st
+{
+	int index;
+	int weight;
+	struct st *next;
+}Node;
+
+Node **Nd;
+
+Node* CreateNode()
+{
+	Node *nd = (Node*)malloc(sizeof(Node));
+	nd->index = 0;
+	nd->weight = 0;
+	nd->next = NULL;
+
+	return nd;
+}
+
+void MakeNode(Node *parent, int childNum, int weight)
+{
+	// Node에 아무 것도 연결이 안되어있다면 index, weight을 설정하고, 노드를 하나 추가해둔다.
+	if (parent->next == NULL)
+	{
+		parent->index = childNum;
+		parent->weight = weight;
+		parent->next = CreateNode();
+	}
+	//섬을 연결하는 다리가 하나 더 있는 경우
+	else if (parent->index == childNum)
+	{
+		// 추가되는 다리의 무게가 더 크다면 변경.
+		if (parent->weight < weight)
+			parent->weight = weight;
+	}
+	// 다음 노드를 탐색해야 하는 경우.
+	else
+		MakeNode(parent->next, childNum, weight);
+}
+
+void output(Node *nd)
+{
+	if (nd->next == NULL) return;
+	
+	printf("%d %d\n", nd->index, nd->weight);
+	output(nd->next);
+}
+
+int DFS(Node *nd, int W, int index)
+{
+
+	if (nd->next == NULL) return 0;
+	if (index == E) return 1;
+
+	VISIT[index] = 1;
+
+	while (nd->next != NULL)
+	{
+		if (nd->weight < W || VISIT[nd->index] == 1)
+		{
+			nd = nd->next;
+			continue;
+		}
+		else if (DFS(Nd[nd->index], W, nd->index)) return 1;
+		
+		nd = nd->next;
+	}
+
+	return 0;
+}
+
+int main()
+{
+	int i;
+	int a, b, c;
+	int right, left, mid, ans;
+
+	scanf("%d %d", &N, &M);
+
+	Nd = (Node**)malloc(sizeof(Node*)*N + 5);
+	
+	for (i = 1; i <= N;i++)
+		Nd[i] = CreateNode();
+
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%d %d %d", &a, &b, &c);
+		MakeNode(Nd[a], b, c);
+		MakeNode(Nd[b], a, c);
+	}
+
+	scanf("%d %d", &S, &E);
+
+	left = 1;
+	right = 1000000000;
+
+	ans = 0;
+	while (left <= right)
+	{
+		for (i = 1; i <= N;i++)
+			VISIT[i] = 0;
+
+		mid = (left + right) / 2;
+
+		if (DFS(Nd[S], mid, S))
+		{
+			ans = mid;
+			left = mid + 1;
+		}
+		else
+			right = mid - 1;
+	}
+
+	printf("%d\n", ans);
+
+
+	return 0;
+}
