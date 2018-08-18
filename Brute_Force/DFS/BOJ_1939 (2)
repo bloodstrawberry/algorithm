@@ -1,0 +1,122 @@
+//baekjoon_1939
+//중량제한, DFS, 이분탐색, 노드 2
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int N, M;
+int S, E;
+int VISIT[10100];
+
+typedef struct st
+{
+	int index;
+	int weight;
+	struct st *next;
+}Node;
+
+Node *Nd[10100];
+Node *Tail[10100];
+
+Node* CreateNode()
+{
+	Node *nd = (Node*)malloc(sizeof(Node));
+	nd->index = 0;
+	nd->weight = 0;
+	nd->next = NULL;
+
+	return nd;
+}
+
+void MakeNode(int parent, int child, int weight)
+{
+	Node *nd = (Node *)calloc(1, sizeof(Node));
+
+	nd->index = child;
+	nd->weight = weight;
+
+	if (Nd[parent] == NULL && Tail[parent] == NULL)
+		Nd[parent] = Tail[parent] = nd;
+	else
+	{
+		Tail[parent]->next = nd;
+		Tail[parent] = nd;
+	}
+}
+
+void output(int n)
+{
+	Node *p = Nd[n];
+	
+	while (p != NULL)
+	{
+		printf("%d %p\n", p->index, p);
+		p = p->next;
+	}
+
+	return;
+}
+
+
+int DFS(int st, int W)
+{
+	Node *p;
+	if (st == E) return 1;
+	
+	p = Nd[st];
+	while (p != NULL)
+	{
+		if (VISIT[p->index] || p->weight < W)
+		{
+			p = p->next;
+			continue;
+		}
+		VISIT[p->index] = 1;
+		if (DFS(p->index, W)) return 1;
+		p = p->next;
+	}
+	return 0;
+}
+
+int main()
+{
+	int i;
+	int a, b, c;
+	int right, left, mid, ans;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%d %d %d", &a, &b, &c);
+		MakeNode(a, b, c);	
+		MakeNode(b, a, c);
+	}
+
+	scanf("%d %d", &S, &E);
+
+	left = 1;
+	right = 1000000000;
+
+	ans = 0;
+	while (left <= right)
+	{
+		for (i = 1; i <= N;i++)
+			VISIT[i] = 0;
+
+		mid = (left + right) / 2;
+
+		if (DFS(S,mid))
+		{
+			ans = mid;
+			left = mid + 1;
+		}
+		else
+			right = mid - 1;
+	}
+
+	printf("%d\n", ans);
+
+
+	return 0;
+}
