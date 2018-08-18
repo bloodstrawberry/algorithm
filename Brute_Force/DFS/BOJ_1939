@@ -37,15 +37,27 @@ void MakeNode(Node *parent, int childNum, int weight)
 		parent->next = CreateNode();
 	}
 	//섬을 연결하는 다리가 하나 더 있는 경우
-	else if (parent->index == childNum)
-	{
-		// 추가되는 다리의 무게가 더 크다면 변경.
-		if (parent->weight < weight)
-			parent->weight = weight;
-	}
+	//else if (parent->index == childNum)
+	//{
+	//	// 추가되는 다리의 무게가 더 크다면 변경.
+	//	if (parent->weight < weight)
+	//		parent->weight = weight;
+	//}
 	// 다음 노드를 탐색해야 하는 경우.
 	else
-		MakeNode(parent->next, childNum, weight);
+	{
+		//MakeNode(parent->next, childNum, weight);	
+		
+		//위의 else if 구문을 무시하고 그대로 삽입.
+		Node *tmp = CreateNode();
+		tmp->index = childNum;
+		tmp->weight = weight;
+		tmp->next = parent->next;
+		parent->next = tmp;
+	}
+
+		
+		
 }
 
 void output(Node *nd)
