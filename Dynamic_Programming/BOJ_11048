@@ -1,0 +1,103 @@
+//baekjoon_11048
+//DP 4
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N, M;
+int MAP[1010][1010];
+int DP[1010][1010];
+
+void input()
+{
+	int i, k;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= M;k++)
+			scanf("%d", &MAP[i][k]);
+
+}
+
+int max(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+int DFS(int i, int j)
+{
+	int tmp;
+
+	if (i == 1 && j == 1) return MAP[1][1];
+	if (i < 1 || j < 1) return 0;
+	if (DP[i][j] >= 0) return DP[i][j];
+
+	DP[i][j] = DFS(i - 1, j) + MAP[i][j];
+
+	tmp = DFS(i, j - 1) + MAP[i][j];
+
+	if (DP[i][j] < tmp) DP[i][j] = tmp;
+
+	return DP[i][j];
+}
+
+int go(int x, int y)
+{
+	int tmp;
+
+	if (x > N || y > M) return 0;
+	if (DP[x][y] >= 0) return DP[x][y];
+
+	DP[x][y] = go(x + 1, y) + MAP[x][y];
+
+	tmp = go(x, y + 1) + MAP[x][y];
+
+	if (DP[x][y] < tmp) DP[x][y] = tmp;
+
+	return DP[x][y];
+}
+
+int main()
+{
+	int i, k;
+
+	input();
+
+	// 1) DP[i][k] = (1,1) -> (i,j) 사탕 개수의 최대.
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= M;k++)
+		{
+			//DP[i][k] = max(DP[i - 1][k] + MAP[i][k], max(DP[i][k - 1] + MAP[i][k], DP[i - 1][k - 1] + MAP[i][k]));
+		}
+	}
+
+	// 2) 사실 대각선 이동은 필요가 없다.
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= M;k++)
+		{
+			//DP[i][k] = max(DP[i - 1][k] + MAP[i][k], DP[i][k - 1] + MAP[i][k]);
+		}
+	}
+
+	// 3) top-down, 모든 사탕이 0일 경우를 대비해 -1로 초기화.
+	//for (i = 1; i <= N;i++)
+	//	for (k = 1; k <= M;k++)
+	//		DP[i][k] = -1;
+	//
+	//printf("%d\n", DFS(N, M));
+
+	// 4) D[i][j] = (i,j) -> (N,M) , 정답은 D[1][1]에.
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= M;k++)
+			DP[i][k] = -1;
+	
+
+	printf("%d\n", go(1, 1));
+	printf("%d\n", DP[1][1]);
+
+	//printf("%d\n", DP[N][M]);
+
+	return 0;
+}
