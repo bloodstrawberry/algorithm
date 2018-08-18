@@ -1,0 +1,94 @@
+//
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int N, M;
+
+typedef struct st 
+{
+	int value;
+	struct st *next;
+}NODE;
+
+NODE *HEAD[105];
+NODE *TAIL[105];
+NODE *QUE[100 * 100];
+int RP, WP;
+int VISIT[105];
+
+void Make(int s, int e)
+{
+	NODE *nd = (NODE*)malloc(sizeof(NODE));
+	nd->value = e;
+	nd->next = (NODE*)NULL;
+
+	if (HEAD[s] == NULL && TAIL[s] == NULL)
+		HEAD[s] = TAIL[s] = nd;
+	else
+	{
+		TAIL[s]->next = nd;
+		TAIL[s] = nd;
+	}
+}
+
+void output(int num)
+{
+	NODE *p = HEAD[num];
+
+	while (p != NULL)
+	{
+		printf("%d\n", p->value);
+		p = p->next;
+	}
+}
+
+void BFS(int n)
+{
+	int i;
+	int out;
+	NODE *tmp;
+
+	RP = WP = 0;
+
+	QUE[WP++] = 1;
+
+	VISIT[1] = 1;
+
+	while (WP > RP)
+	{
+		//printf("rp , wp  : %d %d\n", RP, WP);
+		out = QUE[RP++];
+
+		printf("%d ", out);
+		for (tmp = HEAD[out]; tmp != NULL; tmp = tmp->next)
+		{
+			if (tmp == NULL) printf("NULL\n");
+			//printf("tmp %d\n", tmp->value);
+			if (VISIT[tmp->value] == 0)
+			{
+				QUE[WP++] = tmp->value;
+				VISIT[tmp->value] = 1;
+				
+			}
+		}
+	}
+	
+}
+
+int main()
+{
+	int i, s, e;
+
+	scanf("%d %d", &N, &M);
+	
+	for (i = 0; i < N;i++)
+	{
+		scanf("%d %d", &s, &e);
+		Make(s, e);
+	}
+
+	BFS(1);
+
+	return 0;
+}
