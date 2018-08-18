@@ -1,5 +1,5 @@
 //baekjoon_1991
-//트리의 
+//트리의 순회
 #pragma warning(disable : 4996)
 #include <stdio.h>
 #include <stdlib.h>
