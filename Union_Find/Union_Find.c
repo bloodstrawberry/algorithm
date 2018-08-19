@@ -30,7 +30,7 @@ void Union(int x, int y)
 int main()
 {
 	//...
-	// 
+	// 재갱신
 	for (i = 1; i <= N;i++)
 		parent[i] = Find(i);
 
