@@ -1,0 +1,113 @@
+//baekjoon_10216
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int T, N;
+int x, y, R;
+
+typedef struct st
+{
+	int x;
+	int y;
+	int r;
+}POT;
+
+POT Pot[5000];
+
+void input()
+{
+	int i;
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+		scanf("%d %d %d", &Pot[i].x, &Pot[i].y, &Pot[i].r);
+}
+
+int parent[5000];
+
+int Find(int x)
+{
+	if (x == parent[x]) return x;
+	else return parent[x] = Find(parent[x]);
+}
+
+void Union(int x, int y)
+{
+	x = Find(x);
+	y = Find(y);
+  
+  //루트의 루트가 바뀌는 것을 방지
+	if (x == y) return;
+	else if (x < y) parent[y] = x;
+	else parent[x] = y;
+}
+
+int isGroup(POT a, POT b)
+{
+	if (((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)) <= ((a.r + b.r) * (a.r + b.r))) return 1;
+	return 0;
+}
+
+int main()
+{
+	int tc, i, k;
+	int cnt, ans;
+
+	scanf("%d", &T);
+	for (tc = 0; tc < T;tc++)
+	{
+		input();
+
+		for (i = 1; i <= N;i++)
+			parent[i] = i;
+		
+		for (i = 1; i <= N;i++)
+		{
+			for (k = i + 1; k <= N;k++)
+			{
+				if (isGroup(Pot[i], Pot[k])) Union(i, k);
+			}
+		}
+
+
+
+		//for (i = 1; i <= N;i++)
+		//	printf("%d ", parent[i]);
+		//putchar('\n');
+
+    //루트 
+		for (i = 1; i < N;i++)
+			parent[i] = Find(i);
+
+		for (i = 1; i <= N-1;i++)
+		{
+			for (k = i + 1;k <= N;k++)
+			{
+				if (parent[i] > parent[k])
+				{
+					int tmp = parent[i];
+					parent[i] = parent[k];
+					parent[k] = tmp;
+				}
+			}
+		}
+
+		ans = cnt = 0;
+		for (i = 1; i <= N;i++)
+		{
+			if (parent[i] != ans)
+			{
+				cnt++;
+				ans = parent[i];
+			}
+		}
+
+		printf("%d\n", cnt);
+
+	}
+
+	
+
+	return 0;
+}
