@@ -26,3 +26,15 @@ void Union(int x, int y)
   // 같은 높이의 트리를 합친다면 레벨을 증가시켜준다.
 	if (level[x] == level[y]) ++level[y];
 }
+
+int main()
+{
+	//...
+	// 
+	for (i = 1; i <= N;i++)
+		parent[i] = Find(i);
+
+	//...
+	
+	return 0;
+}
