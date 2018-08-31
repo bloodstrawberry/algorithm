@@ -1,0 +1,207 @@
+//baekjoon_5465
+//BFS, 이분 탐색
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int N, S;
+int MAP[1000][1000];
+char str[810];
+int CHANGE['Z'+1];
+int sr, sc, er, ec;
+
+int VISIT[1000][1000];
+
+typedef struct st
+{
+	int r;
+	int c;
+	int time;
+}QUEUE;
+
+QUEUE Que[810 * 810];
+int WP, RP;
+
+void input()
+{
+	int i, k, tmp;
+
+	CHANGE['T'] = -1;
+	CHANGE['G'] = 0;
+	CHANGE['H'] = 1;
+	CHANGE['M'] = 0;
+	CHANGE['D'] = 0x7fff0000;
+
+	scanf("%d %d", &N, &S);
+
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%s", str + 1);
+		for (k = 1; k <= N;k++)
+		{
+			if (str[k] == 'M')
+			{
+				sr = i;
+				sc = k;
+			}
+			else if(str[k] == 'D')
+			{
+				er = i;
+				ec = k;
+			}
+
+			MAP[i][k] = CHANGE[str[k]];
+		}
+	}
+
+	//printf("%d %d %d %d\n", sr, sc, er, ec);
+}
+
+void output()
+{
+	int i, k;
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+			printf("%2d ", MAP[i][k]);
+		putchar('\n');
+	}
+	putchar('\n');
+}
+
+
+void outputVISIT()
+{
+	int i, k;
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+			printf("%2d ", VISIT[i][k]);
+		putchar('\n');
+	}
+	putchar('\n');
+}
+
+int dr[] = { 0,1,0,-1 };
+int dc[] = { 1,0,-1,0 };
+
+void BFS()
+{
+	int i, nr, nc;
+	QUEUE out;
+
+	while (WP > RP)
+	{
+		out = Que[RP++];
+
+		for (i = 0; i < 4;i++)
+		{
+			nr = out.r + dr[i];
+			nc = out.c + dc[i];
+
+			if (nr < 1 || nc < 1 || nr > N || nc > N) continue;
+			
+			if (MAP[nr][nc] == 0)
+			{
+				Que[WP].r = nr;
+				Que[WP++].c = nc;
+				MAP[nr][nc] = MAP[out.r][out.c] + 1;
+			}
+
+		}
+	}
+}
+
+int BFS2(int mid)
+{
+	
+	int i, k, nr, nc;
+	QUEUE out;
+	
+	if (mid >= MAP[sr][sc]-1) return 0;
+
+	WP = RP = 0;
+
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			VISIT[i][k] = 0;
+
+	Que[WP].r = sr;
+	Que[WP].c = sc;
+	Que[WP++].time = mid;
+	
+	VISIT[sr][sc] = 1;
+
+	while (WP > RP)
+	{
+		out = Que[RP++];
+
+		if (out.r == er && out.c == ec) return 1;
+
+		for (i = 0; i < 4;i++)
+		{
+			nr = out.r + dr[i];
+			nc = out.c + dc[i];
+			
+			if (nr < 1 || nc < 1 || nr > N || nc > N) continue;
+			if (MAP[nr][nc] == -1 || VISIT[nr][nc] != 0) continue;
+			if ((mid + (out.time-mid+1) / S) >= (MAP[nr][nc] - 1)) continue;
+
+			Que[WP].r = nr;
+			Que[WP].c = nc;
+			Que[WP++].time = out.time + 1;
+			VISIT[nr][nc] = (out.time - mid) / S + 1;
+		}
+	}
+	
+	return 0;
+}
+
+int main()
+{
+	int i, k;
+	int right, left, mid;
+	int tmp, ans;
+
+	input();
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+		{
+			if (MAP[i][k] == 1)
+			{
+				Que[WP].r = i;
+				Que[WP++].c = k;
+			}
+		}
+	}
+
+	BFS();
+
+	left = 0;
+	right = N * N;
+
+	ans = -1;
+
+	while (left <= right)
+	{
+		mid = (left + right) / 2;
+		
+		tmp = BFS2(mid);
+
+		if (tmp)
+		{
+			ans = mid;
+			left = mid + 1;
+		}
+		else
+			right = mid - 1;
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
