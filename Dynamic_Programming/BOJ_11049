@@ -1,0 +1,57 @@
+//baekjoon_11049
+//행렬 곱셈 
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int N;
+int DP[510][510]; // DP[i][j] = i~j까지의 최소곱.
+
+typedef struct st
+{
+	int f;
+	int b;
+}MATRIX;
+
+MATRIX M[510];
+
+int minValue(int a, int b)
+{
+	return (a < b) ? a : b;
+}
+
+int DFS(int a, int b)
+{
+	int i, k;
+
+	if (a == b) return 0;
+
+	if (a + 1 == b)	return DP[a][b] = M[a].f * M[a].b * M[b].b;
+	
+	if (DP[a][b] != 0x7fff0000) return DP[a][b];
+
+	for (i = a; i < b;i++)
+		DP[a][b] = minValue(DP[a][b], DFS(a,i) +DFS(i+1,b) + M[a].f * M[i].b * M[b].b);
+
+
+	return DP[a][b];
+}
+
+int main()
+{
+	int i, j;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+		scanf("%d %d", &M[i].f, &M[i].b);
+	
+	for (i = 1; i <= N;i++)
+		for (j = 1; j <= N;j++)
+			DP[i][j] = 0x7fff0000;
+	
+	
+	printf("%d\n", DFS(1,N));
+
+	return 0;
+}
