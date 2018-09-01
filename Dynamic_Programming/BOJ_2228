@@ -1,0 +1,48 @@
+//baekjoon_2228
+//구간 
+#pragma warning(disable : 4996)
+#include <stdio.h>
+#include <stdlib.h>
+
+int N, M;
+int A[110];
+int DP[110][110]; //DP[i][j]는 구간 i까지 j개로 나눴을 때의 최대합.
+int pSum[110];
+
+int DFS(int n, int m)
+{
+	int k, ret, tmp;
+
+	if (m == 0) return 0;
+	if (n <= 0) return 0x8fff0000;
+
+	if (DP[n][m]) return DP[n][m];
+
+	//DP[N][M]은 DP[N-1][M] (N 포함 x), 와 DP[k-2][j-1] + A[k]~A[N] 까지의 합 중 최대.
+	ret = DFS(n - 1, m);
+
+	for (k = 1; k <= n; k++)
+	{
+		tmp = DFS(k - 2, m - 1) + pSum[n] - pSum[k - 1];
+		if (tmp > ret) ret = tmp;
+	}
+
+	return DP[n][m] = ret;
+
+}
+int main()
+{
+	int i;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%d", &A[i]);
+		pSum[i] = pSum[i - 1] + A[i];
+	}
+		
+	printf("%d\n", DFS(N, M));
+
+	return 0;
+}
