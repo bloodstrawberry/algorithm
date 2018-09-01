@@ -1,5 +1,5 @@
 //baekjoon_1005
-//위상 정렬
+//ACM Craft, 위상 정렬
 #pragma warning(disable : 4996)
 #include <stdio.h>
 
