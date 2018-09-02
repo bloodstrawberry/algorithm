@@ -144,7 +144,7 @@ void BFS2()
 				//printf("here : %d %d   %d %d %d\n", out, tmp, TIME[out], TIME[tmp], p->cost);
 				Que[WP++] = tmp;
 
-				p->cost = -1;
+				p->cost = -1; // 1 -> 2 -> (3,4,5) -> 6 -> 7 인 경우 역추적시 2를 여러번 큐에 넣게 된다.
 			}
 		}
 	}
