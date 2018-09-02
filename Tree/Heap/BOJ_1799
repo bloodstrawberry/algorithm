@@ -1,0 +1,143 @@
+//baekjoon_1766
+//문제집, 최소힙, 위상 정렬
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N, M;
+
+typedef struct st
+{
+	int value;
+	struct st *next;
+}NODE;
+
+NODE *HEAD[32001];
+NODE node[100100];
+int cnt;
+
+int indegree[32001];
+
+int heap[32500];
+int hn;
+
+int pop()
+{
+	int i, ret,tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--] = 0x7fff0000;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i * 2] > heap[i] && heap[i * 2 + 1] > heap[i]) break;
+		else if (heap[i * 2] < heap[i * 2 + 1])
+		{
+			tmp = heap[i * 2];
+			heap[i * 2] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i * 2 + 1];
+			heap[i * 2 + 1] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(int x)
+{
+	int i, tmp;
+
+	heap[++hn] = x;
+
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2] < heap[i]) return;
+
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+
+void Make(int a, int b)
+{
+	NODE *p = &node[cnt++];
+	p->value = b;
+
+	if (HEAD[a] == NULL) HEAD[a] = p;
+	else
+	{
+		p->next = HEAD[a];
+		HEAD[a] = p;
+	}
+}
+
+void output(int n)
+{
+	NODE *p = HEAD[n];
+
+	while (p != NULL)
+	{
+		printf("%d\n", p->value);
+		p = p->next;
+	}
+}
+
+void input()
+{
+	int i, a, b;
+	
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%d %d", &a, &b);
+		Make(a, b);
+		indegree[b]++;
+	}
+}
+
+void BFS()
+{
+	int i, out;
+	NODE *p;
+	
+	while (hn)
+	{
+		printf("%d ",out = pop());
+		
+		for (p = HEAD[out]; p != NULL;p = p->next)
+		{
+			int tmp;
+
+			tmp = p->value;
+			indegree[tmp]--;
+
+			if (!indegree[tmp]) push(tmp);
+		}
+	}
+}
+
+int main()
+{
+	int i;
+
+	input();
+	
+	for (i = 1; i <= N;i++)
+		if (!indegree[i]) push(i);
+
+	BFS();
+
+	return 0;
+}
