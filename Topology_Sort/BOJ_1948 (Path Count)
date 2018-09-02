@@ -1,0 +1,175 @@
+//baekjoon_1948
+//임계 경로, 경로 세기
+#pragma warning (disable:4996)
+#include <stdio.h>
+
+int N, M, S, E;
+int COST, COUNT;
+int Que[100010];
+int RP, WP;
+
+typedef struct st
+{
+	int value;
+	int cost;
+	struct st *next;
+}NODE;
+
+NODE *HEAD[10010];
+NODE *TAIL[10010];
+NODE node[200100];
+
+int cnt;
+int TIME[10001];
+int indegree[10001];
+
+void Make(int a, int b, int c)
+{
+	NODE *p = &node[cnt++];
+	p->value = b;
+	p->cost = c;
+	p->next = NULL;
+
+	if (HEAD[a] == NULL) HEAD[a] = p;
+	else
+	{
+		p->next = HEAD[a];
+		HEAD[a] = p;
+	}
+
+	p = &node[cnt++];
+	p->value = a;
+	p->cost = c;
+	p->next = NULL;
+
+	if (TAIL[b] == NULL) TAIL[b] = p;
+	else
+	{
+		p->next = TAIL[b];
+		TAIL[b] = p;
+	}
+}
+
+void input()
+{
+	int i;
+	int a, b, c;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < M; i++)
+	{
+		scanf("%d %d %d", &a, &b, &c);
+		
+		Make(a, b, c);
+		indegree[b]++;
+	}
+
+	scanf("%d %d", &S, &E);	
+}
+
+void output(int n)
+{
+	NODE *p = HEAD[n];
+
+	while (p != NULL)
+	{
+		printf("%d %d\n", p->value, p->cost);
+		p = p->next;
+	}
+
+	putchar('\n');
+	p = TAIL[n];
+
+	while (p != NULL)
+	{
+		printf("%d %d\n", p->value, p->cost);
+		p = p->next;
+	}
+}
+
+int max(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+void BFS()
+{
+	int out;
+	NODE *p;
+
+	while (WP > RP)
+	{
+		out = Que[RP++];
+
+		if (out == E) return;
+		if (HEAD[out] == NULL) return;
+		for (p = HEAD[out]; p != NULL; p = p->next)
+		{
+			int tmp, tc;
+			
+			tmp = p->value;
+			tc = p->cost;
+
+			indegree[tmp]--;
+			TIME[tmp] = max(TIME[tmp], TIME[out] + tc);
+
+			if (!indegree[tmp]) Que[WP++] = tmp;
+			
+		}
+	}
+}
+
+void BFS2()
+{
+	int out;
+	NODE *p;
+
+	while (WP > RP)
+	{
+		out = Que[RP++];
+		if (out == S) return;
+
+		if (TAIL[out] == NULL) return;
+
+		for (p = TAIL[out]; p != NULL; p = p->next)
+		{
+			int tmp, tc;
+
+			tmp = p->value;
+			tc = p->cost;
+			
+			if ((TIME[out] - TIME[tmp]) == p->cost)
+			{
+				//printf("here : %d %d   %d %d %d\n", out, tmp, TIME[out], TIME[tmp], p->cost);
+				Que[WP++] = tmp;
+
+				p->cost = -1;
+			}
+		}
+	}
+}
+
+
+int main() 
+{
+	int i;
+
+	input();
+
+	Que[WP++] = S;
+	BFS();
+
+	/*for (i = 1; i <= N; i++)
+		printf("%d ", TIME[i]);
+*/
+	COST = TIME[E];
+
+	WP = RP = 0;
+	Que[WP++] = E;
+	BFS2();
+
+	printf("%d\n%d\n", COST, WP-1);
+
+	return 0;
+}
