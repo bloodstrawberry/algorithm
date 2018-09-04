@@ -1,0 +1,116 @@
+/* 단순 이진 암호코드
+* 총 8개의 숫자로 이루어져 있다.
+* 앞 7자리는 상품 고유의 번호를 나타내며, 마지막 자리는 검증 코드를 나타낸다.
+* 검증코드 = “(홀수 자리의 합 x 3) + 짝수 자리의 합 + 검증 코드” 가 10의 배수가 되어야 한다.
+*
+*/
+
+#include <stdio.h>
+#define NMAX 50
+#define MMAX 100
+using namespace std;
+
+char data[NMAX][MMAX+1];
+
+char codeChk[10] = { 0x0D, //0
+0x19, //1
+0x13, //2
+0x3D, //3
+0x23, //4
+0x31, //5
+0x2F, //6
+0x3B, //7
+0x37, //8
+0x0B };//9
+
+//char number[10][7] = { { 0, 0, 0, 1, 1, 0, 1 },  /* 0 */  
+//						{ 0, 0, 1, 1, 0, 0, 1 },  /* 1 */
+//						{ 0, 0, 1, 0, 0, 1, 1 },  /* 2 */
+//						{ 0, 1, 1, 1, 1, 0, 1 },  /* 3 */
+//						{ 0, 1, 0, 0, 0, 1, 1 },  /* 4 */
+//						{ 0, 1, 1, 0, 0, 0, 1 },  /* 5 */
+//						{ 0, 1, 0, 1, 1, 1, 1 },  /* 6 */
+//						{ 0, 1, 1, 1, 0, 1, 1 },  /* 7 */
+//						{ 0, 1, 1, 0, 1, 1, 1 },  /* 8 */
+//						{ 0, 0, 0, 1, 0, 1, 1 }   /* 9 */ 
+//};
+
+int main() {
+	freopen("input.txt", "r", stdin);
+
+	int tc;
+	int N, M;
+	int sX, eX, eY;
+	int num, res, len;
+	int result, sum;
+	int tempNum[8];
+	int ansNum[8];
+
+	scanf("%d", &tc);
+
+	
+	for (int testCase = 1; testCase <= tc; testCase++) {
+
+		scanf("%d%d", &N, &M);
+
+		for (int i = 0; i < N; i++){
+			scanf("%s", data[i]);
+		}
+
+		for (int i = N - 1; i >= 0; i--){
+			for (int j = M - 1; j >= 0; j--){
+				if (data[i][j] == '1'){
+					eY = i;
+					eX = j;
+					goto exit;
+				}
+			}
+		}
+		exit:
+		sX = eX - 55;
+
+		len = 0;
+		
+		for (int i = sX; i <= eX; i += 7){
+
+			num = 0;
+			res = 0;
+			for (int j = 0; j<7; j++){
+				num = data[eY][i + j] - '0';
+//				if (num){
+					num = num << 7 - j - 1;
+					res = res | num;
+//				}
+			}
+			tempNum[len++] = res;
+
+		}
+		
+
+		for (int i = 0; i < 8; i++){
+			for (int j = 0; j < 10; j++){
+				if (tempNum[i] == codeChk[j]){
+					ansNum[i] = j;
+					break;
+				}
+			}
+		}
+		
+		result = (ansNum[0] + ansNum[2] + ansNum[4] + ansNum[6]) * 3 + ansNum[1] + ansNum[3] + ansNum[5] + ansNum[7];
+
+		sum = 0;
+		for (int i = 0; i < 8; i++) {
+			sum = sum + ansNum[i];
+		}
+		if (result % 10){
+			sum = 0;
+		}
+		printf("#%d %d\n", testCase, sum);
+	}
+
+	return 0;
+
+
+}
+
+
