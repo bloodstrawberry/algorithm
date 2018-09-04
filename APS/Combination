@@ -1,0 +1,107 @@
+#include <stdio.h>
+
+int T;
+
+char src[] = { 0, 97, 98, 99 };
+char path[100];
+int n = 3;
+int r = 2;
+int nCr[101][101];
+
+void print()
+{
+	int i;
+	printf("[");
+	for (i = 0; i <= r; i++)
+	{
+		printf("%c ", path[i]);
+	}
+	printf("]\n");
+}
+
+void perm(int n, int r)
+{
+	int i;
+	if (r == 0)
+	{
+		print();
+		return;
+	}
+	for (i = n-1; i >= 0; i--)
+	{
+		char t = src[i];
+		src[i] = src[n - 1];
+		src[n - 1] = t;
+
+		path[r - 1] = src[n - 1];
+
+		perm(n - 1, r - 1); // perm(n , r - 1); 중복 순열.
+
+		t = src[i];
+		src[i] = src[n - 1];
+		src[n - 1] = t;
+	}
+	
+}
+
+void comb(int n, int r)
+{
+
+
+	if (r == 0)
+	{
+		print();
+		return;
+	}
+
+	if (n < r) //n == 0으로 변경하면 중복 조합.
+	{
+		return;
+	}
+
+	path[r] = src[n];
+	comb(n - 1, r - 1); //comb(n,r-1), 중복 조합.
+	comb(n - 1, r);
+}
+
+int comb_cal(int n, int r)
+{
+	if (r == 0 || n == r) return 1;
+
+	if (nCr[n][r]) return nCr[n][r];
+	else
+	{
+		return nCr[n][r] = comb_cal(n - 1, r - 1) + comb_cal(n - 1, r);
+	}
+	
+}
+
+int main()
+{
+	int tc, i, k;
+	int ANS, tmp;
+	T = 10;
+
+	//perm(n, r);
+	comb(n, r);
+
+	printf("%d\n", comb_cal(5, 3));
+	for (tc = 1; tc <= T; tc++)
+	{
+	
+		//outputSave();
+	}
+
+	n = 3;
+	for (i = 0; i <= n; i++)
+	{
+		r = i;
+		comb(n, r);
+	}
+
+
+	//outputSave();
+
+
+	return 0;
+}
