@@ -1,0 +1,64 @@
+#include <stdio.h>
+#define MAX (4000)
+int src[] = { 2, 3, 1, 4, 5, 7, 9, 8, 6 };
+int tmp[MAX];
+int n;
+
+void print(char *msg)
+{
+	printf("%s : [", msg);
+	for (int i = 0; i < n; i++)
+		printf("%d ", src[i]);
+	putchar(']');
+	putchar('\n');
+}
+
+void mSort(int s, int e)
+{
+	if (s < e)
+	{
+		int m = (s + e) / 2;
+
+		mSort(s, m);
+		mSort(m + 1, e);
+
+		int p = s;
+		int q = m + 1;
+		int idx = s;
+
+		
+		while (p <= m || q <= e)
+		{
+			//왼쪽 땡기기
+			if (q > e || (p<=m && src[p] < src[q]))
+			{
+				tmp[idx++] = src[p++];
+			}
+			else
+			{
+				tmp[idx++] = src[q++];
+			}
+		}
+
+		for (int i = s; i <= e; i++)
+		{
+			src[i] = tmp[i];
+		}
+
+	}
+}
+
+
+int main()
+{
+	
+
+
+	n = sizeof(src) / sizeof(int);
+
+	print("정렬전");
+	mSort(0, n-1);
+	print("정렬후");
+	
+	return 0;
+}
