@@ -1,0 +1,106 @@
+#include <stdio.h>
+#define NODEMAX 10001
+
+int parent[NODEMAX];
+int rc[NODEMAX];
+int lc[NODEMAX];
+int nodeCount;
+
+
+int getNodeNum(int start1, int start2) {
+	int lCount = 0;
+	int rCount = 0;
+	int leftArr[NODEMAX];
+	int rightArr[NODEMAX];
+
+
+	while (parent[start1]) {
+		leftArr[lCount++] = parent[start1];
+		start1 = parent[start1];
+	}
+	while (parent[start2]) {
+		rightArr[rCount++] = parent[start2];
+		start2 = parent[start2];
+	}
+
+	for (int i = 0; i < lCount; i++) {
+		for (int j = 0; j < rCount; j++) {
+			if (leftArr[i] == rightArr[j]) {
+				return leftArr[i];
+			}
+		}
+	}
+	return 0;
+}
+
+void getCount(int root) {
+	if (root == 0) {
+		return;
+	}
+	getCount(lc[root]);
+	nodeCount++;
+	getCount(rc[root]);
+}
+
+int dfs(int root){
+	int stack[NODEMAX];
+	int top = 0;
+	int cnt = 0;
+	stack[top++] = root;
+	int u;
+	while (top){
+		u = stack[--top];
+		cnt++;
+		if (lc[u]){
+			stack[top++] = lc[u];
+		}
+
+		if (rc[u]){
+			stack[top++] = rc[u];
+		}
+	}
+	return cnt;
+}
+
+
+
+int main() {
+	freopen("input.txt", "r", stdin);
+
+	int V, E;
+	int tc;
+
+	int pTemp, cTemp;
+	int start1, start2, nodeNum;
+
+	scanf("%d", &tc);
+	for (int testcase = 1; testcase <= tc; testcase++) {
+		nodeCount = 0;
+		scanf("%d%d", &V, &E);
+		scanf("%d%d", &start1, &start2);
+
+		for (int i = 1; i <= V; i++) {
+			parent[i] = 0;
+			rc[i] = 0;
+			lc[i] = 0;
+		}
+
+		for (int i = 0; i < E; i++) {
+			scanf("%d%d", &pTemp, &cTemp);
+			if (lc[pTemp]) {
+				rc[pTemp] = cTemp;
+			}
+			else {
+				lc[pTemp] = cTemp;
+			}
+			parent[cTemp] = pTemp;
+		}
+		nodeNum = getNodeNum(start1, start2);
+		//		getCount(nodeNum);
+		//		printf("#%d %d %d\n", testcase, nodeNum, nodeCount);
+
+		printf("#%d %d %d\n", testcase, nodeNum, dfs(nodeNum));
+	}
+
+	return 0;
+}
