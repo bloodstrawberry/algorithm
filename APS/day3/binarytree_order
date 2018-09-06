@@ -1,0 +1,91 @@
+#include <stdio.h>
+char src[22] = {0,97,98,99,100,101,102,103,104,105,106};
+int leftC[11] = {0,2,4,6,8,10};
+int rightC[11] = {0,3,5,7,9};
+
+void bfs(int root){
+	int queue[100];
+	int front = 0;
+	int rear = 0;
+	int u;
+	queue[rear++] = root;
+	printf("bfs : [");
+	while (front != rear){
+		u = queue[front++];
+		printf("%c ", src[u]);
+
+		if (src[u * 2]){
+			queue[rear++] = u * 2;
+		}
+		if (src[u * 2+1]){
+			queue[rear++] = u * 2+1;
+		}
+	}
+	printf("]\n");
+}
+
+void prePrint1(int root){
+	if (src[root]){
+		printf("%c ", src[root]);
+		prePrint1(root * 2);
+		prePrint1(root * 2 + 1);
+	}
+}
+void prePrint2(int root){
+	if (src[root] == 0){
+		return;
+	}
+	printf("%c ", src[root]);
+	prePrint2(root * 2);
+	prePrint2(root * 2 + 1);
+	
+}
+void prePrint3(int root){
+	if (root){
+		printf("%c ", src[root]);
+		prePrint3(leftC[root]);
+		prePrint3(rightC[root]);
+	}
+}
+void postPrint(int root){
+	if (root){
+		postPrint(leftC[root]);
+		postPrint(rightC[root]);
+		printf("%c ", src[root]);
+	}
+}
+typedef struct node{
+	char op;
+	double num;
+	int lc;
+	int rc;
+}Node;
+Node ns[100];
+
+double cal(int root){
+	if (ns[root].op == 0){
+		return ns[root].num;
+	}
+	double a = cal(ns[root].lc);
+	double b = cal(ns[root].rc);
+
+	if (ns[root].op == '+'){
+		return a + b;
+	}
+}
+int main() {
+	bfs(1);
+	printf("pre1 : [");
+	prePrint1(1);
+	puts("]");
+	printf("pre2 : [");
+	prePrint2(1);
+	puts("]");
+	printf("pre3 : [");
+	prePrint3(1);
+	puts("]");
+	printf("post : [");
+	postPrint(1);
+	puts("]");
+	return 0;
+}
