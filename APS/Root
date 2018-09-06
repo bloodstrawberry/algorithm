@@ -13,6 +13,39 @@ double Root(double A)
         return a;
 }
 
+void root(double r)
+{
+	int i;
+
+	for (i = 0; i < 100; i++)
+	{
+
+		r = (r + 2 / r) / 2;
+
+		printf("%.10lf\n", r);
+	}
+}
+
+int main()
+{
+	int tc;
+	
+	double a = 2.0;
+
+	root(a);
+
+
+
+	for (tc = 1; tc <= T; tc++)
+	{
+		
+
+	}
+	
+
+	return 0;
+}
+
 
 void main()
 {
