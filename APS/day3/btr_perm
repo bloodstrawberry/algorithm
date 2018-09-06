@@ -1,0 +1,82 @@
+#include <stdio.h>
+#define SIZE 101
+char src[SIZE] = {0,97,98,99};
+int a[SIZE];
+int visited[SIZE];
+int n;
+int r;
+int isSolution(int k){
+	return k == r;
+}
+
+int  makeCandidatae(int * cand,  int k){
+	int inPerm[SIZE] = {0};
+
+//	for (int i = 1; i < k; i++){
+//		inPerm[a[i]] = 1;
+//	}
+	int idx = 0;
+
+	for (int i = 1; i <= n; i++){
+		if (inPerm[i] == 0){
+			cand[idx++] = i;
+		}
+	}
+	return idx;
+}
+void process(){
+	printf("[");
+	for (int i = 1; i <= r; i++){
+		printf("%c ", src[a[i]]);
+	}
+	puts("]");
+}
+void btr(int k){
+	int candidate[SIZE];
+	int candLen;
+	if (k == r){
+		process();
+		return;
+	}
+
+	k++;
+	candLen = makeCandidatae(candidate, k);
+	for (int i = 0; i < candLen; i++){
+		a[k] = candidate[i];
+		btr(k);
+	}
+}
+void btr_visited(int k){
+	if (k == r){
+		process();
+		return;
+	}
+	k++;
+	for (int i = 1; i <= n; i++){
+		if (visited[i] == 0){
+			visited[i] = 1;
+			a[k] = i;
+			btr_visited(k);
+			visited[i] = 0;
+		}
+	}
+}
+void btr_visited_pi(int k){
+	if (k == r){
+		process();
+		return;
+	}
+	k++;
+	for (int i = 1; i <= n; i++){
+		a[k] = i;
+		btr_visited_pi(k);
+	}
+}
+int main() {
+	n = 3;
+	r = 2;
+
+//	btr(0);
+	btr_visited_pi(0);
+	return 0;
+}
