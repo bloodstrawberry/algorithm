@@ -1,0 +1,109 @@
+#include <stdio.h>
+#define MAXTABLE (100)
+
+typedef long long int ll;
+
+typedef struct st
+{
+	char key[100];
+	char data[100];
+}HASH;
+
+HASH tb[MAXTABLE];
+
+int strcmp(char *a, char *b)
+{
+	while (*a || *b)
+		if (*a++ != *b++) return 0;
+
+	return 1;
+}
+
+void strcpy(char *a, char *b)
+{
+	while (*b)
+		*a++ = *b++;
+
+	*a = 0;
+
+	return;
+}
+
+ll hash(char *a)
+{
+	ll h = 5381;
+	int c;
+
+	while (c = *a++)
+	{
+		h = (((h << 5) + h) + c) % MAXTABLE;
+	}
+
+	return h % MAXTABLE;
+}
+
+int find(char *key, char *data)
+{
+	ll h = hash(key);
+
+	
+	printf("here : %s %s\n", tb[h].key, tb[h].data);
+	strcpy(data, tb[h].data);
+
+	return 0;
+}
+
+int add(char *key, char *data)
+{
+	ll h = hash(key);
+
+	while (1)
+	{
+		if (tb[h].key[0] == 0)
+		{
+			strcpy(tb[h].key, key);
+			strcpy(tb[h].data, data);
+
+			return 1;
+		}
+		else if (strcmp(tb[h].key, key) && strcmp(tb[h].data, data))
+		{
+			printf("같음\n");
+			return 0;
+		}
+
+
+		h = (h + 1) % MAXTABLE;
+	}
+
+	
+	return 0;
+}
+
+char test[100], data[100];
+char test2[100], data2[100];
+char out[100];
+int main(int argc, char* argv[])
+{
+	int i, k;
+	int T, N, Q;
+
+	scanf("%d %d", &T, &N);
+	scanf("%s %s", test,data);
+	scanf("%s %s", test2, data2);
+	printf("%s %s\n", test, data);
+	printf("%s %s\n", test2, data2);
+	add(test, data);
+	add(test2, data2);
+
+
+	for (i = 0; i < MAXTABLE; i++)
+		printf("%d : %s %s\n", i, tb[i].key, tb[i].data);
+
+	find(test, out);
+
+	printf("%s\n", out);
+	
+
+	return 0;
+}
