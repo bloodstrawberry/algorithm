@@ -1,3 +1,28 @@
+//MAX_KEY : KEY의 최대 문자열 값.
+//MAX_DATA : DATA의 최대 문자열 값
+//MAX_TABLE : HASH TABLE의 크기.
+
+//struct Hash : key와 data의 구조체.
+
+//function
+//1. hash(char *str)
+//string -> key로 변경.
+//정수값 hash는 적당히 큰 소수로 시작..
+//hash rule로 hash 변경. hash =   hash << 5 + hash + c(char의 i번째 값)  % MAX_TABLE; 
+//return hash % MAX_TABLE
+
+//2. find(char *str, char *data)
+//str을 key로 변경, 해당 key에 대한 data를 반환.
+//h = hash(key)로 변경.
+//key1, key2가 같은 hash인 경우 처리 필요. (실제 key 비교로 해결)
+//key, data->data2->data3... 인 경우 처리 필요. (모두 출력할지 말지 등)
+
+//3. add(char *key, char *data)
+//같은 h일 경우 처리 필요.
+//key, data가 이미 있는 경우 처리 필요.
+//key, data2가 들어올 경우 처리 필요.
+
+
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
