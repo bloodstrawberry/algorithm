@@ -1,0 +1,141 @@
+#define MAX_USER 2000
+#define MAX_HASH_SIZE 4000
+#define HASH_MUL 31337
+
+struct User {
+    int mId;
+    char lastKeyword[11];
+    int lastTimestamp;
+};
+
+struct DB {
+    char wrong[11];
+    char correct[5][11];
+    int correctCnt[5];
+    int cLen;
+    char flag[MAX_USER];
+};
+
+User user[MAX_USER];
+DB Pool[MAX_HASH_SIZE];
+DB *Hash[MAX_HASH_SIZE];
+
+int ui;
+int pi;
+
+int mstrlen(char* keyword) {
+    register int i = 0;
+    
+    while (*keyword != 0) {
+        i++;
+        keyword++;
+    }
+    
+    return i;
+}
+
+int mstrcmp(char* c1, char* c2) {
+    while (*c1 != 0 && *c2 != 0) {
+        if (*c1 != *c2) break;
+        c1++; c2++;
+    }
+
+    return *c1 - *c2;
+}
+
+void mstrcpy(char* dst, char* src) {
+    while (*src != 0) {
+        *dst = *src;
+        dst++; src++;
+    }
+
+    *dst = 0;
+}
+
+int make_hash(char* keyword) {
+    register int h = 0;
+    register int len = mstrlen(keyword);
+
+    for (register int i = 0; i < len; ++i) {
+        h += keyword[i];
+    }
+
+    h %= MAX_HASH_SIZE;
+
+    register int i = 10;
+    while (Hash[h] != 0 && mstrcmp(Hash[h]->wrong, keyword) != 0) {
+        if (i == 0) break;
+        h *= HASH_MUL;
+        h %= MAX_HASH_SIZE;
+        --i;
+    }
+
+    // collision is larger than 10
+    if (i == 0) {
+        while (Hash[h] != 0 && mstrcmp(Hash[h]->wrong, keyword) != 0) {
+            h++;
+            h %= MAX_HASH_SIZE;
+        }
+    }
+
+    return h;
+}
+
+void init() {
+    // 위에 전역변수들 초기화...
+}
+
+int search(int mid, int timestamp, char searchWord[11], char correctWord[5][11]) {
+    mid--;
+    User *u = &user[mid];
+    int elapsed = timestamp - u->lastTimestamp;
+    if (u->lastTimestamp == 0)
+        elapsed = 0x7FFFFFFF;
+    int h = make_hash(u->lastKeyword);
+    DB* db = Hash[h];
+
+    if (elapsed <= 10) {
+        if (mstrcmp(u->lastKeyword, searchWord) == 0) {
+            u->lastTimestamp = timestamp;
+            return 0;
+        }
+
+        if (db == 0) {
+            db = &Pool[pi];
+            ++pi;
+            mstrcpy(db->wrong, u->lastKeyword);
+        }
+
+        register int ci = 0;
+        for (ci = 0; ci < db->cLen; ci++) {
+            if (mstrcmp(db->correct[ci], searchWord))
+                break;
+        }
+
+        if (db->flag[mid] & (1 << ci) == 0 && db->correctCnt[ci] < 3) {
+            db->correctCnt[ci]++;
+            db->flag[mid] |= (1 << ci);
+            if (ci == db->cLen) {
+                mstrcpy(db->correct[ci], searchWord);
+                db->cLen++;
+            }
+            return 0;
+        }
+    }
+    else {
+        u->mId = mid + 1;
+        mstrcpy(u->lastKeyword, searchWord);
+        u->lastTimestamp = timestamp;
+        return 0;
+    }
+
+    register int correctCount = 0;
+    for (register int i = 0; i < db->cLen; i++) {
+        if (db->correctCnt[i] >= 3) {
+            mstrcpy(correctWord[correctCount], db->correct[i]);
+            correctCount++;
+        }
+    }
+
+    return correctCount;
+}
