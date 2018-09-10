@@ -1,0 +1,316 @@
+/// === submit area start ===
+
+typedef struct st
+{
+	int minId;
+	int maxId;
+}TREE;
+
+int N, M;
+TREE LSeg[1 << 17];
+int Lidx, Lcnt, Lsum, Llast;
+TREE RSeg[1 << 17];
+int Ridx, Rcnt, Rsum, Rlast;
+
+int data[1000003][2];
+
+//a가 더 작으면 1리턴
+int isMin(int a, int b)
+{
+	if (data[a][0] < data[b][0]) return a;
+	else if (data[a][0] == data[b][0])
+	{
+		if (a < b) return a;
+		else return b;
+	}
+	return b;
+}
+
+int isMax(int a, int b)
+{
+	if (data[a][0] > data[b][0]) return a;
+	else if (data[a][0] == data[b][0])
+	{
+		if (a > b) return a;
+		else return b;
+	}
+	return b;
+}
+
+TREE makeTREE(int minid, int maxid)
+{
+	TREE tmp;
+
+	tmp.minId = minid;
+	tmp.maxId = maxid;
+
+	return tmp;
+}
+
+int findidx(int n)
+{
+	int idx;
+
+	idx = 1;
+
+	while (n > idx) idx = idx << 1;
+
+	return idx;
+}
+
+void updateL(int idx, int id, int mode)
+{
+	int i;
+	int index = Lidx + idx;
+
+	if (mode)
+	{
+		LSeg[index] = makeTREE(id, id);
+		Lcnt++;
+		Lsum += data[id][0];
+	}
+	else
+	{
+		LSeg[index] = makeTREE(1000002, 0);
+		Lcnt--;
+		Lsum -= data[id][0];
+	}
+
+	for (i = index / 2; i >= 1; i /= 2)
+	{
+		LSeg[i].minId = isMin(LSeg[i * 2].minId, LSeg[i * 2 + 1].minId);
+		LSeg[i].maxId = isMax(LSeg[i * 2].maxId, LSeg[i * 2 + 1].maxId);
+	}
+
+}
+
+void updateR(int idx, int id, int mode)
+{
+	int i;
+	int index = Ridx + idx;
+
+	if (mode)
+	{
+		RSeg[index] = makeTREE(id, id);
+		Rcnt++;
+		Rsum += data[id][0];
+	}
+	else
+	{
+		RSeg[index] = makeTREE(1000002, 0);
+		Rcnt--;
+		Rsum -= data[id][0];
+	}
+
+	for (i = index / 2; i >= 1; i /= 2)
+	{
+		RSeg[i].minId = isMin(RSeg[i * 2].minId, RSeg[i * 2 + 1].minId);
+		RSeg[i].maxId = isMax(RSeg[i * 2].maxId, RSeg[i * 2 + 1].maxId);
+	}
+
+}
+
+void addMember(Member obj)
+{
+	int left, right;
+
+	left = LSeg[1].maxId;
+	right = RSeg[1].minId;
+	data[obj.id + 1][0] = obj.frequency;
+
+	if (Rcnt + Lcnt == 0)
+	{
+		data[obj.id + 1][1] = Rlast;
+		updateR(Rlast++, obj.id + 1, 1);
+	}
+	else if (Rcnt == Lcnt)
+	{
+		// L max < obj < R min -> R로 투입.
+		//R min < obj -> R로 투입.
+
+		if (isMin(right, obj.id + 1) == right || (isMin(left, obj.id + 1) == left && isMin(obj.id + 1, right)))
+		{
+
+			data[obj.id + 1][1] = Rlast;
+			updateR(Rlast++, obj.id + 1, 1);
+
+		}
+		else //obj < Lmax -> L에서 하나를 빼서 R로 투입, L로 투입.
+		{
+
+			int lmax;
+
+			lmax = LSeg[1].maxId;
+			updateL(data[lmax][1], lmax, 0); //L제거
+			data[lmax][1] = Rlast;
+			updateR(Rlast++, lmax, 1); //R투입
+
+			data[obj.id + 1][1] = Llast;
+			updateL(Llast++, obj.id + 1, 1); //L투입
+
+
+		}
+	}
+	else// L = 3개 R은 4개
+	{
+		//obj < Rmin -> L로 투입.
+		if (isMin(obj.id + 1, right) == obj.id + 1)
+		{
+
+			data[obj.id + 1][1] = Llast;
+			updateL(Llast++, obj.id + 1, 1);
+
+		}
+		//Rmin < obj -> R에서 L로 투입 후, R로 투입.
+		else
+		{
+
+			int rmin;
+
+			rmin = RSeg[1].minId;
+			updateR(data[rmin][1], rmin, 0); //R제거
+			data[rmin][1] = Llast;
+			updateL(Llast++, rmin, 1);//L투입
+
+			data[obj.id + 1][1] = Rlast;
+			updateR(Rlast++, obj.id + 1, 1);
+		}
+	}
+
+
+}
+
+
+
+int removeMembers(int mode)
+{
+	int rtn, left, right;
+
+	if (mode == 0)
+	{
+		if (Lcnt == Rcnt)
+		{
+			left = LSeg[1].minId;
+
+			updateL(data[left][1], left, 0);
+
+			return left - 1;
+		}
+		else
+		{
+
+			left = LSeg[1].minId;
+			updateL(data[left][1], left, 0);
+
+			right = RSeg[1].minId;
+			updateR(data[right][1], right, 0);
+
+			data[right][1] = Llast;
+			updateL(Llast++, right, 1);
+
+			return left - 1;
+		}
+
+
+	}
+	else if (mode == 1)
+	{
+
+		if (Lcnt == Rcnt) // 짝수
+		{
+
+			left = LSeg[1].maxId;
+			right = RSeg[1].minId;
+
+			rtn = left + right;
+
+			updateL(data[left][1], left, 0);
+			updateR(data[right][1], right, 0);
+
+			return rtn - 2;
+
+		}
+		else
+		{
+
+			right = RSeg[1].minId;
+			rtn = right;
+			updateR(data[right][1], right, 0);
+
+			return rtn - 1;
+		}
+
+
+	}
+	else if (mode == 2)
+	{
+		if (Lcnt != Rcnt)
+		{
+			right = RSeg[1].maxId;
+			updateR(data[right][1], right, 0);
+
+			return right - 1;
+		}
+		else
+		{
+			right = RSeg[1].maxId;
+			updateR(data[right][1], right, 0);
+
+			left = LSeg[1].maxId;
+			updateL(data[left][1], left, 0);
+
+			data[left][1] = Rlast;
+			updateR(Rlast++, left, 1);
+
+			return right - 1;
+		}
+	}
+
+	return -1;
+}
+
+
+
+void getSum(int sum[])
+{
+	if (Lcnt == Rcnt)
+	{
+		sum[0] = Lsum;
+		sum[1] = Rsum;
+	}
+	else
+	{
+		sum[0] = Lsum;
+		sum[1] = Rsum - data[RSeg[1].minId][0];
+	}
+}
+
+void userInit(int memberCount, Member members[])
+{
+	int i;
+
+	//printf("cnt : %d %d\n", memberCount,members[0].frequency);
+
+	for (i = 0; i < 1<< 17; i++)
+		LSeg[i] = RSeg[i] = makeTREE(1000002, 0);
+
+	data[1000002][0] = 100001;
+	data[0][0] = -1;
+
+
+	Rcnt = Lcnt = Rsum = Lsum = Rlast = Llast = 0;
+
+	Ridx = Lidx = 1 << 16;
+	printf("%d\n", Ridx);
+	for (i = 0; i < memberCount; i++)
+	{
+		//add
+		addMember(members[i]);
+	}
+
+
+}
+
+
+
+/// === submit area end ===
