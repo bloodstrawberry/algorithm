@@ -1,0 +1,150 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX_TABLE (3)
+
+int T;
+char str[50];
+char str2[50];
+
+typedef struct st
+{
+	char key[50];
+	char data[50];
+	struct st *next;
+}DB;
+
+DB Hash[MAX_TABLE];
+DB TAIL[MAX_TABLE];
+DB Pool[MAX_TABLE * 5];
+int pi;
+
+long long int hash(const char *str)
+{
+	long long int hash = 5381;
+	int c;
+
+	while (c = *str++)
+	{
+		hash = (((hash << 5) + hash) + c) % MAX_TABLE;
+	}
+
+	return hash % MAX_TABLE;
+}
+
+int add(const char *key, char *data)
+{
+	long long int h = hash(key);
+
+	DB *db = &Pool[pi++];
+	
+	strcpy(db->key, key);
+	strcpy(db->data, data);
+	db->next = NULL;
+
+	if (Hash[h].next == 0)
+	{
+		Hash[h].next = TAIL[h].next = db;
+	}
+	else
+	{
+		TAIL[h].next->next = db;
+		TAIL[h].next = db;
+	}
+
+	return 1;
+}
+
+int find(char *key, char *data)
+{
+	long long int h = hash(key);
+	int cnt;
+	
+	cnt = 0;
+	DB *db = &Hash[h];
+	
+	while (db->next)
+	{
+		if (!strcmp(key, db->next->key) && !strcmp(data, db->next->data))
+		{
+			printf("%s %s\n", db->next->key, db->next->data);
+		}
+	
+
+		db = db->next;
+	}
+	
+
+	return 0;
+}
+
+int deleteHash(char *key, char *data)
+{
+	long long int h = hash(key);
+	int cnt;
+
+	cnt = 0;
+	DB *db = &Hash[h];
+
+	while (db->next)
+	{
+		if (!strcmp(key, db->next->key) && !strcmp(data, db->next->data))
+		{
+			db->next = db->next->next;
+		}
+		else
+		{
+			db = db->next;
+
+		}
+
+	}
+
+	return 0;
+}
+
+
+
+void output(int num)
+{
+	DB *p = &Hash[num];
+	while (p->next)
+	{
+		printf("%lld %s %s\n", hash(p->next->key), p->next->key, p->next->data);
+		p = p->next;
+	}
+
+}
+
+
+int main()
+{
+	int i, k;
+	scanf("%d", &T);
+
+	for (i = 0; i < T; i++)
+	{
+		scanf("%s %s", str, str2);
+		//printf("%s %s\n", str, str2);
+		add(str, str2);
+	}
+
+	for (i = 0; i < MAX_TABLE; i++)
+	{
+		output(i);
+		putchar('\n');
+	}
+
+	find("a", "a");
+
+
+	deleteHash("a", "a");
+
+	for (i = 0; i < MAX_TABLE; i++)
+	{
+		output(i);
+		putchar('\n');
+	}
+
+	return 0;
+}
+
