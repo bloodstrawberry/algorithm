@@ -1,0 +1,62 @@
+
+
+#if 01
+
+#include<stdio.h>
+
+typedef struct list{
+	int val;
+	struct list *next;
+}LIST;
+
+LIST head[100];
+
+LIST node[1000];
+int cnt;
+
+void push(int p, int c){
+	LIST *n = &node[cnt++];
+	n->val = c;
+	if (head[p].next == NULL){
+		head[p].next = n;
+	}
+	else{
+		n->next = head[p].next;
+		head[p].next = n;
+	}
+}
+void printGraph(LIST *head){
+	while (head->next){
+		printf("%d\n", head->next->val);
+		head = head->next;
+	}
+	puts("");
+}
+void deleteNode(LIST *h, int val){
+	while (h->next){
+		if (h->next->val == 3){
+			h->next = h->next->next;
+		}
+		h = h->next;
+	}
+	LIST *p = &head[0];
+	while (p->next){
+		if (p->next->val == 5){
+			p->next = p->next->next;
+		}
+		p = p->next;
+	}
+}
+int main(void){
+
+	for (int i = 0; i < 8; i++){
+		//printf("push i:%d\n", i);
+		push(0, i);
+	}
+	printGraph(&head[0]);
+	deleteNode(&head[0], 3);
+	printGraph(&head[0]);
+	return 0;
+}
+
+#endif
