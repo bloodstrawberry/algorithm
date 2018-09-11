@@ -1,0 +1,641 @@
+#define MAX_DATA (79999)
+typedef long long int ll;
+
+typedef struct st
+{
+	char str[5][25];
+	//char name[25];
+	//char num[25];
+	//char bir[25];
+	//char email[25];
+	//char memo[25];
+	int deleteFlag;
+}DB;
+
+DB POOL[MAX_DATA + 50];
+int dbCnt;
+
+typedef struct h1
+{
+	DB* db;
+	struct h1 *next;
+}NameHash;
+
+typedef struct h2
+{
+	DB* db;
+	struct h2 *next;
+}NumHash;
+
+typedef struct h3
+{
+	DB* db;
+	struct h3 *next;
+}BirHash;
+
+typedef struct h4
+{
+	DB* db;
+	struct h4 *next;
+}EmailHash;
+
+typedef struct h5
+{
+	DB* db;
+	struct h5 *next;
+}MemoHash;
+
+NameHash nameHash[MAX_DATA + 50], namePool[MAX_DATA + 50], nameTail[MAX_DATA+50];
+NumHash numHash[MAX_DATA + 50], numPool[MAX_DATA + 50], numTail[MAX_DATA + 50];
+BirHash birHash[MAX_DATA + 50], birPool[MAX_DATA + 50], birTail[MAX_DATA + 50];
+EmailHash emailHash[MAX_DATA + 50], emailPool[MAX_DATA + 50], emailTail[MAX_DATA + 50];
+MemoHash memoHash[MAX_DATA + 50], memoPool[MAX_DATA + 50], memoTail[MAX_DATA + 50];
+int nameCnt, numCnt, birCnt, emailCnt, memoCnt;
+
+ll(*hashfunciton[5])(char *str);
+
+ll hashName(char *str)
+{
+	ll hash = 5381;
+	int c;
+	while (c = *str++)
+	{
+		hash = (((hash << 5) + hash) + c) % MAX_DATA;
+	}
+	return hash % MAX_DATA;
+}
+
+ll hashNumber(char *str)
+{
+	ll hash = 9973;
+	int c;
+	while (c = *str++)
+	{
+		hash = (((hash << 6) + hash * 2) + c) % MAX_DATA;
+	}
+	return hash;
+}
+
+ll hashBirth(char *str)
+{
+	ll hash = 8543;
+	int c;
+	while (c = *str++)
+	{
+		hash = (((hash << 4) + hash * 3) + c) % MAX_DATA;
+	}
+	return hash;
+}
+
+ll hashEmail(char *str)
+{
+	ll hash = 6971;
+	int c;
+	while (c = *str++)
+	{
+		hash = (((hash << 7) + hash * 3) + c) % MAX_DATA;
+	}
+	return hash;
+}
+
+ll hashMemo(char *str)
+{
+	ll hash = 4783;
+	int c;
+	while (c = *str++)
+	{
+		hash = (((hash << 5) + hash * 7) + c) % MAX_DATA;
+	}
+	return hash;
+}
+
+
+
+void InitDB()
+{
+	int i;
+
+	hashfunciton[0] = hashName;
+	hashfunciton[1] = hashNumber;
+	hashfunciton[2] = hashBirth;
+	hashfunciton[3] = hashEmail;
+	hashfunciton[4] = hashMemo;
+
+
+	dbCnt = nameCnt = numCnt = birCnt = emailCnt = memoCnt = 0;
+	for (i = 0; i < MAX_DATA; i++)
+	{
+		POOL[i].deleteFlag = 0;
+		nameHash[i].db = 0;
+		nameHash[i].next = 0;
+		nameTail[i].next = 0;
+
+		numHash[i].db = 0;
+		numHash[i].next = 0;
+		numTail[i].next = 0;
+
+		birHash[i].db = 0;
+		birHash[i].next = 0;
+		birTail[i].next = 0;
+
+		emailHash[i].db = 0;
+		emailHash[i].next = 0;
+		emailTail[i].next = 0;
+
+		memoHash[i].db = 0;
+		memoHash[i].next = 0;
+		memoTail[i].next = 0;
+	}
+
+}
+
+
+int ccnt;
+void Add(char* name, char* number, char* birthday, char* email, char* memo)
+{
+	ll h1, h2, h3, h4, h5;
+	NameHash *nd1;
+	NumHash *nd2;
+	BirHash *nd3;
+	EmailHash *nd4;
+	MemoHash *nd5;
+
+	h1 = hashName(name);
+	h2 = hashNumber(number);
+	h3 = hashBirth(birthday);
+	h4 = hashEmail(email);
+	h5 = hashMemo(memo);
+
+	str_cpy(POOL[dbCnt].str[0], name);
+	str_cpy(POOL[dbCnt].str[1], number);
+	str_cpy(POOL[dbCnt].str[2], birthday);
+	str_cpy(POOL[dbCnt].str[3], email);
+	str_cpy(POOL[dbCnt].str[4], memo);
+	POOL[dbCnt].deleteFlag = 0;
+
+	nd1 = &namePool[nameCnt++];
+	nd1->db = &POOL[dbCnt];
+	nd1->next = 0;
+
+	nd2 = &numPool[numCnt++];
+	nd2->db = &POOL[dbCnt];
+	nd2->next = 0;
+
+	nd3 = &birPool[birCnt++];
+	nd3->db = &POOL[dbCnt];
+	nd3->next = 0;
+
+	nd4 = &emailPool[emailCnt++];
+	nd4->db = &POOL[dbCnt];
+	nd4->next = 0;
+
+	nd5 = &memoPool[memoCnt++];
+	nd5->db = &POOL[dbCnt];
+	nd5->next = 0;
+
+
+	if (nameHash[h1].next == 0) nameHash[h1].next = nameTail[h1].next = nd1;
+	else
+	{
+		//printf("here %d\n",++ccnt);
+		ccnt++;
+		/*nd1->next = nameHash[h1].next;
+		nameHash[h1].next = nd1;*/
+		nameTail[h1].next->next = nd1;
+		nameTail[h1].next = nd1;
+
+	}
+
+	if (numHash[h2].next == 0) numHash[h2].next = numTail[h2].next = nd2;
+	else
+	{
+		ccnt++;
+		//printf("here %d\n", ++ccnt);
+	/*	nd2->next = numHash[h2].next;
+		numHash[h2].next = nd2;*/
+		numTail[h2].next->next = nd2;
+		numTail[h2].next = nd2;
+	}
+
+	if (birHash[h3].next == 0) birHash[h3].next = birTail[h3].next = nd3;
+	else
+	{
+		ccnt++;
+		//printf("here %d\n", ++ccnt);
+
+		/*nd3->next = birHash[h3].next;
+		birHash[h3].next = nd3;*/
+		birTail[h3].next->next = nd3;
+		birTail[h3].next = nd3;
+	}
+
+	if (emailHash[h4].next == 0) emailHash[h4].next = emailTail[h4].next = nd4;
+	else
+	{
+		ccnt++;
+		//printf("here %d\n", ++ccnt);
+
+		/*
+		nd4->next = emailHash[h4].next;
+		emailHash[h4].next = nd4;*/
+		emailTail[h4].next->next = nd4;
+		emailTail[h4].next = nd4;
+	}
+
+	if (memoHash[h5].next == 0) memoHash[h5].next = memoTail[h5].next = nd5;
+	else
+	{
+		ccnt++;
+		//printf("here %d\n", ++ccnt);
+		
+		//nd5->next = memoHash[h5].next;
+		//memoHash[h5].next = nd5;
+		memoTail[h5].next->next = nd5;
+		memoTail[h5].next = nd5;
+	}
+
+
+	dbCnt++;
+
+	//int i;
+	//printf("%lld %lld %lld %lld %lld\n", h1, h2, h3, h4, h5);
+
+	//for (i = 0; i < MAX_DATA; i++)
+	//{
+	//	if (memoHash[i].next != 0)
+	//	{
+	//		
+	//		//printf("%s %s %s %s %s\n", memoHash[i].next->db->name, memoHash[i].next->db->num, memoHash[i].next->db->bir, memoHash[i].next->db->email, memoHash[i].next->db->memo);
+	//		output(i);
+	//	}
+	//}
+	//putchar('\n');
+
+}
+
+int Delete(FIELD field, char* str)
+{
+	ll h;
+	int f, cnt;
+	
+	f = field;
+	h = hashfunciton[f](str);
+
+	cnt = 0;
+	if (field == NAME)
+	{
+		NameHash *nd1;
+		nd1 = &nameHash[h];
+
+		while (nd1->next)
+		{
+			if (!str_cmp(nd1->next->db->str[field], str) && !nd1->next->db->deleteFlag)
+			{
+				nd1->next->db->deleteFlag = 1;
+				cnt++;
+			}
+			nd1 = nd1->next;
+		}
+		return cnt;
+	}
+
+	if (field == NUMBER)
+	{
+		NumHash *nd2;
+		nd2 = &numHash[h];
+
+		while (nd2->next)
+		{
+			if (!str_cmp(nd2->next->db->str[field], str) && !nd2->next->db->deleteFlag)
+			{
+				nd2->next->db->deleteFlag = 1;
+				cnt++;
+			}
+			nd2 = nd2->next;
+		}
+		return cnt;
+	}
+
+	if (field == BIRTHDAY)
+	{
+		BirHash *nd3;
+		nd3 = &birHash[h];
+
+		while (nd3->next)
+		{
+			if (!str_cmp(nd3->next->db->str[field], str) && !nd3->next->db->deleteFlag)
+			{
+				nd3->next->db->deleteFlag = 1;
+				cnt++;
+			}
+			nd3 = nd3->next;
+		}
+		return cnt;
+	}
+
+	if (field == EMAIL)
+	{
+		EmailHash *nd4;
+		nd4 = &emailHash[h];
+
+		while (nd4->next)
+		{
+			if (!str_cmp(nd4->next->db->str[field], str) && !nd4->next->db->deleteFlag)
+			{
+				nd4->next->db->deleteFlag = 1;
+				cnt++;
+			}
+			nd4 = nd4->next;
+		}
+		return cnt;
+	}
+
+	if (field == MEMO)
+	{
+		MemoHash *nd5;
+		nd5 = &memoHash[h];
+
+		while (nd5->next)
+		{
+			if (!str_cmp(nd5->next->db->str[field], str) && !nd5->next->db->deleteFlag)
+			{
+				nd5->next->db->deleteFlag = 1;
+				cnt++;
+			}
+			nd5 = nd5->next;
+		}
+		return cnt;
+	}
+
+	return 0;
+}
+
+
+
+
+int Change(FIELD field, char* str, FIELD changefield, char* changestr)
+{
+	ll h, h1, h2, h3, h4, h5;
+	int f, f2, cnt;
+	NameHash *nd1;
+	NumHash *nd2;
+	BirHash *nd3;
+	EmailHash *nd4;
+	MemoHash *nd5;
+
+
+	f = field;
+	f2 = changefield;
+	h = hashfunciton[f](str);
+
+	cnt = 0;
+	if (field == NAME)
+	{
+		nd1 = &nameHash[h];
+		while (nd1->next)
+		{
+			if (!str_cmp(nd1->next->db->str[0], str) && !nd1->next->db->deleteFlag)
+			{
+				if (str_cmp(nd1->next->db->str[f2], changestr))
+				{
+					str_cpy(nd1->next->db->str[f2], changestr);
+					cnt++;
+
+					//해당 데이터는 삭제하고
+					nd1->next->db->deleteFlag = 1;
+
+					//데이터를 다시 갱신한다.
+					Add(nd1->next->db->str[0], nd1->next->db->str[1], nd1->next->db->str[2], nd1->next->db->str[3], nd1->next->db->str[4]);
+				}
+
+			}
+			nd1 = nd1->next;
+		}
+		return cnt;
+	}
+
+	if (field == NUMBER)
+	{
+		nd2 = &numHash[h];
+		while (nd2->next)
+		{
+			if (!str_cmp(nd2->next->db->str[1], str) && !nd2->next->db->deleteFlag)
+			{
+				if (str_cmp(nd2->next->db->str[f2], changestr))
+				{
+					str_cpy(nd2->next->db->str[f2], changestr);
+					cnt++;
+
+					//해당 데이터는 삭제하고
+					nd2->next->db->deleteFlag = 1;
+
+					//데이터를 다시 갱신한다.
+					Add(nd2->next->db->str[0], nd2->next->db->str[1], nd2->next->db->str[2], nd2->next->db->str[3], nd2->next->db->str[4]);
+				}
+			}
+			nd2 = nd2->next;
+		}
+		return cnt;
+	}
+
+	if (field == BIRTHDAY)
+	{
+		nd3 = &birHash[h];
+		while (nd3->next)
+		{
+			if (!str_cmp(nd3->next->db->str[2], str) && !nd3->next->db->deleteFlag)
+			{
+				if (str_cmp(nd3->next->db->str[f2], changestr))
+				{
+					str_cpy(nd3->next->db->str[f2], changestr);
+					cnt++;
+
+					//해당 데이터는 삭제하고
+					nd3->next->db->deleteFlag = 1;
+
+					//데이터를 다시 갱신한다.
+					Add(nd3->next->db->str[0], nd3->next->db->str[1], nd3->next->db->str[2], nd3->next->db->str[3], nd3->next->db->str[4]);
+				}
+			}
+			nd3 = nd3->next;
+		}
+		return cnt;
+	}
+
+	if (field == EMAIL)
+	{
+		nd4 = &emailHash[h];
+		while (nd4->next)
+		{
+			if (!str_cmp(nd4->next->db->str[3], str) && !nd4->next->db->deleteFlag)
+			{
+				if (str_cmp(nd4->next->db->str[f2], changestr))
+				{
+					str_cpy(nd4->next->db->str[f2], changestr);
+					cnt++;
+
+					//해당 데이터는 삭제하고
+					nd4->next->db->deleteFlag = 1;
+
+					//데이터를 다시 갱신한다.
+					Add(nd4->next->db->str[0], nd4->next->db->str[1], nd4->next->db->str[2], nd4->next->db->str[3], nd4->next->db->str[4]);
+				}
+			}
+			nd4 = nd4->next;
+		}
+		return cnt;
+	}
+
+	if (field == MEMO)
+	{
+		nd5 = &memoHash[h];
+		while (nd5->next)
+		{
+			if (!str_cmp(nd5->next->db->str[4], str) && !nd5->next->db->deleteFlag)
+			{
+				if (str_cmp(nd5->next->db->str[f2], changestr))
+				{
+					str_cpy(nd5->next->db->str[f2], changestr);
+					cnt++;
+
+					//해당 데이터는 삭제하고
+					nd5->next->db->deleteFlag = 1;
+
+					//데이터를 다시 갱신한다.
+					Add(nd5->next->db->str[0], nd5->next->db->str[1], nd5->next->db->str[2], nd5->next->db->str[3], nd5->next->db->str[4]);
+				}
+			}
+			nd5 = nd5->next;
+		}
+		return cnt;
+	}
+
+	return 0;
+}
+
+RESULT Search(FIELD field, char* str, FIELD ret_field)
+{
+	RESULT result;
+	result.count = 0;
+
+
+	ll h;
+	int f, f2;
+	NameHash *nd1;
+	NumHash *nd2;
+	BirHash *nd3;
+	EmailHash *nd4;
+	MemoHash *nd5;
+
+
+	f = field;
+	f2 = ret_field;
+	h = hashfunciton[f](str);
+
+
+	if (field == NAME)
+	{
+
+		nd1 = &nameHash[h];
+		while (nd1->next)
+		{
+			if (!str_cmp(nd1->next->db->str[0], str) && !nd1->next->db->deleteFlag)
+			{
+				result.count++;
+				if (result.count == 1)
+				{
+					str_cpy(result.str, nd1->next->db->str[f2]);
+				}
+
+
+			}
+			nd1 = nd1->next;
+		}
+
+	}
+
+	else if (field == NUMBER)
+	{
+
+		nd2 = &numHash[h];
+		while (nd2->next)
+		{
+			if (!str_cmp(nd2->next->db->str[1], str) && !nd2->next->db->deleteFlag)
+			{
+				result.count++;
+				if (result.count == 1)
+				{
+					str_cpy(result.str, nd2->next->db->str[f2]);
+				}
+
+
+			}
+			nd2 = nd2->next;
+		}
+
+	}
+
+	else if (field == BIRTHDAY)
+	{
+
+		nd3 = &birHash[h];
+		while (nd3->next)
+		{
+			if (!str_cmp(nd3->next->db->str[2], str) && !nd3->next->db->deleteFlag)
+			{
+
+				result.count++;
+				if (result.count == 1)
+				{
+					str_cpy(result.str, nd3->next->db->str[f2]);
+				}
+
+			}
+			nd3 = nd3->next;
+		}
+
+	}
+
+	else if (field == EMAIL)
+	{
+
+
+		nd4 = &emailHash[h];
+		while (nd4->next)
+		{
+			if (!str_cmp(nd4->next->db->str[3], str) && !nd4->next->db->deleteFlag)
+			{
+
+				result.count++;
+				if (result.count == 1)
+				{
+					str_cpy(result.str, nd4->next->db->str[f2]);
+				}
+
+			}
+			nd4 = nd4->next;
+		}
+
+	}
+
+	else if (field == MEMO)
+	{
+		nd5 = &memoHash[h];
+		while (nd5->next)
+		{
+			if (!str_cmp(nd5->next->db->str[4], str) && !nd5->next->db->deleteFlag)
+			{
+
+				result.count++;
+				if (result.count == 1)
+				{
+					str_cpy(result.str, nd5->next->db->str[f2]);
+				}
+			}
+			nd5 = nd5->next;
+		}
+
+	}
+	//printf("%s\n", result.str);
+	return result;
+}
