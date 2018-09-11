@@ -1,0 +1,139 @@
+#define FIELD_NUM 5
+#define HASH_SIZE 2000
+#define VALUE_SIZE 20
+#define MAX_RECORD_SIZE 50100
+
+struct Record {
+	char field[FIELD_NUM][VALUE_SIZE];
+
+};
+
+struct Node;
+struct Link {
+	Node* prev;
+	Node* next;
+};
+struct Node {
+	Record* value;
+	Link link[FIELD_NUM];
+};
+
+Record recPool[MAX_RECORD_SIZE];
+int ri;
+Node nodePool[MAX_RECORD_SIZE];
+int ni;
+Node hashTbl[HASH_SIZE];
+
+
+
+void Prepend(int hash, FIELD field, Node* n) {
+
+	n->link[field].next = hashTbl[hash].link[field].next;
+	hashTbl[hash].link[field].next = n;
+
+	n->link[field].prev = &hashTbl[hash];
+
+	if (n->link[field].next != 0)
+		n->link[field].next->link[field].prev = n;
+
+}
+
+void DeleteList(Node* n, FIELD f) {
+	if (n->link[f].next)
+		n->link[f].next->link[f].prev = n->link[f].prev;
+	if (n->link[f].prev)
+		n->link[f].prev->link[f].next = n->link[f].next;
+}
+
+
+void Add(char* name, char* number, char* birthday, char* email, char* memo)
+{
+	int hash[5];
+	hash[NAME] = make_hash(name);
+	hash[NUMBER] = make_hash(number);
+	hash[BIRTHDAY] = make_hash(birthday);
+	hash[EMAIL] = make_hash(email);
+	hash[MEMO] = make_hash(memo);
+
+	Node* n = &nodePool[ni++];
+	Record* r = &recPool[ri++];
+
+	mstrcpy(r->field[NAME], name);
+	mstrcpy(r->field[NUMBER], number);
+	mstrcpy(r->field[BIRTHDAY], birthday);
+	mstrcpy(r->field[EMAIL], email);
+	mstrcpy(r->field[MEMO], memo);
+
+
+	n->value = r;
+
+	for (int i = 0; i < FIELD_NUM; ++i) {
+		Prepend(hash[i], (FIELD)i, n);
+	}
+}
+
+int Delete(FIELD field, char* str)
+{
+	int deleted = 0;
+	int hash = make_hash(str);
+
+	Node* cur = hashTbl[hash].link[field].next;
+
+	while (cur) {
+		Node* next = cur->link[field].next;
+		if (mstrcmp(str, cur->value->field[field]) == 0) {
+			deleted++;
+			for (int i = 0; i < FIELD_NUM; ++i) {
+				DeleteList(cur, (FIELD)i);
+			}
+		}
+		cur = next;
+	}
+
+	return deleted;
+}
+
+int Change(FIELD field, char* str, FIELD changefield, char* changestr)
+{
+	int changed = 0;
+	int hash = make_hash(str);
+
+	Node* cur = hashTbl[hash].link[field].next;
+
+	while (cur) {
+		Node* next = cur->link[field].next;
+		if (mstrcmp(str, cur->value->field[field]) == 0) {
+			changed++;
+			mstrcpy(cur->value->field[changefield], changestr);
+
+			DeleteList(cur, changefield);
+
+			int nhash = make_hash(changestr);
+			Prepend(nhash, changefield, cur);
+
+		}
+		cur = next;
+	}
+
+	return changed;
+}
+
+RESULT Search(FIELD field, char* str, FIELD ret_field)
+{
+	RESULT result;
+	result.count = 0;
+
+	int hash = make_hash(str);
+
+	Node* cur = hashTbl[hash].link[field].next;
+
+	while (cur) {
+		if (mstrcmp(str, cur->value->field[field]) == 0) {
+			result.count++;
+			mstrcpy(result.str, cur->value->field[ret_field]);
+		}
+		cur = cur->link[field].next;
+	}
+
+	return result;
+}
