@@ -1,0 +1,3 @@
+double res;
+      __asm ("sqrtsd %1, %0" : "=x" (res) : "xm" (9.0));
+    printf("%lf\n", res);
