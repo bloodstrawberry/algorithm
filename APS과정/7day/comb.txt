@@ -1,0 +1,24 @@
+#include<stdio.h>
+#define MYMIN(a,b)(a<b?a:b)
+int comb(int n, int k){
+	int B[101][101];
+	for (int i = 0; i <= n; i++){
+		int jLen = MYMIN(i, k);
+		for (int j = 0; j <= jLen; j++){// ¡æ minimum(i, k)
+			if (j == 0 || j == i){
+				B[i][j] = 1;
+			}
+			else{
+				B[i][j] = B[i - 1][j - 1] + B[i - 1][j];
+			}
+		}
+	}
+	return B[n][k];
+}
+
+int main(){
+	int n = 100;
+	int r = 50;
+	printf("%d C %d = %d\n", n, r, comb(n,r));
+	return 0;
+}

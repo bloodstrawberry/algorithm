@@ -1,0 +1,59 @@
+#include<stdio.h>
+#define INF 987654321
+
+int p[] = { 0, 40, 30, 50, 10 };
+int w[] = { 0, 2, 5, 10, 5 };
+int N = 4;
+int W = 16;
+int maxprofit;
+
+int promising(int k, int profit, int weight){
+	int i, j;
+	int totalweight;
+	float bound;
+
+	if (weight >= W){
+		return 0;
+	}
+	else{
+		i = k + 1;
+		bound = profit;
+		totalweight = weight;
+		while ((i <= N) && (totalweight + w[i] <= W)){
+			totalweight = totalweight + w[i];
+			bound = bound + p[i];
+			i++;
+		}
+	}
+	j = i;
+	if (j <= N){
+		bound = bound + (W - totalweight)*(p[j] / w[j]);
+	}
+	if (bound > maxprofit){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+void knapsack(int k, int profit, int weight){
+	if (weight <= W && profit > maxprofit){
+		maxprofit = profit;
+	}
+
+	if (promising(k, profit, weight)){
+		k++;
+		knapsack(k, profit + p[k], weight + w[k]);
+		knapsack(k, profit, weight);
+	}
+}
+int main(){
+	double f;
+
+	knapsack(0, 0, 0);
+
+	printf("maxprofit : %d\n", maxprofit);
+	return 0;
+}

@@ -1,0 +1,103 @@
+#include <stdio.h>
+#define MYSWAP(a,b){int t = a; a = b ; b = t;}
+char src[] = {0,97,98,99};
+char path[100];
+int n ;
+int r;
+int dpMemo[101][101];
+void print(){
+	printf("[");
+	for (int i = 1; i <= r; i++){
+		printf("%c ", path[i]);
+	}
+	puts("]");
+}
+void perm(int n, int r){
+	if (r == 0){
+		print();
+		return;
+	}
+	for (int i = n; i; i--){
+
+		char t = src[i];
+		src[i] = src[n];
+		src[n] = t;
+
+		path[r] = src[n];
+
+		perm(n - 1, r - 1);
+
+		MYSWAP(src[i], src[n]);
+
+	}
+}
+void pi(int n, int r){
+	if (r == 0){
+		print();
+		return;
+	}
+	for (int i = n; i; i--){
+
+		char t = src[i];
+		src[i] = src[n];
+		src[n] = t;
+
+		path[r] = src[n];
+
+		pi(n , r - 1);
+
+		MYSWAP(src[i], src[n]);
+
+	}
+}
+
+void comb(int n, int r){
+	if (r == 0){
+		print();
+		return;
+	}
+	if (n < r){
+		return;
+	}
+	path[r] = src[n];
+	comb(n - 1, r - 1);
+	comb(n - 1, r);
+}
+int comb_cal(int n, int r){
+	if (r == 0 || n == r){
+		
+		return 1;
+	}
+	if (dpMemo[n][r] == 0){
+		dpMemo[n][r] = comb_cal(n - 1, r - 1) + comb_cal(n - 1, r);
+	}
+	return dpMemo[n][r];
+}
+
+void h(int n, int r){
+	if (r == 0){
+		print();
+		return;
+	}
+	if (n == 0){
+		return;
+	}
+	path[r] = src[n];
+	h(n, r - 1);
+	h(n - 1, r);
+}
+int main(){
+	n = 3;
+	for (int i = 0; i <= n; i++){
+		r = i;
+		comb(n, r);
+	}
+//	r = 50;
+//	perm(n,r);
+//	pi(n, r);
+//	comb(n, r);
+//	h(n, r);
+
+//	printf("%d C %d = %d\n", n, r, comb_cal(n,r));
+	return 0;
+}

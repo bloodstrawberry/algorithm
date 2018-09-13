@@ -1,0 +1,38 @@
+#include <stdio.h>
+#define MAX 502
+
+int main(){
+	freopen("input.txt", "r", stdin);
+
+	int tc, N;
+	int lcsLen;
+	char X[MAX];
+	char Y[MAX];
+	int dpMemo[MAX][MAX] = {0};
+
+	scanf("%d",&tc);
+	for (int testCase = 1; testCase <= tc; testCase++){
+
+		scanf("%d%s%s", &N, X+1, Y+1);
+
+		for (int i = 1; i <= N; i++){
+			for (int j = 1; j <= N; j++){
+				if (X[i] == Y[j]){
+					dpMemo[i][j] = dpMemo[i - 1][j - 1] + 1;
+				}
+				else{
+					if (dpMemo[i - 1][j] > dpMemo[i][j - 1]){
+						dpMemo[i][j] = dpMemo[i - 1][j];
+					}
+					else{
+						dpMemo[i][j] = dpMemo[i][j - 1];
+					}
+				}
+			}
+		}
+
+		printf("#%d %.2lf\n", testCase, (double)dpMemo[N][N] / N * 100);
+	}
+
+	return 0;
+}

@@ -1,0 +1,120 @@
+#include <stdio.h>
+#define NODEMAX 101
+int g[NODEMAX][NODEMAX];
+
+int stack[NODEMAX];
+int top;
+int visited[NODEMAX];
+
+int queue[NODEMAX];
+int front, rear;
+
+int V, E;
+void init(){
+	top = 0;
+	front = rear = 0;
+	for (int i = 1; i <= V; i++){
+		visited[i] = 1;
+	}
+}
+void dfs1(int start){
+	init();
+	stack[top++] = start;
+	visited[start] = 0;
+	int u;
+	printf("dfs1 : [");
+	while (top){
+		u = stack[--top];
+		printf("%d ", u);
+		for (int i = 1; i <= V; i++){
+			if (visited[i] && g[u][i]){
+				stack[top++] = i;
+				visited[i] = 0;
+			}
+		}
+	}
+	puts("]");
+}
+void bfs(int start){
+	init();
+//	stack[top++] = start;
+	queue[rear++] = start;
+	visited[start] = 0;
+	int u;
+	printf("bfs : [");
+	while (front != rear){
+//		u = stack[--top];
+		u = queue[front++];
+		printf("%d ", u);
+		for (int i = 1; i <= V; i++){
+			if (visited[i] && g[u][i]){
+//				stack[top++] = i;
+				queue[rear++] = i;
+				visited[i] = 0;
+			}
+		}
+	}
+	puts("]");
+}
+void dfs2(int start){
+	init();
+	stack[top++] = start;
+//	visited[start] = 1;
+	int u;
+	printf("dfs2 : [");
+	while (top){
+		u = stack[--top];
+		if (visited[u]){
+			visited[u] = 0;
+			printf("%d ", u);
+			for (int i = 1; i <= V; i++){
+				if (visited[i] && g[u][i]){
+					stack[top++] = i;
+//					visited[i] = 1;
+				}
+			}
+		}
+	}
+	puts("]");
+}
+
+void dfs_rec(int start){
+	printf("%d ", start);
+	visited[start] = 0;
+	for (int i = 1; i <= V; i++){
+		if (visited[i] && g[start][i]){
+			dfs_rec(i);
+		}
+	}
+}
+int main() {
+	freopen("input.txt", "r", stdin);
+	int sn, en;
+
+	scanf("%d%d", &V, &E);
+	for (int i = 0; i < E; i++){
+		scanf("%d%d", &sn, &en);
+		g[sn][en] = 1;
+		g[en][sn] = 1;
+	}
+#if 0
+	puts("================");
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			printf("%d ", g[i][j]);
+		}
+		puts("");
+	}
+#endif
+	dfs1(1);
+	puts("================");
+	dfs2(1);
+	puts("================");
+	init();
+	printf("dfs_rec : [");
+	dfs_rec(1);
+	puts("]");
+	puts("================");
+	bfs(1);
+	return 0;
+}

@@ -1,0 +1,141 @@
+#include <stdio.h>
+#define NODEMAX 101
+#define INF 987654321
+int g[NODEMAX][NODEMAX];
+int dist[NODEMAX];
+int p[NODEMAX];
+
+int V, E;
+
+int heap[NODEMAX];
+int hCnt;
+
+void init(){
+	
+	for (int i = 1; i <= V; i++){
+		dist[i] = INF;
+		p[i] = 0;
+		heap[i] = i;
+	}
+	hCnt = V;
+}
+
+void push(int idx){
+	while (idx>1 && dist[heap[idx]] < dist[heap[idx / 2]]){
+		int t = heap[idx];
+		heap[idx] = heap[idx / 2];
+		heap[idx / 2] = t;
+		idx /= 2;
+	}
+}
+
+int pop(){
+	int val = heap[1];
+	heap[1] = heap[hCnt--];
+	int idx = 1;
+	int next;
+	while (1){
+		next = idx * 2;
+		if (next < hCnt && dist[heap[next]] > dist[heap[next + 1]]){ next = next + 1; }
+		if (next > hCnt || dist[heap[idx]] <dist[heap[next]]){ break; }
+
+		int t = heap[idx];heap[idx] = heap[next];heap[next] = t;
+		idx = next;
+	}
+	return val;
+}
+
+void prim(int start, int end){
+	for (int i = 1; i <= V; i++){
+		dist[i] = INF;
+		p[i] = 0;
+		heap[i] = i;
+	}
+	heap[1] = start;
+	heap[start] = 1;
+	hCnt = V;
+
+	dist[start] = 0;
+	int u;
+	
+	while (hCnt){
+	
+		u = pop();
+		
+		for (int j = 1; j <= hCnt; j++){//µµÂøÁö
+			if (dist[heap[j]] >g[u][heap[j]]){
+				dist[heap[j]] = g[u][heap[j]];
+				p[heap[j]] = u;
+				push(j);
+			}
+		}
+
+	}
+	printf("idx\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", i);
+	}
+	puts("");
+	printf("dist\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", dist[i]);
+	}
+	puts("");
+	printf("p\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", p[i]);
+	}
+	puts("");
+	printf("path : [");
+	printf("]\n");
+
+}
+
+int main() {
+	freopen("input.txt", "r", stdin);
+	int sn, en , val;
+
+	scanf("%d%d", &V, &E);
+	for (int i = 0; i < E; i++){
+		scanf("%d%d%d", &sn, &en,&val);
+		g[sn][en] = val;
+		g[en][sn] = val;
+	}
+#if 0
+	puts("================");
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			printf("%d ", g[i][j]);
+		}
+		puts("");
+	}
+	puts("================");
+#endif
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			if (i != j && g[i][j] == 0){
+				g[i][j] = INF;
+			}
+		}
+	}
+#if 1
+	puts("================");
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			if (g[i][j] == INF){
+				printf("- ");
+			}
+			else{
+				printf("%d ", g[i][j]);
+			}
+		}
+		puts("");
+	}
+	puts("================");
+#endif
+	int start = 3;
+	int end = 6;
+	prim(start, end);
+	
+	return 0;
+}

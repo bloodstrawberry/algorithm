@@ -1,0 +1,58 @@
+#include<stdio.h>
+#define MYMAX(a, b)((a)>(b)?(a):(b))
+#define NMAX 11
+#define WMAX 101
+
+int jw[NMAX] = {0,5,4,6,3};
+int jv[NMAX] = {0, 10,40,30,50};
+int N;
+int W;
+
+int dpMemo1[WMAX];//보석이 무한대
+int dpMemo2[NMAX][WMAX];//보석이 한개
+int dpMemo3[2][WMAX];//보석이 한개
+
+void dp1(){ // 보석이 한개
+	for (int i = 1; i <= W; i++){ //가방
+		for (int j = 1; j <= N; j++){
+			if (i - jw[j] >= 0){
+				if (dpMemo1[i] <  dpMemo1[i - jw[j]] + jv[j]){
+					dpMemo1[i] = dpMemo1[i - jw[j]] + jv[j];
+				}
+			}
+		}
+	}
+}
+void dp2(){ // 보석이 무한대
+	for (int i = 1; i <= N; i++){ //보석
+		for (int j = jw[i]; j <= W; j++){//가방
+			dpMemo2[i][j] = MYMAX(dpMemo2[i - 1][j], dpMemo2[i - 1][j - jw[i]] + jv[i]);
+#if 0
+			if (dpMemo2[i - 1][j] >  dpMemo2[i - 1][j - jw[i]] + jv[i]){
+				dpMemo2[i][j] = dpMemo2[i - 1][j];
+			}
+			else{
+				dpMemo2[i][j] = dpMemo2[i - 1][j - jw[i]] + jv[i];
+			}
+#endif
+		}
+	}
+}
+void dp3(){ // 보석이 무한대
+	for (int i = 1; i <= N; i++){ //보석
+		for (int j = jw[i]; j <= W; j++){//가방
+			dpMemo3[i&1][j] = MYMAX(dpMemo3[(i - 1)&1][j], dpMemo3[(i - 1)&1][j - jw[i]] + jv[i]);
+		}
+	}
+}
+int main(){
+	N = 4;
+	W = 10;
+	dp1();
+	dp2();
+	dp3();
+	printf("MAX V1 : %d\n", dpMemo1[W]);
+	printf("MAX V2 : %d\n", dpMemo2[N][W]);
+	printf("MAX V3 : %d\n", dpMemo3[N&1][W]);
+	return 0;
+}

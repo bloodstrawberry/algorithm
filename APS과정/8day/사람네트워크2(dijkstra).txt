@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include<time.h>
+#define MAX 1001
+#define INF 987654321
+int g[MAX][MAX];
+int dist[MAX];
+int N;
+
+int heap[MAX];
+int hCnt;
+
+void push(int idx){
+	while (idx>1 && dist[heap[idx]] < dist[heap[idx / 2]]){
+		int t = heap[idx];
+		heap[idx] = heap[idx / 2];
+		heap[idx / 2] = t;
+		idx /= 2;
+	}
+}
+
+int pop(){
+	int val = heap[1];
+	heap[1] = heap[hCnt--];
+	int idx = 1;
+	int next;
+	while (1){
+		next = idx * 2;
+		if (next < hCnt && dist[heap[next]] > dist[heap[next + 1]]){ next = next + 1; }
+		if (next > hCnt || dist[heap[idx]] <dist[heap[next]]){ break; }
+
+		int t = heap[idx]; heap[idx] = heap[next]; heap[next] = t;
+		idx = next;
+	}
+	return val;
+}
+
+int dijkstra(){
+	int sum_row;
+	int minCC = INF;
+	for (int start = 1; start <= N; start++){
+		for (int i = 1; i <= N; i++){
+			dist[i] = INF;
+			heap[i] = i;
+		}
+		heap[1] = start;
+		heap[start] = 1;
+		hCnt = N;
+
+		dist[start] = 0;
+		int u;
+
+		while (hCnt){
+
+			u = pop();
+
+			for (int j = 1; j <= hCnt; j++){
+				if (dist[heap[j]] > dist[u]+g[u][heap[j]]){
+					dist[heap[j]] = dist[u] + g[u][heap[j]];
+					push(j);
+				}
+			}
+
+		}
+		sum_row = 0;
+		for (int i = 1; i <= N; i++) {
+			sum_row += dist[i];
+		}
+		if (minCC > sum_row){
+			minCC = sum_row;
+		}
+	}
+	return minCC;
+}
+
+int main() {
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+	int tc;
+
+	scanf("%d", &tc);
+	for (int testCase = 1; testCase <= tc; testCase++){
+		scanf("%d", &N);
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= N; j++) {
+				scanf("%d", &g[i][j]);
+				if (i != j && g[i][j] == 0){
+					g[i][j] = INF;
+				}
+			}
+		}
+		printf("#%d %d\n", testCase, dijkstra());
+
+	}
+	time_t end = clock();
+	printf("time : %lf\n", (double)(end - start));
+
+	return 0;
+}

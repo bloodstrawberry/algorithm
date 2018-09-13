@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <time.h>
+#define ABS(x)((x)>0?(x):-(x))
+#define NMAX 12
+#define INF 987654321
+typedef struct node {
+	int x;
+	int y;
+}Node;
+
+Node custom[NMAX];
+int visited[NMAX];
+int min_dist;
+int customCnt;
+int dist[NMAX][NMAX];
+
+void btr(int k, int idx, int sumDist){
+	if (sumDist > min_dist){ return; }
+	if (k == customCnt){
+		sumDist = sumDist + dist[idx][k + 1];
+		if (sumDist  < min_dist){
+			min_dist = sumDist;
+		}
+		return;
+	}
+	k++;
+
+	for (int i = 1; i <= customCnt; i++){
+		if (visited[i]){
+			visited[i] = 0;
+			btr(k, i, sumDist + dist[idx][i]);
+			visited[i] = 1;
+		}
+	}
+
+}
+void init(){
+	for (int i = 1; i <= customCnt; i++){
+		visited[i] = 1;
+	}
+	int len = customCnt + 1;
+	for (int i = 0; i < len; i++){
+		for (int j = i + 1; j <= len; j++){
+			dist[i][j] = dist[j][i] =
+				ABS(custom[i].x - custom[j].x) + ABS(custom[i].y - custom[j].y);
+		}
+	}
+
+
+}
+int main(){
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+
+	int  tc;
+	scanf("%d", &tc);
+	for (int testCase = 1; testCase <= tc; testCase++){
+		min_dist = INF;
+		scanf("%d", &customCnt);
+		scanf("%d %d %d %d", &custom[0].x, &custom[0].y, &custom[customCnt + 1].x, &custom[customCnt + 1].y);
+		for (int i = 1; i <= customCnt; i++){
+			scanf("%d %d", &custom[i].x, &custom[i].y);
+		}
+		init();
+		btr(0, 0, 0);
+		printf("#%d %d\n", testCase, min_dist);
+	}
+	time_t end = clock();
+	printf("time : %f\n", (double)(end-start));
+	return 0;
+}

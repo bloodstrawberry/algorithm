@@ -1,0 +1,301 @@
+#include <stdio.h>
+#define NODEMAX 101
+#define INF 987654321
+int g[NODEMAX][NODEMAX];
+int dist[NODEMAX];
+int p[NODEMAX];
+int visited[NODEMAX];
+int V, E;
+
+int heap[NODEMAX];
+int hCnt;
+
+void init(){
+	
+	for (int i = 1; i <= V; i++){
+		dist[i] = INF;
+		p[i] = 0;
+		visited[i] = 1;
+		heap[i] = i;
+	}
+	hCnt = V;
+}
+void path(int idx){
+	if (idx == 0){
+		return;
+	}
+	path(p[idx]);
+	printf("%d ", idx);
+}
+void iter(int start, int end){
+	init();
+	dist[start] = 0;
+	for (int i = 1; i <= V; i++){ // Ãâ¹ßÁö
+		for (int j = 1; j <= V; j++){//µµÂøÁö
+			if (dist[j] > dist[i] + g[i][j]){
+				dist[j] = dist[i] + g[i][j];
+				p[j] = i;
+			}
+		}
+	}
+	printf("idx\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", i);
+	}
+	puts("");
+	printf("dist\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", dist[i]);
+	}
+	puts("");
+	printf("p\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", p[i]);
+	}
+	puts("");
+	printf("path : [");
+	path(end);
+	printf("]\n");
+}
+
+void bfs(int start, int end){
+	init();
+
+	int q[NODEMAX];
+	int front = 0;
+	int rear = 0;
+	int u;
+	dist[start] = 0;
+	q[rear++] = start;
+
+	while (front != rear){
+		u = q[front++];
+		for (int j = 1; j <= V; j++){//µµÂøÁö
+			if (dist[j] > dist[u] + g[u][j]){
+				dist[j] = dist[u] + g[u][j];
+				p[j] = u;
+				q[rear++] = j;
+			}
+		}
+
+	}
+	printf("idx\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", i);
+	}
+	puts("");
+	printf("dist\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", dist[i]);
+	}
+	puts("");
+	printf("p\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", p[i]);
+	}
+	puts("");
+	printf("path : [");
+	path(end);
+	printf("]\n");
+
+}
+void dijkstra(int start, int end){
+	init();
+
+	dist[start] = 0;
+	int u;
+	int min;
+	//	while (1){
+	for (int i = 1; i < V; i++){
+		min = INF;
+		for (int j = 1; j <= V; j++){
+			if (visited[j] && dist[j] < min){
+				min = dist[j];
+				u = i;
+			}
+		}
+		visited[u] = 0;
+		//		if (u == end){break;}
+
+		for (int j = 1; j <= V; j++){//µµÂøÁö
+			if (dist[j] > dist[u] + g[u][j]){
+				dist[j] = dist[u] + g[u][j];
+				p[j] = u;
+			}
+		}
+
+	}
+	printf("idx\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", i);
+	}
+	puts("");
+	printf("dist\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", dist[i]);
+	}
+	puts("");
+	printf("p\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", p[i]);
+	}
+	puts("");
+	printf("path : [");
+	path(end);
+	printf("]\n");
+
+}
+
+void push(int idx){
+	
+	while (idx>1 && dist[heap[idx]] < dist[heap[idx / 2]]){
+		int t = heap[idx];
+		heap[idx] = heap[idx / 2];
+		heap[idx / 2] = t;
+		idx /= 2;
+	}
+}
+
+int pop(){
+	int val = heap[1];
+	heap[1] = heap[hCnt--];
+	int idx = 1;
+	int next;
+	while (1){
+		next = idx * 2;
+		if (next < hCnt && dist[heap[next]] > dist[heap[next + 1]]){ next = next + 1; }
+		if (next > hCnt || dist[heap[idx]] <dist[heap[next]]){ break; }
+
+		int t = heap[idx];heap[idx] = heap[next];heap[next] = t;
+		idx = next;
+	}
+	return val;
+}
+
+void dijkstra_heap(int start, int end){
+	init();
+
+	dist[start] = 0;
+	int u;
+	
+	while (hCnt){
+	
+		u = pop();
+		//		if (u == end){break;}
+
+		for (int j = 1; j <= hCnt; j++){//µµÂøÁö
+			if (dist[heap[j]] > dist[u] + g[u][heap[j]]){
+				dist[heap[j]] = dist[u] + g[u][heap[j]];
+				p[heap[j]] = u;
+				push(j);
+			}
+		}
+
+	}
+	printf("idx\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", i);
+	}
+	puts("");
+	printf("dist\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", dist[i]);
+	}
+	puts("");
+	printf("p\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", p[i]);
+	}
+	puts("");
+	printf("path : [");
+	path(end);
+	printf("]\n");
+
+}
+
+void f_w(int start, int end){
+	for (int k = 1; k <= V; k++){ //°æÀ¯Áö
+		
+		for (int s = 1; s <= V; s++){//Ãâ¹ßÁö
+//			if (s != k){
+				for (int e = 1; e <= V; e++){//µµÂøÁö
+//					if (e != s && e != k){
+						if (g[s][e] > g[s][k] + g[k][e]){
+							g[s][e] = g[s][k] + g[k][e];
+						}
+//					}
+				}
+//			}
+		}
+	}
+	printf("idx\t:\t");
+	for (int i = 1; i <= V; i++){
+		printf("%d\t", i);
+	}
+	puts("");
+	printf("dist\t:\t");
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			printf("%d\t", g[i][j]);
+		}
+		puts("");
+	}
+	puts("");
+
+}
+int main() {
+	freopen("input.txt", "r", stdin);
+	int sn, en , val;
+
+	scanf("%d%d", &V, &E);
+	for (int i = 0; i < E; i++){
+		scanf("%d%d%d", &sn, &en,&val);
+		g[sn][en] = val;
+	}
+#if 0
+	puts("================");
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			printf("%d ", g[i][j]);
+		}
+		puts("");
+	}
+	puts("================");
+#endif
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			if (i != j && g[i][j] == 0){
+				g[i][j] = INF;
+			}
+		}
+	}
+#if 0
+	puts("================");
+	for (int i = 1; i <= V; i++){
+		for (int j = 1; j <= V; j++){
+			if (g[i][j] == INF){
+				printf("- ");
+			}
+			else{
+				printf("%d ", g[i][j]);
+			}
+		}
+		puts("");
+	}
+	puts("================");
+#endif
+	int start = 1;
+	int end = 6;
+	iter(start, end);
+	puts("====================");
+	bfs(start, end);
+	puts("====================");
+	dijkstra(start, end);
+	puts("====================");
+	for (int i = 1; i <= V; i++){
+		dijkstra_heap(i, end);
+	}
+	puts("====================");
+	f_w(start, end);
+	return 0;
+}

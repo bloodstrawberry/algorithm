@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <time.h>
+#define MAX 100
+#define INF 987654321
+int select[MAX + 2][MAX + 2];
+int distance[MAX + 2][MAX + 2];
+int size;
+int data[MAX + 2][MAX + 2];
+int count = 0;
+
+
+void dijkstra(){
+	int posy[] = { 0, 0, -1, 1 };
+	int posx[] = { -1, 1, 0, 0 };
+
+	int ux, uy;
+
+	// √ ±‚»≠
+	for (int i = 1; i <= size; i++){
+		for (int j = 1; j <= size; j++){
+			distance[i][j] = INF;
+			select[i][j] = 1;
+		}
+	}
+
+	select[1][1] = 0;
+
+	distance[1][1] = 0;
+	distance[1][2] = data[1][2];
+	distance[2][1] = data[2][1];
+
+	while (1){
+		int min = INF;
+		for (int i = 1; i <= size; i++){
+			for (int j = 1; j <= size; j++){
+				if (select[i][j] && distance[i][j] < min) {
+					min = distance[i][j];
+					uy = i;
+					ux = j;
+				}
+			}
+		}
+
+		select[uy][ux] = 0;
+		if (uy == size && ux == size) {
+			break;
+		}
+		for (int i = 0; i < 4; i++){
+
+			if (distance[uy + posy[i]][ux + posx[i]] > distance[uy][ux] + data[uy + posy[i]][ux + posx[i]]){
+				distance[uy + posy[i]][ux + posx[i]] = distance[uy][ux] + data[uy + posy[i]][ux + posx[i]];
+			}
+
+		}
+	}
+}
+
+int main(){
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+	int tc;
+	scanf("%d", &tc);
+	for (int testCase = 1; testCase <= tc; testCase++){
+		scanf("%d", &size);
+
+		for (int i = 1; i <= size; i++){
+			for (int j = 1; j <= size; j++){
+				scanf("%1d", &data[i][j]);
+			}
+		}
+		dijkstra();
+
+		printf("#%d %d\n", testCase, distance[size][size]);
+	}
+	time_t end = clock();
+	printf("time : %f\n", (double)(end - start));
+
+	return 0;
+}

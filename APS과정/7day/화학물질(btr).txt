@@ -1,0 +1,142 @@
+#include <stdio.h>
+#include <time.h>
+#define NMAX 101
+#define NSUBMAX 21
+
+typedef struct matrix { int m; int f; }Matrix;
+
+int matrixData[NMAX][NMAX];
+Matrix foundMatrix[NSUBMAX];
+int sortedMatrix[NSUBMAX];
+int foundMatrixCnt;
+
+int matrixSize;
+
+int visited[NSUBMAX];
+int a[NSUBMAX];
+int t[NSUBMAX];
+int tCnt;
+
+int findMatrix(int i, int j){
+	int tempM;
+	int tempF;
+
+	for (int m = i; m <= matrixSize; m++){
+		if (matrixData[m][j] == 0 || m == matrixSize){
+			tempM = m - i;
+			break;
+		}
+	}
+
+	for (int f = j; f <= matrixSize; f++){
+		if (matrixData[i][f] == 0 || f == matrixSize){
+			tempF = f - j;
+			break;
+		}
+	}
+
+	foundMatrix[++foundMatrixCnt].m = tempM;
+	foundMatrix[foundMatrixCnt].f = tempF;
+
+	int mLen = i + tempM;
+	for (int m = i; m < mLen; m++){
+		int fLen = j + tempF;
+		for (int f = j; f < fLen; f++){
+			matrixData[m][f] = 0;
+		}
+	}
+	return tempF;
+}
+
+
+int getMinNum(int n){
+	int temp, j;
+	int m[NSUBMAX][NSUBMAX] = { 0 };
+
+	for (int L = 1; L < n; L++){
+		int iLen = n - L;
+		for (int i = 1; i <= iLen; i++){
+			j = i + L;
+			m[i][j] = 987654321;
+
+			for (int k = i; k < j; k++){
+				temp = m[i][k] + m[k + 1][j] + sortedMatrix[i - 1] * sortedMatrix[k] * sortedMatrix[j];
+				if (temp < m[i][j]){
+					m[i][j] = temp;
+				}
+			}
+		}
+	}
+	return m[1][n];
+}
+
+void btr(int k){
+
+	if (k > 1 && foundMatrix[a[k - 1]].f != foundMatrix[a[k]].m){
+		if (tCnt < k - 1){
+			tCnt = k - 1;
+			for (int i = 1; i < k; i++){
+				t[i] = a[i];
+			}
+		}
+		return;
+	}
+	if (k == foundMatrixCnt){
+		tCnt = k;
+		for (int i = 1; i <= k; i++){
+			t[i] = a[i];
+		}
+		return;
+	}
+	k++;
+	for (int i = 1; i <= foundMatrixCnt; i++){
+		if (visited[i]){
+			visited[i] = 0;
+			a[k] = i;
+			btr(k);
+			visited[i] = 1;
+		}
+	}
+}
+int main(){
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+	int tc;
+	Matrix temp;
+	scanf("%d", &tc);
+	for (int testCase = 1; testCase <= tc; testCase++){
+		scanf("%d", &matrixSize);
+		foundMatrixCnt = 0;
+		tCnt = 0;
+		for (int i = 0; i <= matrixSize; i++){
+			matrixData[i][matrixSize] = 0;
+			matrixData[matrixSize][i] = 0;
+		}
+		for (int i = 0; i < matrixSize; i++){
+			for (int j = 0; j < matrixSize; j++){
+				scanf("%d", &matrixData[i][j]);
+			}
+		}
+		for (int i = 0; i < matrixSize; i++){
+			for (int j = 0; j < matrixSize; j++){
+				if (matrixData[i][j] != 0){
+					j += findMatrix(i, j);
+				}
+			}
+		}
+		for (int i = 1; i <= foundMatrixCnt; i++){
+			visited[i] = 1;
+		}
+		btr(0);
+		sortedMatrix[0] = foundMatrix[t[1]].m;
+		for (int i = 1; i <= tCnt; i++){
+			sortedMatrix[i] = foundMatrix[t[i]].f;
+		}
+		printf("#%d %d\n", testCase, getMinNum(tCnt));
+	}
+	time_t end = clock();
+
+	printf("time : %f\n",(double)(end-start));
+	return 0;
+}
+

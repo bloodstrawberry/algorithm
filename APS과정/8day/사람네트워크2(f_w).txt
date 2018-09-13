@@ -1,0 +1,68 @@
+#include<stdio.h>
+#include <time.h>
+#define MYMIN(a,b)((a)<(b)?(a):(b))
+#define MAXN 1001
+#define INF 987654321
+
+int map[MAXN][MAXN];
+int N;
+int getMin(int a, int b) {return (a < b) ? a : b;}
+
+int solveFloyd() {
+	int minCC = INF;
+	int sum_row = 0;
+
+	for (int k = 1; k <= N; k++) {
+		for (int i = 1; i <= N; i++) {
+//			if (i != k) {
+				for (int j = 1; j <= N; j++) {
+//					if (j != k && i != j) {
+						map[i][j] = getMin(map[i][j], map[i][k] + map[k][j]);
+//						map[i][j] = MYMIN(map[i][j], map[i][k] + map[k][j]);
+//					}
+				}
+//			}
+		}
+	}
+
+
+	for (int i = 1; i <= N; i++) {
+		sum_row = 0;
+		for (int j = 1; j <= N; j++){
+			if (i == j) continue;
+			sum_row = sum_row + map[i][j];
+		}
+		minCC = MYMIN(minCC, sum_row);
+	}
+	return minCC;
+}
+
+
+int main(){
+	freopen("input.txt", "r", stdin);
+	int tc;
+
+	time_t start = clock();
+	
+	scanf("%d", &tc);
+
+	for (int testCase = 1; testCase <= tc; testCase++) {
+
+		scanf("%d", &N);
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= N; j++) {
+				scanf("%d", &map[i][j]);
+				if (map[i][j] == 0){
+//				if (i != j && map[i][j] == 0){
+						map[i][j] = INF;
+				}
+			}
+		}
+		printf("#%d %d\n", testCase, solveFloyd());
+	}
+
+	time_t end = clock();
+
+	printf("time : %lf\n", (double)(end - start));
+	return 0;
+}

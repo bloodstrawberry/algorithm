@@ -1,0 +1,36 @@
+#include<stdio.h>
+#define NMAX 11
+#define MMAX 21
+#define INF 987654321
+int dpMemo[MMAX];
+
+int moneyS[NMAX] = { 0, 1, 4, 6 };
+int N;
+int money;
+
+void dp(){
+	for (int i = 1; i <= money; i++){
+		dpMemo[i] = INF;
+	}
+
+	for (int i = 1; i <= money; i++){// 받아야 되는 돈
+		for (int j = 1; j <= N; j++){// 동전의 종류
+			if (i - moneyS[j] >= 0){
+				if (dpMemo[i] > dpMemo[i-moneyS[j]]+1){
+					dpMemo[i] = dpMemo[i - moneyS[j]] + 1;
+				}
+			}
+		}
+	}
+}
+int main(){
+	N = 3;
+	money = 8;
+	dp();
+	for (int i = 1; i <= money; i++){
+		printf("%d ", dpMemo[i]);
+	}
+	puts("");
+	printf("cnt : %d\n", dpMemo[money]);
+	return 0;
+}

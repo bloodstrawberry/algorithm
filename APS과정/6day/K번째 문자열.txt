@@ -1,0 +1,135 @@
+#include<stdio.h>
+
+#include <time.h>
+
+#define MAX_CHAR 401
+
+int k;
+int strlen;
+
+char str[MAX_CHAR];
+
+int suffix[MAX_CHAR];
+int lcp[MAX_CHAR];
+int cnt[MAX_CHAR];
+
+int my_strlen(char* s){
+	int len = 0;
+	while (*s++) len++;
+	return len;
+}
+
+int my_strcmp(char* s1, char* s2){
+	int i = 0;
+	while (s1[i] != 0) {
+		if (s1[i] != s2[i])
+			break;
+		i++;
+	}
+	return (s1[i] - s2[i]);
+}
+
+int getLCP(char* s1, char *s2) {
+	int len = 0;
+	while (*s1++ == *s2++) {
+		len++;
+	}
+	return len;
+}
+
+
+void quickSort(int s, int e){
+	if (s < e) {
+		int pivot = s;
+		int left = s;
+		int right = e;
+		while (left < right) {
+			while (my_strcmp(str + suffix[left], str + suffix[pivot]) <= 0 && left < e)
+				left++;
+			while (my_strcmp(str + suffix[right], str + suffix[pivot]) > 0)
+				right--;
+
+			if (left < right){
+				int t = suffix[left];
+				suffix[left] = suffix[right];
+				suffix[right] = t;
+			}
+		}
+
+		int t = suffix[right];
+		suffix[right] = suffix[pivot];
+		suffix[pivot] = t;
+
+		quickSort(s, right - 1);
+		quickSort(right + 1, e);
+	}
+}
+
+void solve(int testCase){
+	int temp;
+	int sum = 0;
+	scanf("%d", &k);
+	scanf("%s", str);
+	strlen = my_strlen(str);
+	
+	for (int i = 0; i < strlen; i++){
+		suffix[i] = i;
+		lcp[i] = 0;
+	}
+
+
+	quickSort(0, strlen - 1);
+	
+	for (int i = 1; i < strlen; i++){
+		lcp[i] = getLCP(str + suffix[i], str + suffix[i - 1]);
+	}
+
+	cnt[0] = my_strlen(str + suffix[0]);
+	for (int i = 1; i < strlen; i++) {
+		cnt[i] = my_strlen(str + suffix[i]) - lcp[i] + cnt[i - 1];
+	}
+
+	if (k > cnt[strlen - 1]) {
+		printf("#%d none\n", testCase);
+	}
+	else {
+		int i;
+		for (i = 0; i < strlen; i++) {
+			if (k <= cnt[i]) {
+				break;
+			}
+		}
+		int start = suffix[i];
+		int end = -1;
+		if (i == 0){
+			end = suffix[i] + k;
+		}
+		else{
+			end = suffix[i] + k - cnt[i - 1] + lcp[i];
+		}
+		str[end] = 0;
+		printf("#%d ", testCase);
+		puts(&str[start]);
+#if 0
+		printf("#%d ", testCase);
+		for (i = start; i < end; i++) {
+			printf("%c", str[i]);
+		}
+		puts("");
+#endif
+	}
+}
+
+int main(){
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+	int tc;
+	scanf("%d", &tc);
+
+	for (int testCase = 1; testCase <= tc; testCase++){
+		solve(testCase);
+	}
+	time_t end = clock();
+	printf("time : %lf\n", (double)(end - start));
+	return 0;
+}

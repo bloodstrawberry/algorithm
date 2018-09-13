@@ -1,0 +1,81 @@
+#include <stdio.h>
+#define ABS(x)((x)>0?(x):-(x))
+#define MAX 10
+
+typedef struct node {
+	double x;
+	double weight;
+}Node;
+
+Node p_Node[MAX];
+double result[MAX - 1];
+
+int main(){
+	freopen("input.txt", "r", stdin);
+	int tc;
+	int N;
+	double lForce, rForce;
+	double max, min, temp;
+
+
+	scanf("%d", &tc);
+
+	for (int testCase = 1; testCase <= tc; testCase++){
+		scanf("%d", &N);
+
+		for (int i = 0; i < N; i++){
+			scanf("%lf", &(p_Node[i].x));
+		}
+		for (int i = 0; i < N; i++){
+			scanf("%lf", &(p_Node[i].weight));
+		}
+
+		for (int pos = 1; pos < N; pos++){
+			result[pos - 1] = (p_Node[pos].x + p_Node[pos - 1].x) / 2;
+			max = p_Node[pos].x;
+			min = p_Node[pos - 1].x;
+
+			while (1){
+				lForce = rForce = 0;
+
+				for (int i = 0; i < pos; i++){
+					lForce += (p_Node[i].weight) /
+						((result[pos - 1] - p_Node[i].x) * (result[pos - 1] - p_Node[i].x));
+				}
+				for (int i = pos; i < N; i++){
+					rForce += (p_Node[i].weight) /
+						((p_Node[i].x - result[pos - 1]) * (p_Node[i].x - result[pos - 1]));
+				}
+
+				if (lForce < rForce){
+					max = result[pos - 1];
+					temp = result[pos - 1];
+					result[pos - 1] = (max + min) / 2;
+					//					if (ABS(temp - result[pos - 1]) < 0.000000000001)
+					if (temp - result[pos - 1] < 1.0e-12)
+						break;
+				}
+				else if (lForce > rForce){
+					min = result[pos - 1];
+					temp = result[pos - 1];
+					result[pos - 1] = (max + min) / 2;
+					//					if (ABS(temp - result[pos - 1]) <1.0e-12)
+					if (result[pos - 1] - temp <1.0e-12)
+						break;
+				}
+				else
+					break;
+			}
+
+		}
+		int iLen = N - 1;
+		printf("#%d ", testCase);
+		for (int i = 0; i < iLen; i++){
+			printf("%.10lf ", result[i]);
+		}
+//		printf("\n");
+		puts("");
+	}
+
+	return 0;
+}

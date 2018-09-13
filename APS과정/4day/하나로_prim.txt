@@ -1,0 +1,158 @@
+#include<stdio.h>
+#include<iostream>
+#include<time.h>
+
+#define MAX 1001
+#define INF 1000000.0 * 1000000.0
+
+using namespace std;
+
+int N;
+int x[MAX];
+int y[MAX];
+double E;
+double g[MAX][MAX];
+double dist[MAX];
+int visited[MAX];
+int heap[MAX];
+int hCnt;
+
+void push(int idx){
+	while (idx > 1 && dist[heap[idx / 2]] > dist[heap[idx]]){
+		int t = heap[idx];heap[idx] = heap[idx / 2];heap[idx / 2] = t;
+		idx = idx / 2;
+	}
+}
+
+int pop(){
+	int val = heap[1];
+	heap[1] = heap[hCnt--];
+	int idx = 1;
+	int next = -1;
+	while (1){
+		next = idx * 2;
+		if (next < hCnt && dist[heap[next]] > dist[heap[next + 1]]){next++;}
+		if (next > hCnt || dist[heap[idx]] < dist[heap[next]]){break;}
+		int t = heap[idx];heap[idx] = heap[next];heap[next] = t;
+		idx = next;
+	}
+	return val;
+}
+
+void prim(int testCase) {
+#if 1
+	scanf("%d", &N);
+	for (int i = 1; i <= N; i++){ scanf("%d", &x[i]); }
+	for (int i = 1; i <= N; i++){ scanf("%d", &y[i]); }
+	scanf("%lf", &E);
+#endif
+#if 0
+	cin >> N;
+	for (int i = 1; i <= N; i++){cin>>x[i]; }
+	for (int i = 1; i <= N; i++){ cin>>y[i]; }
+	cin>>E;
+#endif
+
+	for (int i = 1; i < N; i++) {
+		for (int j = i + 1; j <= N; j++) {
+			g[i][j] = g[j][i]
+				= E * ((double)(x[i] - x[j]) * (x[i] - x[j]) + (double)(y[i] - y[j]) *(y[i] - y[j]));
+		}
+	}
+
+	hCnt = N;
+	for (int i = 1; i <= N; i++) {
+		dist[i] = INF;
+		heap[i] = i;
+	}
+
+	int u;
+	dist[1] = 0;
+
+	while (hCnt) {
+		u = pop();
+		for (int v = 1; v <= hCnt; v++) {
+			if (g[u][heap[v]] < dist[heap[v]]) {
+				dist[heap[v]] = g[u][heap[v]];
+				push(v);
+			}
+		}
+	}
+	double sumCost = 0.0;
+	for (int i = 1; i <= N; i++) {
+		sumCost += dist[i];
+	}
+
+	printf("#%d %.0f\n", testCase, sumCost);
+}
+
+void prim2(int testCase) {
+#if 1
+	scanf("%d", &N);
+	for (int i = 1; i <= N; i++){ scanf("%d", &x[i]); }
+	for (int i = 1; i <= N; i++){ scanf("%d", &y[i]); }
+	scanf("%lf", &E);
+#endif
+#if 0
+	cin >> N;
+	for (int i = 1; i <= N; i++){ cin >> x[i]; }
+	for (int i = 1; i <= N; i++){ cin >> y[i]; }
+	cin >> E;
+#endif
+
+	for (int i = 1; i < N; i++) {
+		for (int j = i + 1; j <= N; j++) {
+			g[i][j] = g[j][i]
+				= E * ((double)(x[i] - x[j]) * (x[i] - x[j]) + (double)(y[i] - y[j]) *(y[i] - y[j]));
+		}
+	}
+
+	hCnt = N;
+	for (int i = 1; i <= N; i++) {
+		dist[i] = INF;
+		heap[i] = i;
+		visited[i] = 1;
+	}
+
+	int u;
+	dist[1] = 0;
+	double min;
+	for (int i = 1; i < N; i++) {
+		min = INF;
+		for (int v = 1; v <= N; v++){
+			if (visited[v] && dist[v] < min){
+				min = dist[v];
+				u = v;
+			}
+		}
+		visited[u] = 0;
+		for (int v = 1; v <= N; v++) {
+			if (visited[v] && g[u][v] < dist[v]) {
+				dist[v] = g[u][v];
+			}
+		}
+	}
+	double sumCost = 0.0;
+	for (int i = 1; i <= N; i++) {
+		sumCost += dist[i];
+	}
+
+	printf("#%d %.0f\n", testCase, sumCost);
+}
+
+int main(){
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+
+	int tc;
+	scanf("%d", &tc);
+	for (int testCase = 1; testCase <= tc; testCase++){
+		prim2(testCase);
+	}
+
+#if 1
+	time_t end = clock();
+	printf("time : %f\n", (double)(end - start));
+#endif
+	return 0;
+}

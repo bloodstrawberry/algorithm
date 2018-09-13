@@ -1,0 +1,77 @@
+#include<stdio.h>
+int p[] = { 0, 40, 30, 50, 10 };
+int w[] = { 0, 2, 5, 10, 5 };
+int N = 4;
+int W = 16;
+int maxprofit;
+typedef struct node{
+	int level;
+	int profit;
+	int weight;
+}Node;
+int promising(Node u){
+	int i, j;
+	int totalweight;
+	float bound;
+
+	if (u.weight >= W){
+		return 0;
+	}
+	else{
+		i = u.level + 1;
+		bound = u.profit;
+		totalweight = u.weight;
+		while ((i <= N) && (totalweight + w[i] <= W)){
+			totalweight = totalweight + w[i];
+			bound = bound + p[i];
+			i++;
+		}
+	}
+	j = i;
+	if (j <= N){
+		bound = bound + (W - totalweight)*(p[j] / w[j]);
+	}
+	if (bound > maxprofit){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+
+void knapsack(){
+	Node q[100];
+	int front = 0, rear = 0;
+	Node u, v;
+	v.level = 0, v.profit = 0, v.weight = 0;
+
+	q[rear++] = v;
+	while (front != rear){
+		v = q[front++];
+		u.level = v.level + 1;
+		u.profit = v.profit + p[u.level];
+		u.weight = v.weight + w[u.level];
+
+		if (u.weight <= W && u.profit > maxprofit){
+			maxprofit = u.profit;
+		}
+		if (promising(u)){
+			q[rear++] = u;
+		}
+		u.profit = v.profit;
+		u.weight = v.weight;
+		if (promising(u)){
+			q[rear++] = u;
+		}
+
+	}
+}
+
+int main(){
+
+	knapsack();
+
+	printf("maxprofit : %d\n", maxprofit);
+	return 0;
+}

@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <time.h>
+#define MAX 100
+#define INF 987654321
+int queueX[MAX*MAX * 10];
+int queueY[MAX*MAX * 10];
+int data[MAX + 2][MAX + 2];
+int dist[MAX + 2][MAX + 2];
+int posy[] = { 0, 0, -1, 1 };
+int posx[] = { -1, 1, 0, 0 };
+
+int stackX[MAX*MAX];
+int stackY[MAX*MAX];
+
+int cnt;
+void bfs(){
+	int front = 0, rear = 0;
+	int curX, curY;
+
+	queueX[rear] = 1;
+	queueY[rear++] = 1;
+	dist[1][1] = 0;
+
+	while (front != rear) {
+		cnt++;
+		curX = queueX[front];
+		curY = queueY[front++];
+
+		for (int i = 0; i<4; i++) {
+			if (dist[curY][curX] + data[curY + posy[i]][curX + posx[i]]  <
+				dist[curY + posy[i]][curX + posx[i]]) {
+				dist[curY + posy[i]][curX + posx[i]] =
+					dist[curY][curX] + data[curY + posy[i]][curX + posx[i]];
+				queueX[rear] = curX + posx[i];
+				queueY[rear++] = curY + posy[i];
+			}
+		}
+	}
+	printf("cnt : %d\n", cnt);
+}
+void dfs(){
+	int top = 0;
+	int curX, curY;
+	int cnt = 0;
+	stackX[top] = 1;
+	stackY[top++] = 1;
+	dist[1][1] = 0;
+
+	while (top) {
+		cnt++;
+		curX = stackX[--top];
+		curY = stackY[top];
+
+		for (int i = 0; i<4; i++) {
+			if (dist[curY][curX] + data[curY + posy[i]][curX + posx[i]]  <
+				dist[curY + posy[i]][curX + posx[i]]) {
+				dist[curY + posy[i]][curX + posx[i]] =
+					dist[curY][curX] + data[curY + posy[i]][curX + posx[i]];
+				stackX[top] = curX + posx[i];
+				stackY[top++] = curY + posy[i];
+			}
+		}
+	}
+	printf("cnt : %d\n", cnt);
+}
+
+int main() {
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+	int tc;
+	int size;
+
+
+	scanf("%d", &tc);
+
+	for (int testCase = 1; testCase <= tc; testCase++) {
+		for (int i = 1; i <= MAX; i++) {
+			for (int j = 1; j <= MAX; j++) {
+				data[i][j] = 0;
+			}
+		}
+
+		scanf("%d", &size);
+
+		for (int i = 1; i <= size; i++) {
+			for (int j = 1; j <= size; j++) {
+				scanf("%1d", &data[i][j]);
+			}
+		}
+
+		for (int i = 1; i <= size; i++) {
+			for (int j = 1; j <= size; j++) {
+				dist[i][j] = INF;
+			}
+		}
+#if 1
+		for (int i = 0; i < size + 1; i++){
+			dist[size + 1][i] = 0;
+			dist[i][size + 1] = 0;
+		}
+#endif
+		bfs();
+//		dfs();
+		printf("#%d %d\n", testCase, dist[size][size]);
+	}
+	time_t end = clock();
+	printf("time : %f\n", (double)(end - start));
+	return 0;
+}

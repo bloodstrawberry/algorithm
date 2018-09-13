@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <time.h>
+#define ABS(x)((x)>0?(x):-(x))
+#define NMAX 22
+#define INF 987654321
+typedef struct node {
+	int x;
+	int y;
+}Node;
+
+Node custom[NMAX];
+int min_dist;
+int customCnt;
+int dist[NMAX][NMAX];
+int dp[1 << NMAX][NMAX];
+void init(){
+	int iLen = customCnt + 1;
+	for (int i = 0; i < iLen; i++){
+		for (int j = i + 1; j <= iLen; j++){
+			dist[i][j] = dist[j][i] =
+				ABS(custom[i].x - custom[j].x) + ABS(custom[i].y - custom[j].y);
+		}
+	}
+}
+int main(){
+	time_t start = clock();
+	int  tc;
+	freopen("input.txt", "r", stdin);
+	scanf("%d", &tc);
+	for (int testCase = 1; testCase <= tc; testCase++){
+		min_dist = INF;
+		scanf("%d", &customCnt);
+		scanf("%d %d %d %d", &custom[0].x, &custom[0].y, &custom[customCnt + 1].x, &custom[customCnt + 1].y);
+		for (int i = 1; i <= customCnt; i++){
+			scanf("%d %d", &custom[i].x, &custom[i].y);
+		}
+		init();
+		customCnt++;
+		int iLen = 1 << customCnt;
+		for (int i = 1; i < iLen; i = i + 2){
+			for (int j = 0; j < customCnt; j++){
+				dp[i][j] = INF;
+			}
+		}
+
+		dp[1][0] = 0;
+		for (int i = 1; i < customCnt; i++){ dp[1 | (1 << i)][i] = dist[0][i]; }
+		for (int i = 1; i <= iLen; i += 2){
+			for (int j = 1; j < customCnt; j++){
+				for (int k = 1; k < customCnt; k++){
+					if (!(i&(1 << k))){
+						if (dp[i | (1 << k)][k] > dp[i][j] + dist[j][k]){
+							dp[i | (1 << k)][k] = dp[i][j] + dist[j][k];
+						}
+					}
+
+				}
+			}
+		}
+
+		int last = (1 << customCnt) - 1;
+
+		for (int i = 1; i < customCnt; i++){
+			if (dp[last][i] + dist[i][customCnt] < min_dist){
+				min_dist = dp[last][i] + dist[i][customCnt];
+			}
+		}
+
+		printf("#%d %d\n", testCase, min_dist);
+	}
+
+	time_t end = clock();
+
+	printf("time : %f\n", (double)(end - start));
+	return 0;
+}

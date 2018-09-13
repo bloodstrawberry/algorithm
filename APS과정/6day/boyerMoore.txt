@@ -1,0 +1,58 @@
+#include <stdio.h>
+
+int skip[128];
+int my_strlen(char* str) {
+	int len = 0;
+	while (*str++) {
+		len++;
+	}
+	return len;
+}
+
+void createSkipTable(char *key) {
+
+	int keyLen = my_strlen(key);
+
+
+	for (int i = 0; i < 128; i++) {
+		skip[i] = keyLen;
+	}
+	keyLen--;
+	for (int i = 0; i < keyLen; i++) {
+		skip[key[i]] = keyLen - i;
+	}
+}
+
+int boyerMoore(char *str, char *key) {
+	int strLen, keyLen;
+	strLen = my_strlen(str);
+	keyLen = my_strlen(key);
+	int i = 0, j = 0;
+	int len = strLen - keyLen;
+	while (i <= len) {
+
+		for (j = keyLen - 1; j >= 0 && key[j] == str[i + j]; j--);
+		if (j < 0) {
+			return i;
+		}
+		i = i + skip[str[i + keyLen - 1]];
+	}
+
+	return -1;
+}
+
+int main() {
+	char str[] = "A STRING SEARCHING EXAMPLE CCNSISTING CF";
+	char key[] = "STING";
+	int idx;
+	int keyLen = my_strlen(key);
+	int strLen = my_strlen(str);
+	createSkipTable(key);
+	idx = boyerMoore(str, key);
+	printf("idx : %d\n", idx);
+	if (idx > 0) {
+		str[idx + keyLen] = 0;
+		puts(str + idx);
+	}
+	return 0;
+}

@@ -1,0 +1,53 @@
+#include <stdio.h>
+long long dpmemo[101][101];
+
+
+void getMax(int N, int P) {
+	for (int i = 1; i <= N; i++) {
+		dpmemo[1][i] = i;
+	}
+	for (int i = 2; i <= P; i++) {
+
+		for (int j = i; j <= N; j++) {
+
+			for (int k = 1; k < j; k++) {
+
+				if (dpmemo[i][j] < dpmemo[i - 1][j - k] * k) {
+					dpmemo[i][j] = dpmemo[i - 1][j - k] * k;
+				}
+			}
+		}
+	}
+}
+
+int main() {
+	freopen("input.txt", "r", stdin);
+	int tc;
+	scanf("%d", &tc);
+	getMax(100, 100);
+	for (int testcase = 1; testcase <= tc; testcase++) {
+
+		int N, P;
+
+		scanf("%d %d", &N, &P);
+#if 1
+		long long sum = 1;
+
+		int k = N / P;
+
+		int cnt = N%P;
+
+		for (int i = 0; i < cnt; i++) {
+			sum *= (k + 1);
+		}
+		for (int j = cnt; j < P; j++) {
+			sum *= k;
+		}
+		printf("#%d %lld\n", testcase, sum);
+#endif
+
+//		printf("#%d %lld\n", testcase, dpmemo[P][N]);//  getMax(N, P));
+	}
+
+	return 0;
+}

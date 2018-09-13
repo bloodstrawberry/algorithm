@@ -1,0 +1,174 @@
+#include <stdio.h>
+#include <time.h>
+#define MAX  1000
+
+int x[MAX], y[MAX];
+int N;
+double E;
+
+typedef struct edge{
+	double distance;
+	int u, v;
+}Edge;
+
+
+Edge edges[MAX  * (MAX - 1) / 2];
+Edge temp[MAX  * (MAX - 1) / 2];
+
+int parent[MAX];
+int rank[MAX];
+
+void makeSet(){
+	for (int i = 0; i < N; i++){
+		parent[i] = i;
+		rank[i] = 0;
+	}
+}
+
+int findSet(int u){
+	if (u == parent[u]) return u;
+	return parent[u] = findSet(parent[u]);
+}
+
+void unionSet(int u, int v){
+	u = findSet(u);
+	v = findSet(v);
+
+	if (rank[u] > rank[v]){
+		parent[v] = u;
+	}
+	else {
+		parent[u] = v;
+		if (rank[u] == rank[v]) {
+			rank[v]++;
+		}
+	}
+}
+
+
+void quickSort(int s, int e){
+	if (s < e) {
+		int p = s;
+		int left = s;
+		int right = e;
+
+		while (left < right) {
+			while (edges[left].distance <= edges[p].distance && left<e)
+				left++;
+
+			while (edges[right].distance > edges[p].distance)
+				right--;
+
+			if (left < right){
+				Edge t = edges[right];
+				edges[right] = edges[left];
+				edges[left] = t;
+			}
+
+		}
+		Edge t = edges[right];
+		edges[right] = edges[p];
+		edges[p] = t;
+
+		quickSort(s, right - 1);
+		quickSort(right + 1, e);
+	}
+}
+
+void mSort(int left, int right){
+	if (left < right){
+		int m = (left + right) / 2;
+
+		mSort(left, m);
+		mSort(m + 1, right);
+
+		int p = left;
+		int q = m + 1;
+		int idx = left;
+
+		while (p <= m || q <= right){
+			if (q > right || (p <= m && edges[p].distance < edges[q].distance)){
+				temp[idx++] = edges[p++];
+			}
+			else{
+				temp[idx++] = edges[q++];
+			}
+		}
+		for (int i = left; i <= right; i++){
+			edges[i] = temp[i];
+		}
+	}
+}
+double kruskal(){
+	int edgeNum = 0;
+	int u, v;
+	double cost;
+	int selectedNum = 0;
+	double sumCost = 0.0;
+
+
+
+	for (int i = 0; i < N; i++){
+		for (int j = i + 1; j < N; j++){
+
+			edges[edgeNum].distance = E*((x[i] * 1.0 - x[j])*(x[i] - x[j]) + (y[i] * 1.0 - y[j])*(y[i] - y[j]));
+			edges[edgeNum].u = i;
+			edges[edgeNum++].v = j;
+		}
+	}
+
+	quickSort(0, edgeNum - 1);
+	//mSort(0, edgeNum - 1);
+
+	makeSet();
+
+	for (int i = 0; i < edgeNum; i++){
+		cost = edges[i].distance;
+
+		u = edges[i].u;
+		v = edges[i].v;
+
+		if (findSet(u) == findSet(v)) continue;
+
+		unionSet(u, v);
+
+		sumCost = sumCost + cost;
+
+		if (selectedNum == N - 1) {
+			return sumCost;
+		}
+	}
+
+
+	return sumCost;
+
+}
+
+int main(){
+	time_t start = clock();
+	freopen("input.txt", "r", stdin);
+	int tc;
+
+	scanf("%d", &tc);
+
+	for (int testCase = 1; testCase <= tc; testCase++){
+		scanf("%d", &N);
+
+		for (int i = 0; i < N; ++i) {
+			scanf("%d", &x[i]);
+		}
+
+		for (int i = 0; i < N; ++i) {
+			scanf("%d", &y[i]);
+		}
+
+		scanf("%lf", &E);
+
+		printf("#%d %.0f\n", testCase, kruskal());
+
+	}
+	time_t end = clock();
+
+	printf("time : %f\n", (double)(end - start));
+	return 0;
+}

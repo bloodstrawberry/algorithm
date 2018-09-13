@@ -1,0 +1,51 @@
+#include <stdio.h>
+#define NUM_OF_RUN 18
+#define NUM_OF_PRIME 7
+
+int prime[NUM_OF_PRIME] = { 2, 3, 5, 7, 11, 13, 17 };
+int combMemo[NUM_OF_RUN + 1][NUM_OF_RUN + 1];
+int comb(int n, int r){
+	
+	if (r == 0||n == r) return 1;
+	if (combMemo[n][r] == 0){
+		combMemo[n][r] = comb(n - 1, r - 1) + comb(n - 1, r);
+	}
+	return combMemo[n][r];
+}
+
+double power(double a, int n){
+	double ret = 1;
+	for (int i = n; i; --i)	ret *= a;
+	return ret;
+}
+
+int main(){
+	freopen("input.txt", "r", stdin);
+	double result;
+	double pA ;
+	double pB;
+
+	for (int i = 0; i < NUM_OF_PRIME; i++){comb(NUM_OF_RUN, prime[i]);}
+
+	int tc;
+	scanf("%d", &tc);
+
+	for (int testCase = 1; testCase <= tc; testCase++){
+
+		scanf("%lf%lf", &pA, &pB);
+
+		pA = pA / 100;
+		pB = pB / 100;
+
+		double sPa = 0;
+		double sPb = 0;
+
+		for (int i = 0; i < NUM_OF_PRIME; ++i){
+			sPa += combMemo[NUM_OF_RUN][prime[i]] * power(pA, prime[i])*power(1 - pA, NUM_OF_RUN - prime[i]);
+			sPb += combMemo[NUM_OF_RUN][prime[i]] * power(pB, prime[i])*power(1 - pB, NUM_OF_RUN - prime[i]);
+		}
+
+		printf("#%d %.6f\n", testCase, 1 - (1 - sPa) * (1 - sPb));
+	}
+	return 0;
+}
