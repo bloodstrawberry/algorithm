@@ -1,3 +1,21 @@
+
+typedef enum
+{
+	NAME,
+	NUMBER,
+	BIRTHDAY,
+	EMAIL,
+	MEMO
+} FIELD;
+
+typedef struct
+{
+	int count;
+	char str[20];
+} RESULT;
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 #define MAX_DATA (79943)
 typedef long long int ll;
 
@@ -110,21 +128,27 @@ void Add(char* name, char* number, char* birthday, char* email, char* memo)
 	}
 
 }
-
 int Delete(FIELD field, char* str)
 {
 	register int cnt;
 	ll h = hash(str);
 	HASH *p;
+	DATA *tmp;
 	cnt = 0;
 
-	for (p = Hash[field][h].next; p; p = p->next)
+	p = &Hash[field][h];
+	while (p->next)
 	{
-		if (!mstrcmp(p->db->data[field], str) && !p->db->deleteFlag)
+		tmp = p->next->db;
+		if (!mstrcmp(tmp->data[field], str) && !tmp->deleteFlag)
 		{
-			p->db->deleteFlag = 1;
+			tmp->deleteFlag = 1;
+			p->next = p->next->next;
+
 			cnt++;
 		}
+		else 
+			p = p->next;
 	}
 
 	return cnt;
