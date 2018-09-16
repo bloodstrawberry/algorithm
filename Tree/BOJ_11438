@@ -94,6 +94,7 @@ int LCA(int a, int b)
 		b = tmp;
 	}
 	
+	//최대 몇칸 까지 위로 올라가는지 구한다.
 	for (log = 1; (1 << log) <= Depth[a]; log++);
 	log -= 1;
 
@@ -105,10 +106,13 @@ int LCA(int a, int b)
 
 
 	if (a == b) return a;
-	else
+	else//depth는 같지만 노드는 다른 경우.
 	{
 		for (int i = log; i >= 0;i--)
 		{
+			//p[a][i] = 0, 즉 너무 많이 올라간 경우는 다시 내려서 검사.
+			//둘다 10칸을 올라가야된다면 8칸을 올라간 후, 4칸은 올라갈 수 없고, 2칸을 올라가게됨.
+			//왜냐하면 4칸째는 p[a][i] == p[b][i]거나 p[a][i], p[b][i] 가 0이 되기 때문.
 			if (p[a][i] != 0 && p[a][i] != p[b][i])
 			{
 				a = p[a][i];
