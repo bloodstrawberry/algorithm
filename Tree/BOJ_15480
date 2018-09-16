@@ -1,0 +1,146 @@
+//baekjoon_15480
+//LCA와 커리
+#include <stdio.h>
+
+int N, M;
+
+typedef struct st
+{
+	int value;
+	struct st *next;
+}NODE;
+
+NODE HEAD[100001];
+NODE POOL[100001 * 2];
+int cnt;
+
+void Make(int p, int c)
+{
+	NODE *nd = &POOL[cnt++];
+	nd->value = c;
+
+	if (HEAD[p].next == 0) HEAD[p].next = nd;
+	else
+	{
+		nd->next = HEAD[p].next;
+		HEAD[p].next = nd;
+	}
+}
+
+void input()
+{
+	int i, p, c;
+	scanf("%d", &N);
+
+	for (i = 0; i < N-1; i++)
+	{
+		scanf("%d %d", &p, &c);
+		Make(p, c);
+		Make(c, p);
+	}
+}
+
+int Que[100001];
+int RP, WP;
+int parent[100001];
+int p[100001][17];
+int VISIT[100001];
+int Depth[100001];
+
+void BFS()
+{
+	int out;
+	NODE *nd;
+
+	Que[WP++] = 1;
+	VISIT[1] = 1;
+	Depth[1] = 1;
+
+	while (WP > RP)
+	{
+		out = Que[RP++];
+
+		for (nd = HEAD[out].next; nd; nd = nd->next)
+		{
+			int tmp = nd->value;
+			
+			if (!VISIT[tmp])
+			{
+				Que[WP++] = tmp;
+				VISIT[tmp] = 1;
+				Depth[tmp] = Depth[out] + 1;
+				parent[tmp] = out;
+			}
+		}
+	}
+}
+
+int LCA(int u, int v)
+{
+	int i, tmp, log;
+
+	if (Depth[u] < Depth[v])
+	{
+		tmp = u;
+		u = v;
+		v = tmp;
+	}
+
+	for (log = 1; (1 << log) < Depth[u]; log++);
+	log--;
+
+	for (i = log; i >= 0; i--)
+		if (Depth[u] - (1 << i) >= Depth[v])
+			u = p[u][i];
+
+	if (u == v) return u;
+	else
+	{
+		for (i = log; i >= 0; i--)
+		{
+			if (p[u][i] != 0 && p[u][i] != p[v][i])
+			{
+				u = p[u][i];
+				v = p[v][i];
+			}
+		}
+	}
+
+	return parent[u];
+}
+
+int main()
+{
+	int i, k;
+	int r, u, v;
+	int a, b, c;
+
+	input();
+	BFS();
+	
+	for (i = 1; i <= N; i++)
+		p[i][0] = parent[i];
+
+	for (i = 1; (1 << i) < N; i++)
+		for (k = 1; k <= N; k++)
+			if (p[k][i - 1] != 0)
+				p[k][i] = p[p[k][i - 1]][i - 1];
+	
+	scanf("%d", &M);
+
+	for (i = 0; i < M; i++)
+	{
+		scanf("%d %d %d", &r, &u, &v);
+		a = LCA(r, u);
+		b = LCA(r, v);
+		c = LCA(u, v);
+
+		a = (Depth[a] > Depth[b]) ? a : b;
+		a = (Depth[a] > Depth[c]) ? a : c;
+
+		printf("%d\n", a);
+	}
+
+
+	return 0;
+}
