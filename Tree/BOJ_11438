@@ -1,0 +1,163 @@
+//baekjoon_11438
+//LCA 2, with DP
+#pragma warning(disable : 4996)
+#include <stdio.h>
+int N, M;
+
+//p[i][j] = i의 2^j번째 조상  == i의 2^(j-1)번째 조상의 2^(j-1)번째 조상
+//p[i][0] = i의 1번째 조상, parent
+//p[i][j] = p[p[i][j-1]][j-1];
+int p[100001][18];
+
+typedef struct st
+{
+	int value;
+	struct st* next;
+}NODE;
+
+NODE HEAD[100010];
+NODE POOL[100010 * 2];
+int cnt;
+
+void Make(int p, int c)
+{
+	NODE *nd = &POOL[cnt++];
+	nd->value = c;
+
+	if (HEAD[p].next == 0) HEAD[p].next = nd;
+	else
+	{
+		nd->next = HEAD[p].next;
+		HEAD[p].next = nd;
+	}
+}
+
+void input()
+{
+	int i, k;
+	int p, c;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N - 1;i++)
+	{
+		scanf("%d %d", &p, &c);		
+		Make(p, c);
+		Make(c, p);
+	}
+
+}
+
+int Que[100010];
+int parent[100010];
+int VISIT[100010];
+int Depth[100010];
+int RP, WP;
+
+void BFS()
+{
+	int out;
+	NODE *p;
+
+	Que[WP++] = 1;
+	VISIT[1] = 1;
+	Depth[1] = 1;
+
+	while (WP > RP)
+	{
+		out = Que[RP++];
+
+		for (p = HEAD[out].next; p; p = p->next)
+		{
+			int tmp = p->value;
+
+			if (!VISIT[tmp])
+			{
+				Que[WP++] = tmp;
+				VISIT[tmp] = 1;
+				parent[tmp] = out;
+				Depth[tmp] = Depth[out] + 1;
+			}
+		}
+	}
+}
+
+int LCA(int a, int b)
+{
+	int i, tmp, log;
+
+	//높은 depth가 a가 되게 변경.
+	if (Depth[a] < Depth[b])
+	{
+		tmp = a;
+		a = b;
+		b = tmp;
+	}
+	
+	for (log = 1; (1 << log) <= Depth[a]; log++);
+	log -= 1;
+
+	for (i = log; i >= 0;i--)
+	{
+		if (Depth[a] - (1 << i) >= Depth[b])
+			a = p[a][i];
+	}
+
+
+	if (a == b) return a;
+	else
+	{
+		for (int i = log; i >= 0;i--)
+		{
+			if (p[a][i] != 0 && p[a][i] != p[b][i])
+			{
+				a = p[a][i];
+				b = p[b][i];
+			}
+		}
+	}
+
+
+	return parent[a];
+}
+
+void output(int num)
+{
+	NODE *p = HEAD[num].next;
+
+	while (p)
+	{
+		printf("%d\n", p->value);
+		p = p->next;
+	}
+}
+
+int main()
+{
+	int i, k, a, b;
+	
+	input();
+	BFS();
+
+	for (i = 1; i <= N;i++)
+		p[i][0] = parent[i];
+
+	for (i = 1; (1 << i) < N;i++)
+	{
+		for (k = 1; k <= N;k++)
+		{
+			if (p[k][i - 1] != 0)
+				p[k][i] = p[p[k][i - 1]][i - 1];
+		}
+	}
+
+	scanf("%d", &M);
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%d %d", &a, &b);
+		printf("%d\n", LCA(a,b));
+	}
+
+	return 0;
+}
