@@ -1,0 +1,130 @@
+//baekjoon_2233
+//사과나무
+
+#include <stdio.h>
+
+int N;
+char str[4001];
+
+typedef struct st
+{
+	int value;
+	struct st *next;
+}NODE;
+
+NODE HEAD[2001];
+NODE TAIL[2001];
+NODE POOL[2001 * 2];
+int cnt;
+
+void Make(int a, int b)
+{
+	NODE *nd = &POOL[cnt++];
+	nd->value = b;
+
+	if (HEAD[a].next == 0) HEAD[a].next = TAIL[a].next = nd;
+	else
+	{
+		TAIL[a].next->next = nd;
+		TAIL[a].next = nd;
+	}
+}
+
+void output(int num)
+{
+	NODE *p = HEAD[num].next;
+
+	while (p)
+	{
+		printf("%d ", p->value);
+		p = p->next;
+	}
+}
+
+int tin[2001];
+int tout[2001];
+int timer;
+int appin[2001 * 2];
+int appout[2001 * 2];
+
+int parent[2001];
+int p[2001][20];
+int log;
+
+void DFS(int node, int prt)
+{
+	int i, k;
+	NODE *nd;
+
+	tin[node] = timer++;
+
+	p[node][0] = prt;
+	for (i = 1; i <= log; i++)
+		p[node][i] = p[p[node][i - 1]][i - 1];
+
+
+	for (nd = HEAD[node].next; nd; nd = nd->next)
+	{
+		DFS(nd->value,node);
+	}
+
+	tout[node] = timer++;
+}
+
+int upper(int u, int v)
+{
+	return (tin[u] <= tin[v] && tout[u] >= tout[v]);
+}
+
+int LCA(int u, int v)
+{
+	int i;
+	if (upper(u, v)) return u;
+	if (upper(v, u)) return v;
+
+	for (i = log; i >= 0; i--)
+		if (!upper(p[u][i], v)) u = p[u][i];
+
+	return p[u][0];
+}
+
+int main(void) {
+
+	int i, k, a, b, nd, ans;
+	int STACK[2001];
+	int SP;
+
+	scanf("%d", &N);
+	scanf("%s", str);
+	scanf("%d %d", &a, &b);
+
+	SP = 0;
+	nd = 1;
+	STACK[SP++] = nd++;
+	for (i = 0; str[i]; i++)
+	{
+		if (str[i] == '0')
+		{
+			STACK[SP++] = nd++;
+			appin[i + 1] = STACK[SP - 1];
+			Make(STACK[SP-2], STACK[SP-1]);
+		}
+		else
+		{
+			appin[i + 1] = STACK[SP - 1];
+			SP--;
+		}
+		
+	}
+
+	for (log = 1; (1 << log) <= N; log++);
+	log--;
+
+	DFS(1,1);
+
+	ans = LCA(appin[a], appin[b]);
+	
+	printf("%d %d\n", tin[ans], tout[ans]);
+
+	return 0;
+}
