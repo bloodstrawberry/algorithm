@@ -45,7 +45,6 @@ int tin[2001];
 int tout[2001];
 int timer;
 int appin[2001 * 2];
-int appout[2001 * 2];
 
 int parent[2001];
 int p[2001][20];
