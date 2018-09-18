@@ -1,0 +1,178 @@
+//baekjoon_1238
+//파티
+
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int N, M, X;
+typedef struct st
+{
+	int value;
+	int weight;
+	struct st *next;
+}NODE;
+
+NODE HEAD[1001];
+NODE HEAD_rev[1001];
+NODE POOL[10001 * 2];
+int cnt;
+
+void Make(int p, int c, int w)
+{
+	NODE *nd = &POOL[cnt++];
+
+	nd->value = c;
+	nd->weight = w;
+
+	nd->next = HEAD[p].next;
+	HEAD[p].next = nd;
+
+	nd = &POOL[cnt++];
+	nd->value = p;
+	nd->weight = w;
+
+	nd->next = HEAD_rev[c].next;
+	HEAD_rev[c].next = nd;
+}
+
+void output(int num)
+{
+	NODE *nd = HEAD[num].next;
+
+	while (nd)
+	{
+		printf("%d\n", nd->value);
+		nd = nd->next;
+	}
+}
+
+int dist[1001];
+int dist_rev[1001];
+int visit[1001];
+int visit_rev[1001];
+
+typedef struct st2
+{
+	int node;
+	int weight;
+}EDGE;
+
+EDGE heap[10010];
+int hn;
+
+EDGE pop()
+{
+	int i;
+	EDGE ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].weight = 0x7fff0000;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].weight < heap[i * 2].weight && heap[i].weight < heap[i * 2 + 1].weight) break;
+		if (heap[i * 2].weight < heap[i * 2 + 1].weight)
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2];
+			heap[i * 2] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2 + 1];
+			heap[i * 2 + 1] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(EDGE x)
+{
+	int i;
+	EDGE tmp;
+	heap[++hn] = x;
+	
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].weight < heap[i].weight) break;
+		
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+int main()
+{
+	int i, k;
+	int p, c, w, max;
+	
+	scanf("%d %d %d", &N, &M, &X);
+
+	for (i = 0; i < M; i++)
+	{
+		scanf("%d %d %d", &p, &c, &w);
+		Make(p, c, w);
+	}
+
+	for (i = 1; i <= N; i++) dist[i] = dist_rev[i] = INF;
+	
+	dist[X] = 0;
+	push({ X, 0 });
+
+	while (hn)
+	{
+		NODE *nd;
+		EDGE tmp;
+
+		tmp = pop();
+		if (visit[tmp.node]) continue;
+		visit[tmp.node] = 1;
+
+		for (nd = HEAD[tmp.node].next; nd; nd = nd->next)
+		{
+			if (dist[nd->value] > dist[tmp.node] + nd->weight)
+			{
+				dist[nd->value] = dist[tmp.node] + nd->weight;
+				push({ nd->value, dist[nd->value] });
+			}
+		}
+	}
+
+	hn = 0;
+	dist_rev[X] = 0;
+	push({ X, 0 });
+
+	while (hn)
+	{
+		NODE *nd;
+		EDGE tmp;
+
+		tmp = pop();
+		if (visit_rev[tmp.node]) continue;
+		visit_rev[tmp.node] = 1;
+
+		for (nd = HEAD_rev[tmp.node].next; nd; nd = nd->next)
+		{
+			if (dist_rev[nd->value] > dist_rev[tmp.node] + nd->weight)
+			{
+				dist_rev[nd->value] = dist_rev[tmp.node] + nd->weight;
+				push({ nd->value, dist_rev[nd->value] });
+			}
+		}
+	}
+
+	max = 0;
+	for (i = 1; i <= N; i++)
+		if (max < dist[i] + dist_rev[i]) max = dist[i] + dist_rev[i];
+
+	printf("%d\n", max);
+	return 0;
+}
