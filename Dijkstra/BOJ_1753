@@ -1,0 +1,139 @@
+//baekjoon_1753
+//최단 경로, 다익스트라
+
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int V, E;
+
+typedef struct st
+{
+	int value;
+	int weight;
+	struct st *next;
+}NODE;
+
+NODE HEAD[20001];
+NODE POOL[300001];
+int cnt;
+
+void Make(int p, int c, int w)
+{
+	NODE *nd = &POOL[cnt++];
+
+	nd->value = c;
+	nd->weight = w;
+
+	nd->next = HEAD[p].next;
+	HEAD[p].next = nd;
+}
+
+int D[20001];
+int visit[20001];
+
+typedef struct st2
+{
+	int node;
+	int weight;
+}EDGE;
+
+EDGE heap[300010];
+int hn;
+
+EDGE pop()
+{
+	int i;
+	EDGE ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].weight = 0x7fff0000;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].weight < heap[i * 2].weight && heap[i].weight < heap[i * 2 + 1].weight) break;
+		if (heap[i * 2].weight < heap[i * 2 + 1].weight)
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2];
+			heap[i * 2] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2 + 1];
+			heap[i * 2 + 1] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(EDGE x)
+{
+	int i;
+	EDGE tmp;
+	heap[++hn] = x;
+	
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].weight < heap[i].weight) break;
+		
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+int main()
+{
+	int i, k, st, u, v, w;
+	
+	scanf("%d %d", &V, &E);
+	scanf("%d", &st);
+
+	for (i = 0; i < E; i++)
+	{
+		scanf("%d %d %d", &u, &v, &w);
+		Make(u, v, w);
+	}
+
+	for (i = 1; i <= V; i++) D[i] = INF;
+
+  //시작 노드 선택.
+	D[st] = 0;
+	push({ st, 0 });
+
+	while (hn)
+	{
+		NODE *nd;
+		EDGE tmp;
+
+		tmp = pop();
+
+		if (visit[tmp.node]) continue;
+
+		visit[tmp.node] = 1;
+
+		for (nd = HEAD[tmp.node].next; nd; nd = nd->next)
+		{
+			if (D[nd->value] > D[tmp.node] + nd->weight)
+			{
+				D[nd->value] = D[tmp.node] + nd->weight;
+				push({ nd->value, D[nd->value] });
+			}
+		}
+	}
+
+	for (i = 1; i <= V; i++)
+	{
+		if (D[i] == INF) printf("INF\n");
+		else printf("%d\n", D[i]);
+	}
+		
+	return 0;
+}
