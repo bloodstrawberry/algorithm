@@ -1,5 +1,5 @@
 //baekjoon_15480
-//LCA와 커리
+//LCA와 
 #include <stdio.h>
 
 int N, M;
