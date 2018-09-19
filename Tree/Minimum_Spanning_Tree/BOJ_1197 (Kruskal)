@@ -1,0 +1,119 @@
+//baekjoon_1197
+//최소 스패닝 트리, 크루스칼
+
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int N, M;
+int parent[50100];
+
+typedef struct st2
+{
+	int nd1;
+	int nd2;
+	int weight;
+}EDGE;
+
+EDGE heap[400100];
+int hn;
+
+EDGE pop()
+{
+	int i;
+	EDGE ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].weight = INF;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].weight < heap[i * 2].weight && heap[i].weight < heap[i * 2 + 1].weight) break;
+		if (heap[i * 2].weight < heap[i * 2 + 1].weight)
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2];
+			heap[i * 2] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2 + 1];
+			heap[i * 2 + 1] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(EDGE x)
+{
+	int i;
+	EDGE tmp;
+	heap[++hn] = x;
+
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].weight < heap[i].weight) break;
+
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+int Find(int x)
+{
+	if (x == parent[x]) return x;
+	return parent[x] = Find(parent[x]);
+}
+
+void Union(int x, int y)
+{
+	x = Find(x);
+	y = Find(y);
+	if(x == y) return;
+	
+	parent[x] = y;
+}
+
+int main()
+{
+	int i;
+	int p, c, w, ans;
+
+	scanf("%d %d", &N, &M);
+
+	ans = 0;
+	for (i = 1; i <= N; i++) parent[i] = i;
+
+	for (i = 0; i < M; i++)
+	{
+		scanf("%d %d %d", &p, &c, &w);
+		push({ p, c, w });
+	}
+
+	while (hn)
+	{
+		EDGE tmp = pop();
+		int x, y;
+
+		x = Find(tmp.nd1);
+		y = Find(tmp.nd2);
+
+		if (x != y)
+		{
+			Union(tmp.nd1, tmp.nd2);
+			ans += tmp.weight;
+		}
+			
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
