@@ -1,0 +1,199 @@
+//가장 짧은 길 전부 청소하기
+//최단 경로를 찾은 후, 최단 경로가 되는 간선 찾기, 그 후 노드에 들어오는 간선 중 가장 짧은 간선 
+
+#include <stdio.h>
+#define INF (0x7fffffffffffffff)
+typedef long long int ll;
+
+int T, N, M;
+typedef struct st
+{
+	int value;
+	ll weight;
+	struct st *next;
+}NODE;
+
+NODE HEAD[200100];
+NODE HEAD2[200100];
+NODE POOL[1000100 * 2];
+int cnt;
+int visit[200100];
+ll dist[200100];
+
+void Make(int p, int c, ll w)
+{
+	NODE *nd = &POOL[cnt++];
+
+	nd->value = c;
+	nd->weight = w;
+
+	nd->next = HEAD[p].next;
+	HEAD[p].next = nd;
+}
+
+void Make2(int p, int c, ll w)
+{
+	NODE *nd = &POOL[cnt++];
+
+	nd->value = c;
+	nd->weight = w;
+
+	nd->next = HEAD2[p].next;
+	HEAD2[p].next = nd;
+}
+
+void output(int num)
+{
+	NODE *nd = HEAD2[num].next;
+
+	while (nd)
+	{
+		printf("%d\n", nd->value);
+		nd = nd->next;
+	}
+}
+
+typedef struct st2
+{
+	int node;
+	ll weight;
+}EDGE;
+
+EDGE heap[1000100];
+int hn;
+
+EDGE pop()
+{
+	int i;
+	EDGE ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].weight = INF;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].weight < heap[i * 2].weight && heap[i].weight < heap[i * 2 + 1].weight) break;
+		if (heap[i * 2].weight < heap[i * 2 + 1].weight)
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2];
+			heap[i * 2] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2 + 1];
+			heap[i * 2 + 1] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(EDGE x)
+{
+	int i;
+	EDGE tmp;
+	heap[++hn] = x;
+	
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].weight < heap[i].weight) break;
+		
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+void init()
+{
+	int i;
+	
+	hn = cnt = 0;
+	scanf("%d %d", &N, &M);
+	for (i = 1; i <= N; i++)
+	{
+		dist[i] = INF;
+		visit[i] = 0;
+		HEAD2[i].next = HEAD[i].next = 0;
+	}
+}
+
+int main()
+{
+	int i, k, tc;
+	int p, c;
+	ll w, ans;
+	NODE *nd;
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T; tc++)
+	{
+		init();
+		
+		for (i = 0; i < M; i++)
+		{
+			scanf("%d %d %lld", &p, &c, &w);
+			Make(p, c, w);
+			Make(c, p, w);
+		}
+
+		dist[1] = 0;
+		push({ 1, 0 });
+
+		//다익스트라
+		while (hn)
+		{
+			EDGE tmp;
+			tmp = pop();
+			if (visit[tmp.node]) continue;
+
+			visit[tmp.node] = 1;
+
+			for (nd = HEAD[tmp.node].next; nd; nd = nd->next)
+			{
+				if (dist[nd->value] > dist[tmp.node] + nd->weight)
+				{
+					dist[nd->value] = dist[tmp.node] + nd->weight;
+					push({ nd->value, dist[nd->value] });
+				}
+			}
+		}
+
+		// 1~N번 노드까지 탐색하면서 HEAD2에 각 노드에 들어오는 최단 거리를 Make
+		for (i = 1; i <= N; i++)
+		{
+			for (nd = HEAD[i].next; nd; nd = nd->next)
+			{
+				if (dist[nd->value] - dist[i] == nd->weight)
+					Make2(nd->value, i, nd->weight);
+			}
+		}
+
+		// 해당 노드 중 가장 짧은 것 선택
+		ans = 0;
+		for (i = 2; i <= N; i++)
+		{
+			EDGE tmp;
+			hn = 0;
+			for (nd = HEAD2[i].next; nd; nd = nd->next)
+				push({ nd->value, nd->weight });
+
+			if (hn)
+			{
+				tmp = pop();
+				ans += tmp.weight;
+			}
+			
+		}
+		printf("#%d %lld\n", tc, ans);
+	}	
+
+	return 0;
+}
