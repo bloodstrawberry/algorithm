@@ -1,5 +1,5 @@
 //baekjoon_3176
-//도로 네트워크
+//도로 네트워크, LCA의 간선 중 최소, 최대값 
 
 #include <stdio.h>
 
