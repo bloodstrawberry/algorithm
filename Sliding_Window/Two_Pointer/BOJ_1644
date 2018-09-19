@@ -1,0 +1,49 @@
+//baekjoon_1644
+//소수의 연속합
+
+#include <stdio.h>
+
+int N;
+int prime[4000001];
+int Stack[4000001];
+int SP;
+
+void eratos()
+{
+	int i, k;
+	prime[1] = 1;
+	for (i = 2; i*i <= 4000000; i++)
+	{
+		if (!prime[i])
+		{
+			for (k = i * i; k <= 4000000; k += i)
+				prime[k] = 1;
+		}
+	}
+}
+
+int main()
+{
+	int i, k;
+	int hptr, lptr, sum, cnt;
+
+	eratos();
+
+	scanf("%d", &N);
+
+	for (i = 2; i <= N; i++)
+		if (!prime[i]) Stack[SP++] = i;
+
+	hptr = lptr = sum = cnt = 0;
+	while (1)
+	{
+		if (hptr > SP) break;
+		if (sum == N) cnt++;
+		if (sum < N) sum += Stack[hptr++];
+		else sum -= Stack[lptr++];
+	}
+
+	printf("%d\n", cnt);
+
+	return 0;
+}
