@@ -1,0 +1,35 @@
+//baekjoon_1806
+//부분합
+
+#include <stdio.h>
+
+int N, S;
+int A[100001];
+
+int main()
+{
+	int i, k, hptr, lptr, len, sum;
+
+	scanf("%d %d", &N, &S);
+
+	for (i = 0; i < N; i++) scanf("%d", &A[i]);
+
+	hptr = lptr = sum = 0;
+	len = 0x7fff0000;
+	
+	while (1)
+	{
+		if (hptr > N) break;
+		if (sum < S) sum += A[hptr++];
+		else
+		{
+			if (len > hptr - lptr) len = hptr - lptr;
+			sum -= A[lptr++];
+		}
+	}
+
+	if (len == 0x7fff0000) printf("%d\n", 0);
+	else printf("%d\n", len);
+  
+	return 0;
+}
