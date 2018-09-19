@@ -1,0 +1,141 @@
+//baekjoon_1922
+//네트워크 
+#include <stdio.h>
+
+int N, M;
+typedef struct st
+{
+	int value;
+	int weight;
+	struct st *next;
+}NODE;
+
+NODE HEAD[1001];
+NODE POOL[100010 * 2];
+int cnt;
+int visit[1001];
+
+void Make(int p, int c, int w)
+{
+	NODE *nd = &POOL[cnt++];
+
+	nd->value = c;
+	nd->weight = w;
+
+	nd->next = HEAD[p].next;
+	HEAD[p].next = nd;
+}
+
+void output(int num)
+{
+	NODE *nd = HEAD[num].next;
+
+	while (nd)
+	{
+		printf("%d\n", nd->value);
+		nd = nd->next;
+	}
+}
+
+typedef struct st2
+{
+	int node;
+	int weight;
+}EDGE;
+
+EDGE heap[100100 * 2];
+int hn;
+
+EDGE pop()
+{
+	int i;
+	EDGE ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].weight = 0x7fff0000;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].weight < heap[i * 2].weight && heap[i].weight < heap[i * 2 + 1].weight) break;
+		if (heap[i * 2].weight < heap[i * 2 + 1].weight)
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2];
+			heap[i * 2] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i];
+			heap[i] = heap[i * 2 + 1];
+			heap[i * 2 + 1] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(EDGE x)
+{
+	int i;
+	EDGE tmp;
+	heap[++hn] = x;
+	
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].weight < heap[i].weight) break;
+		
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+int main()
+{
+	int i, k;
+	int p, c, w, node, ans;
+	NODE *nd;
+
+	scanf("%d\n%d", &N, &M);
+
+	for (i = 0; i < M; i++)
+	{
+		scanf("%d %d %d", &p, &c, &w);
+		Make(p, c, w);
+		Make(c, p, w);
+	}
+	
+	node = 1;
+	ans = 0;
+	visit[node] = 1;
+
+	for (nd = HEAD[node].next; nd; nd = nd->next)
+		push({ nd->value, nd->weight });
+	
+	
+	for (i = 0; i < N - 1; i++)
+	{
+		EDGE tmp;
+		
+		while (hn)
+		{
+			tmp = pop();
+			if (!visit[tmp.node]) break;
+		}
+		//printf("%d %d\n", tmp.node, tmp.weight);
+		ans += tmp.weight;
+		visit[tmp.node] = 1;
+
+		for (nd = HEAD[tmp.node].next; nd; nd = nd->next)
+			push({ nd->value, nd->weight });
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
