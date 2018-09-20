@@ -1,0 +1,60 @@
+#include <stdio.h>
+#define MAX (100100)
+
+int T, N;
+int A[MAX];
+int B[MAX];
+
+long long int cnt;
+void merge(int s, int e)
+{
+	int i, j, k, m;
+
+	m = (s + e) / 2;
+	i = s;
+	j = m + 1;
+	k = 1;
+
+	while (i <= m && j <= e)
+	{
+		if (A[i] < A[j]) B[k++] = A[i++];
+    
+    //이 때 A[i] 쪽에 남아 있는 것들이 inversion 된 원소들.
+		else  cnt += (m + 1 - i), B[k++] = A[j++];
+	}
+
+	while (i <= m) B[k++] = A[i++];
+	while (j <= e) B[k++] = A[j++];
+
+	for (i = s; i <= e; i++)
+		A[i] = B[i - s + 1];
+}
+
+void sort(int s, int e)
+{
+	if (s == e) return;
+
+	int m = (s + e) / 2;
+
+	sort(s, m);
+	sort(m + 1, e);
+	merge(s, e);
+}
+
+
+int main()
+{
+	int i, k, tc;
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T; tc++)
+	{
+		scanf("%d", &N);
+		for (i = 1; i <= N; i++) scanf("%d", &A[i]);
+		cnt = 0;
+		sort(1, N);
+		printf("#%d %lld\n", tc, cnt);
+	}
+
+	return 0;
+}
