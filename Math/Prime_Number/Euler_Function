@@ -1,0 +1,56 @@
+#include <stdio.h>
+
+int T;
+int prime[1000001];
+long long int euler[1000001];
+long long int pSum[1000001];
+
+void eratos()
+{
+	int i, k;
+
+	prime[1] = 1;
+
+	for (i = 2; i*i <= 1000000; i++)
+	{
+		if (!prime[i])
+			for (k = i * i; k <= 1000000; k+=i)
+				prime[k] = 1;
+	}
+}
+
+int main()
+{
+	int i, k, tc, a, b;
+
+	eratos();
+
+	for (i = 1; i <= 1000000; i++) euler[i] = i;
+	for (i = 2; i <= 1000000; i++)
+	{
+		if (!prime[i])
+		{
+			euler[i] = i - 1;
+			for (k = i * 2; k <= 1000000; k += i)
+			{
+				if (!(k % i))
+					euler[k] = (euler[k] * (k - k / i)) / k;
+			}
+		}
+	}
+
+	for (i = 1; i <= 1000000; i++)
+	{
+		pSum[i] = euler[i];
+		pSum[i] += pSum[i - 1];
+	}
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T; tc++)
+	{
+		scanf("%d %d", &a, &b);
+		printf("#%d %lld\n", tc, pSum[b] - pSum[a - 1]);
+	}
+
+	return 0;
+}
