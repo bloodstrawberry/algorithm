@@ -11,5 +11,5 @@ int Euclid(int x, int y, int& a, int& b)
 	a = tp;
 	b = sp - tp*q;
 
-	return g;
+	return x * a + y * b;
 }
