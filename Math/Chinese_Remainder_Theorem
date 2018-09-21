@@ -1,18 +1,19 @@
-#include <stdio.h>
 //중국인의 나머지 정리
 //x = b[i] (mod m[i])를 모두 만족하는 최소 x 찾기
 //x = b1 * a1 * M / m1 + ... + bi * ai * M / mi
 //M = m1 * ... * mi (모두 서로소)
 //ai * M / mi = 1 (mod mi)를 만족하는 해 ai;
 //ai * M/mi + y*mi = 1 -> 확장 유클리드 방정식 이용
+//input 1, 3, 5 6, 3 10, 8 15 -> x = 23 mod 30
+//input 1, 4, 9 12, 0 9, 3 15, 13 16 -> x = 333 mod 720
+
+#include <stdio.h>
 
 typedef long long int ll;
-
 int T, N, M;
-ll A[100]; //m[i]
-ll B[100]; //b[i]
+ll A[100];
+ll B[100];
 
-gcd(x,y) = ax + by, return gcd, a, b; 
 ll Euclid(ll x, ll y, ll& a, ll& b)
 {
 	if (!y)
@@ -37,6 +38,7 @@ ll gcd(ll a, ll b)
 int main()
 {
 	int i, k, tc;
+	ll tmpGcd;
 	
 	scanf("%d", &T);
 	for (tc = 1; tc <= T; tc++)
@@ -53,30 +55,59 @@ int main()
 			m2 = A[i];
 			M = m1 * m2;
 
-      //서로소가 아닌 경우는 중국인의 나머지 정리를 적용할 수 없다.
-      //따라서 해당 gcd만큼 나눠준다.
-      //또한 b1 % gcd != b2 % gcd 인 경우는 답이 없다. (x = 2 mod 4, x = 1 mod 6)
-      //tc에는 해당 경우가 없음.
-			if (gcd(m1, m2) != 1) 
+			//서로소가 아닌 경우는 중국인의 나머지 정리를 적용할 수 없다.
+			if ((tmpGcd = gcd(m1, m2)) != 1)
 			{
-				int tmpGcd = gcd(m1, m2);
+				ll tmpB;
+
+				//x = b1 mod m1;
+				//x = b2 mod m2;
+				//gcd(m1, m2) = g -> m1 = gx1, m2 = gx2
+				// b1 % g == b2 % g일 때만 답이 존재한다. (x = 2 mod 4, x = 1 mod 6 은 답이 없다.)
+				//따라서 gcd(m1,m2)로 나눠준 후에 유클리드 방정식을 적용하고 복구한다.
+
+				tmpB = B[i - 1]; //원래의 값을 기억해둔다. 복구 때 필요.
 				B[i - 1] /= tmpGcd;
 				B[i] /= tmpGcd;
+				M /= tmpGcd;
+				m1 /= tmpGcd;
+				m2 /= tmpGcd;
+
+				//-> x = b1 mod m1, x = b2 mod m2 -> x' = b1/g mod m1/g , x' = b2/g mod m2/g로 변경.
+
+				Euclid(m2, m1, y1, x1); 
+				y1 = (y1 + m1) % m1; //음수 처리
+
+				Euclid(m1, m2, y2, x2);
+				y2 = (y2 + m2) % m2; //음수 처리
+
+				//나머지 정리 공식.
+				B[i] = B[i - 1] * y1 * m2 + B[i] * y2 * m1; 
+				//////////////////////////////////////////
+				// x = y * g + b1 % g 로 복구한다.
+				B[i] = B[i] * tmpGcd + tmpB % tmpGcd;
+				//////////////////////////////////////////
+				A[i] = M;
+				B[i] %= A[i];
+
 			}
+			else
+			{
+				Euclid(m2, m1, y1, x1);
+				y1 = (y1 + m1) % m1;
 
-			Euclid(m2, m1, y1, x1);
-			y1 = (y1 + m1) % m1; //음수 처리
+				Euclid(m1, m2, y2, x2);
+				y2 = (y2 + m2) % m2;
 
-			Euclid(m1, m2, y2, x2);
-			y2 = (y2 + m2) % m2; //음수 처리
-
-			B[i] = B[i - 1] * y1 * m2 + B[i] * y2 * m1;
-			A[i] = M;
-			B[i] %= A[i];
+				B[i] = B[i - 1] * y1 * m2 + B[i] * y2 * m1;
+				A[i] = M;
+				B[i] %= A[i];
+			}
+			
 		}
 
 		printf("#%d %lld\n", tc, B[N - 1]);
 	}
-  
+
 	return 0;
 }
