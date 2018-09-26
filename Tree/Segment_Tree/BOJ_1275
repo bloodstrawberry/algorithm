@@ -1,0 +1,68 @@
+//baekjoon_1275
+//커피숍2
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+typedef long long int ll;
+int N, Q;
+ll tree[100001 * 4];
+ll A[100001];
+
+ll init(int s, int e, int Node)
+{
+	if (s == e) return tree[Node] = A[s];
+	
+	return tree[Node] = init(s, (s + e) / 2, Node * 2) + init((s + e) / 2 + 1, e, Node * 2 + 1);
+}
+
+ll findSum(int s, int e, int a, int b, int Node)
+{
+	if (b < s || e < a) return 0;
+	if (a <= s && e <= b) return tree[Node];
+
+	return findSum(s, (s + e) / 2, a, b, Node * 2) + findSum((s + e) / 2 + 1, e, a, b, Node * 2 + 1);
+}
+
+void update(int s, int e, int Node, int index, ll diff)
+{
+	if (index < s || e < index) return;
+	tree[Node] += diff;
+
+	if (s != e)
+	{
+		update(s, (s + e) / 2, Node * 2, index, diff);
+		update((s + e) / 2 + 1, e, Node * 2 + 1, index, diff);
+	}
+}
+
+int main()
+{
+	int i;
+	int x, y, a, b;
+	scanf("%d %d", &N, &Q);
+	
+	for (i = 1; i <= N;i++) scanf("%lld", &A[i]);
+	
+	init(1,N,1);
+
+	for (i = 0; i < Q;i++)
+	{
+		ll diff;
+		scanf("%d %d %d %d", &x, &y, &a, &b);
+
+		if (x > y)
+		{
+			ll tmp = x;
+			x = y;
+			y = tmp;
+		}
+
+		printf("%lld\n", findSum(1, N, x, y, 1));
+
+		diff = b - A[a];
+		A[a] = b;
+		update(1, N, 1, a, diff);
+	}
+
+	return 0;
+}
