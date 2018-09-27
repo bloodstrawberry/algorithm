@@ -1,0 +1,116 @@
+//baekjoon_1620
+//나는야 포켓몬 마스터 이다솜
+
+#include <stdio.h>
+#define MAX_TABLE (200000)
+typedef long long int ll;
+
+int N, M;
+typedef struct st
+{
+	int index;
+	char name[21];
+	struct st *next;
+}POKETMON;
+
+POKETMON DOGAM[MAX_TABLE];
+POKETMON POOL[MAX_TABLE];
+int cnt;
+POKETMON ARR[MAX_TABLE];
+
+ll hash(const char *str)
+{
+	ll hash = 5381;
+	int c;
+
+	while (c = *str++)
+	{
+		hash = (((hash << 5) + hash) + c) % MAX_TABLE;
+	}
+
+	return hash % MAX_TABLE;
+}
+
+void strcpy(char *a, char *b)
+{
+	while (*a++ = *b++);
+}
+
+int strcmp(char *a, char *b)
+{
+	while (*a || *b) if (*a++ != *b++) return 1;
+	return 0;
+}
+
+int change(char *str)
+{
+	int i, len;
+	int sum, mul;
+
+	sum = 0;
+	mul = 1;
+
+	for (i = 0; str[i]; i++);
+	len = i;
+
+	for (i = len - 1; i >= 0; i--)
+	{
+		sum += (str[i] - '0') * mul;
+		mul *= 10;
+	}
+
+	return sum;
+}
+
+int main()
+{
+	int i;
+	ll h;
+	POKETMON *nd;
+	char str[21];
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N; i++)
+	{
+		scanf("%s", str);
+		h = hash(str);
+		
+		nd = &POOL[cnt++];
+		nd->index = i;
+		strcpy(nd->name, str);
+
+		nd->next = DOGAM[h].next;
+		DOGAM[h].next = nd;
+
+		strcpy(ARR[i].name, str);
+	}
+	
+	for (i = 0; i < M; i++)
+	{
+		scanf("%s", str);
+
+		if ('0' < str[0] && str[0] <= '9')
+		{
+			int index = change(str);
+			printf("%s\n", ARR[index].name);
+		}
+		else
+		{
+			h = hash(str);
+
+			nd = DOGAM[h].next;
+
+			while (nd)
+			{
+				if (!strcmp(nd->name, str))
+				{
+					printf("%d\n", nd->index);
+					break;
+				}
+				nd = nd->next;
+			}
+		}
+	}
+
+	return 0;
+}
