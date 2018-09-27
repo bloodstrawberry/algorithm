@@ -1,0 +1,175 @@
+//baekjoon_2887
+//행성 터널, 최소 스패닝 트리(Kruskal)
+#include <stdio.h>
+
+int N;
+
+typedef struct st
+{
+	int r;
+	int index;
+}XYZ;
+
+XYZ X[100100], Y[100100], Z[100100];
+XYZ B[100100];
+
+void merge(int s, int e, XYZ *A)
+{
+	int i, j, k, m;
+
+	m = (s + e) / 2;
+	i = s;
+	j = m + 1;
+	k = 1;
+	
+	while (i <= m && j <= e)
+	{
+		if (A[i].r < A[j].r) B[k++] = A[i++];
+		else B[k++] = A[j++];
+	}
+
+	while (i <= m) B[k++] = A[i++];
+	while (j <= e) B[k++] = A[j++];
+
+	for (i = s; i <= e; i++)
+		A[i] = B[i - s + 1];
+}
+
+void sort(int s, int e, XYZ *A)
+{
+	int m;
+	if (s == e) return;
+	
+	m = (s + e) / 2;
+	sort(s, m, A);
+	sort(m + 1, e, A);
+	merge(s, e, A);
+}
+
+typedef struct st2
+{
+	int value;
+	int node1;
+	int node2;
+}HEAP;
+
+HEAP heap[100100 * 3];
+int hn;
+
+HEAP pop()
+{
+	int i;
+	HEAP tmp, ret;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].value = 0x7fffffff;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].value < heap[i * 2].value && heap[i].value < heap[i * 2 + 1].value) break;
+		else if (heap[i * 2].value < heap[i * 2 + 1].value)
+		{
+			tmp = heap[i * 2];
+			heap[i * 2] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i * 2 + 1];
+			heap[i * 2 + 1] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(HEAP x)
+{
+	int i;
+	HEAP tmp;
+
+	heap[++hn] = x;
+
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].value < heap[i].value) break;
+
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+int abs(int x, int y)
+{
+	return (x > y) ? x - y : y - x;
+}
+
+int parent[100100];
+
+int Find(int x)
+{
+	if (x == parent[x]) return x;
+	return parent[x] = Find(parent[x]);
+}
+
+void Union(int x, int y)
+{
+	x = Find(x);
+	y = Find(y);
+
+	if (x == y) return;
+	parent[x] = y;
+}
+
+int main()
+{
+	int i, x, y, z, ans;
+	
+	scanf("%d", &N);
+
+	for (i = 1; i <= N; i++)
+	{
+		scanf("%d %d %d", &x, &y, &z);
+
+		X[i].r = x;
+		Y[i].r = y;
+		Z[i].r = z;
+		X[i].index = Y[i].index = Z[i].index = i;
+		parent[i] = i;
+	}
+
+	sort(1, N, X);
+	sort(1, N, Y);
+	sort(1, N, Z);
+
+	for (i = 1; i <= N - 1; i++)
+	{
+		push({ abs(X[i].r, X[i + 1].r), X[i].index, X[i + 1].index });
+		push({ abs(Y[i].r, Y[i + 1].r), Y[i].index, Y[i + 1].index });
+		push({ abs(Z[i].r, Z[i + 1].r), Z[i].index, Z[i + 1].index });
+	}
+
+	ans = 0;
+	while (hn)
+	{
+		HEAP tmp;
+
+		tmp = pop();
+
+		if (Find(tmp.node1) == Find(tmp.node2)) continue;
+		
+		Union(tmp.node1, tmp.node2);
+		ans += tmp.value;
+	}
+
+	printf("%d\n", ans);
+  
+	return 0;
+}
