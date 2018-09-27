@@ -1,0 +1,144 @@
+//baekjoon_7785
+//회사에 있는 
+
+#include <stdio.h>
+#define MAX_TABLE (1000000 * 2)
+typedef long long int ll;
+
+int N, M;
+
+typedef struct st
+{
+	char name[6];
+	int in;
+}DB;
+
+DB dbList[1001000];
+DB enterList[1001000];
+
+typedef struct st2
+{
+	DB *db;
+	struct st2 *next;
+}HASH;
+
+HASH Hash[MAX_TABLE];
+HASH POOL[MAX_TABLE];
+int cnt;
+
+ll hash(const char *str)
+{
+	ll hash = 5381;
+	int c;
+
+	while (c = *str++)
+	{
+		hash = (((hash << 5) + hash) + c) % MAX_TABLE;
+	}
+
+	return hash % MAX_TABLE;
+}
+
+void strcpy(char *a, char *b)
+{
+	while (*a++ = *b++);
+}
+
+int strcmp(char *a, char *b)
+{
+	while (*a || *b) if (*a++ != *b++) return (*--a - *--b);
+	return 0;
+}
+
+DB b[1000100];
+
+void merge(int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (strcmp(enterList[i].name, enterList[j].name) > 0) b[k++] = enterList[i++];
+		else b[k++] = enterList[j++];
+	}
+
+	while (i <= mid) b[k++] = enterList[i++];
+	while (j <= end) b[k++] = enterList[j++];
+	for (i = start; i <= end; i++)
+		enterList[i] = b[i - start];
+}
+
+void sort(int start, int end)
+{
+	int mid;
+	if (start == end) return;
+
+	mid = (start + end) / 2;
+	sort(start, mid);
+	sort(mid + 1, end);
+	merge(start, end);
+}
+
+int main()
+{
+	int N, i, count, inCnt;
+	char name[6], cmd[6];
+	HASH *nd;
+
+	scanf("%d", &N);
+
+	count = 0;
+	for (i = 0; i < N; i++)
+	{
+		scanf("%s %s", name, cmd);
+		if (!strcmp(cmd, "enter"))
+		{
+			ll h = hash(name);
+
+			strcpy(dbList[count].name, name);
+			dbList[count].in = 1;
+			
+			nd = &POOL[cnt++];
+			nd->db = &dbList[count];
+			
+			nd->next = Hash[h].next;
+			Hash[h].next = nd;
+			
+			count++;
+		}
+		else
+		{
+			ll h = hash(name);
+			
+			nd = Hash[h].next;
+
+			while (nd)
+			{
+				if (!strcmp(nd->db->name, name) && nd->db->in)
+				{
+					nd->db->in = 0;
+					break;
+				}
+				nd = nd->next;
+			}
+		}
+	}
+
+	inCnt = 0;
+	for (i = 0; i < cnt; i++)
+	{
+		if (dbList[i].in) enterList[inCnt++] = dbList[i];
+	}
+
+	sort(0, inCnt);
+
+	for (i = 0; i < inCnt; i++)
+		printf("%s\n", enterList[i].name);
+
+	return 0;
+}
