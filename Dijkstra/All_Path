@@ -1,0 +1,139 @@
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int T, N, M;
+int MAP[510][510];
+
+typedef struct st2
+{
+	int node;
+	int value;
+}HEAP;
+
+HEAP heap[25100];
+int hn;
+
+HEAP pop()
+{
+	int i;
+	HEAP ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].value = INF;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].value < heap[i * 2].value && heap[i].value < heap[i * 2 + 1].value) break;
+		else if (heap[i * 2].value < heap[i * 2 + 1].value)
+		{
+			tmp = heap[i * 2];
+			heap[i * 2] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i * 2 + 1];
+			heap[i * 2 + 1] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(HEAP x)
+{
+	int i;
+	HEAP tmp;
+
+	heap[++hn] = x;
+
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].value < heap[i].value) break;
+		
+		tmp = heap[i];
+		heap[i] = heap[i / 2];
+		heap[i / 2] = tmp;
+	}
+}
+
+void Dijkstra(int node)
+{
+	int i;
+	int dist[510];
+	int visit[510] = { 0 };
+
+	for (i = 1; i <= N; i++) dist[i] = INF;
+	
+	dist[node] = 0;
+
+	push({ node, 0 });
+
+	while (hn)
+	{
+		HEAP tmp;
+
+		tmp = pop();
+
+		if (visit[tmp.node]) continue;
+
+		visit[tmp.node] = 1;
+
+		for (i = 1; i <= N; i++)
+		{
+			if (tmp.node == i || !MAP[tmp.node][i]) continue;
+			
+			if (dist[i] > dist[tmp.node] + MAP[tmp.node][i])
+			{
+				dist[i] = dist[tmp.node] + MAP[tmp.node][i];
+				push({ i, dist[i] });
+			}
+		}
+
+	}
+
+	for (i = 1; i <= N; i++)
+	{
+		if (dist[i] == INF) printf("-1 ");
+		else printf("%d ", dist[i]);
+		
+	}
+}
+
+int main()
+{
+	int i, k, tc, p, c, w;
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T; tc++)
+	{
+		scanf("%d %d", &N, &M);
+
+		for (i = 1; i <= N; i++)
+			for (k = 1; k <= N; k++)
+				MAP[i][k] = 0;
+
+		for (i = 0; i < M; i++)
+		{
+			scanf("%d %d %d", &p, &c, &w);
+			
+			if (p == c) continue;
+
+			if (MAP[p][c] == 0) MAP[p][c] = w;
+			else if (MAP[p][c] > w) MAP[p][c] = w;
+			
+		}
+
+		printf("#%d ", tc);
+		for (i = 1; i <= N; i++) Dijkstra(i);
+		putchar('\n');
+	}
+
+	return 0;
+}
