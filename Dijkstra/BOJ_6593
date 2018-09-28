@@ -1,0 +1,156 @@
+//baekjoon_6593
+//
+
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int L, R, C;
+char MAP[35][35][35];
+
+typedef struct st2
+{
+	int l;
+	int r;
+	int c;
+	int value;
+}HEAP;
+
+HEAP heap[35 * 35 * 35 * 10];
+int hn;
+
+HEAP pop()
+{
+	int i;
+	HEAP ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].value = INF;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i].value < heap[i * 2].value && heap[i].value < heap[i * 2 + 1].value) break;
+		else if (heap[i * 2].value < heap[i * 2 + 1].value)
+		{
+			tmp = heap[i * 2];
+			heap[i * 2] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i * 2 + 1];
+			heap[i * 2 + 1] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(HEAP x)
+{
+	int i;
+	HEAP tmp;
+
+	heap[++hn] = x;
+
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].value < heap[i].value) break;
+
+		tmp = heap[i];
+		heap[i] = heap[i / 2];
+		heap[i / 2] = tmp;
+	}
+}
+
+int dist[35][35][35];
+int visit[35][35][35];
+int dr[] = { 0, 1, 0, -1 };
+int dc[] = { 1, 0, -1, 0 };
+int dl[] = { -1, 1 };
+
+int main()
+{
+	int i, k, t, nl, nr, nc;
+	int sr, sc, sl, er, ec, el;
+
+	while (1)
+	{
+		scanf("%d %d %d", &L, &R, &C);
+		if (!(L+R+C)) break;
+		for (i = 1; i <= L; i++)
+		{
+			for (k = 1; k <= R; k++)
+			{
+				for (t = 1; t <= C; t++)
+				{
+					scanf(" %c", &MAP[i][k][t]);
+					if (MAP[i][k][t] == 'S') sl = i, sr = k, sc = t;
+					else if (MAP[i][k][t] == 'E') el = i, er = k, ec = t;
+				}
+			}
+		}
+			
+		for (i = 1; i <= L; i++)
+			for (k = 1; k <= R; k++)
+				for (t = 1; t <= C;t++)
+					dist[i][k][t] = INF;
+
+		for (i = 1; i <= L; i++)
+			for (k = 1; k <= R; k++)
+				for (t = 1; t <= C;t++)
+					visit[i][k][t] = 0;
+
+		dist[sl][sr][sc] = 0;
+
+		push({ sl, sr ,sc, 0 });
+
+		while (hn)
+		{
+			HEAP tmp;
+
+			tmp = pop();
+
+			if (visit[tmp.l][tmp.r][tmp.c]) continue;
+			visit[tmp.l][tmp.r][tmp.c] = 1;
+
+			for (i = 0; i < 4; i++)
+			{
+				nr = tmp.r + dr[i];
+				nc = tmp.c + dc[i];
+
+				if (nr < 1 || nc < 1 || nr > R || nc > C) continue;
+				if (MAP[tmp.l][nr][nc] == '#') continue;
+				if (dist[tmp.l][nr][nc] > dist[tmp.l][tmp.r][tmp.c] + 1)
+				{
+					dist[tmp.l][nr][nc] = dist[tmp.l][tmp.r][tmp.c] + 1;
+					push({ tmp.l, nr, nc, dist[tmp.l][nr][nc] });
+				}
+			}
+
+			for (i = 0; i < 2; i++)
+			{
+				nl = tmp.l + dl[i];
+				
+				if (nl < 1 || nl > L) continue;
+				if (MAP[nl][tmp.r][tmp.c] == '#') continue;
+				if (dist[nl][tmp.r][tmp.c] > dist[tmp.l][tmp.r][tmp.c] + 1)
+				{
+					dist[nl][tmp.r][tmp.c] = dist[tmp.l][tmp.r][tmp.c] + 1;
+					push({ nl, tmp.r, tmp.c, dist[nl][tmp.r][tmp.c] });
+				}
+			}
+			
+		}
+
+		if (dist[el][er][ec] == INF) printf("Trapped!\n");
+		else printf("Escaped in %d minute(s).\n",dist[el][er][ec]);
+	}
+
+	return 0;
+}
