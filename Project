@@ -1,0 +1,199 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//메모장의 크기는 10x10 ~250 x 250
+//init(char memo[][], int R)
+//changewindow(int R)
+//찾아야할 문자열의 길이는 2~5
+//메모장은 편의를 위해 영어 소문자로만 구성
+//명령어 0->창조절
+//명령어 1->문자열 찾기
+//명령어 2->문자 리턴
+
+
+#define MAX_MEMO (255)
+
+int seed = 2018;
+char memo[MAX_MEMO][MAX_MEMO];
+
+char rtnMemo[MAX_MEMO][MAX_MEMO];
+int maxCOL;
+int ROW;
+int COL;
+int COLArr[MAX_MEMO];
+
+
+char findMemo[MAX_MEMO * MAX_MEMO][MAX_MEMO];
+char findCol;
+
+void init(char memo[MAX_MEMO][MAX_MEMO],int r) {
+	//초기화
+	int i, k;
+	for (int i = 0; i < r; i++) printf("%s\n", memo[i]);
+
+	COL = ROW = r;
+	findCol = maxCOL = 0;
+	for (i = 0; i < r; i++)
+	{
+		for (k = 0; memo[i][k]; k++)
+			rtnMemo[i][k] = memo[i][k];
+		rtnMemo[i][k] = 0;
+		COLArr[i] = k;
+		if (maxCOL < k) maxCOL = k;
+	}
+		
+	putchar('\n');
+	//for (int i = 0; i < r; i++) printf("%s\n", rtnMemo[i]);
+
+}
+
+
+int find_str_frequency(char* str){
+
+	int n, i, k, t;
+	int r, c, len;
+	
+	COL = 5;
+	
+	if (findCol != COL)
+	{
+		findCol = COL;
+		//현재 창으로 메모 갱신.
+		r = c = 0;
+		for (i = 0; i < ROW; i++)
+		{
+			int cnt = (COLArr[i] - 1) / COL + 1;
+			int mc = 0;
+			for (k = 0; k < cnt; k++)
+			{
+				c = 0;
+				for (t = 0; t < COL && memo[i][mc]; t++)
+					findMemo[r][c++] = memo[i][mc++];
+				findMemo[r][c] = 0;
+				r++;
+			}
+		}
+	}
+	
+	
+	for (i = 0; i < r; i++)
+		printf("%s\n", findMemo[i]);
+	
+
+	//세로로 일치하는 문자열의 개수를 리턴합니다.
+	n = 0;
+	for (len = 0; str[len]; len++);
+
+	for (i = 0; i < r - len + 1; i++)
+	{
+		for (k = 0; findMemo[i][k]; k++)
+		{
+			if (findMemo[i][k] == str[0])
+			{
+				for (t = 1; t < len; t++)
+					if (findMemo[i + t][k] != str[t]) break;
+				if (t == len) n++;
+			}
+		}
+	}
+	
+	printf("%d\n", n);
+	return n;
+}
+
+void change_window(int col) {
+
+	//가로의 길이를 넘겨줘 창을 조절하게 합니다.
+	COL = col;
+}
+
+char find_char(int row, int col) {
+	
+	if (COL >= maxCOL) return rtnMemo[row-1][col-1];
+	
+	char a;
+	int i, cnt, r, c;
+
+	r = c = 0;
+	int realr, realc; 
+	for (i = 0; i < ROW; i++)
+	{
+		r += (COLArr[i] - 1) / COL + 1;
+		if (r >= row)
+		{
+			r -= ((COLArr[i] - 1) / COL + 1);
+			break;
+		}
+	}
+	
+	realr = i;
+	
+	int st_r = row - r;
+
+	realc = COL * st_r + col;
+
+
+
+
+
+
+	return a;
+}
+
+int run()
+{
+	int i, query, cmd;
+
+	scanf("%d", &query);
+
+	for (i = 0; i < query; i++)
+	{
+		scanf("%d", &cmd);
+		if (cmd == 0)
+		{
+			int r;
+			scanf("%d", &r);
+			change_window(r);
+		}
+		else if (cmd == 1)
+		{
+			char str[10];
+			int count, ans;
+			scanf("%s %d", str, &ans);
+			
+			count = find_str_frequency(str);
+			if (ans != count) return 0;
+		}
+		else if (cmd == 2)
+		{
+			int r, c;
+			char ch;
+			scanf("%d %d %c", &r, &c, &ch);
+			if (find_char(r, c) != ch) return 0;
+		}
+
+	}
+	
+	return 1;
+}
+
+int main()
+{
+	int T, tc, i, k, lenR, lenC, query, cnt;
+	
+	scanf("%d", &T);
+	cnt = 0;
+	for (tc = 1; tc <= T; tc++)
+	{
+		scanf("%d", &lenR);
+		
+		for (i = 0; i < lenR; i++) scanf("%s", memo[i]);
+		
+		init(memo,lenR);
+
+		cnt += run();
+
+	}
+
+	return 0;
+}
