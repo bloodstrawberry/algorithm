@@ -1,0 +1,53 @@
+//baekjoon_6588
+//
+#pragma warning (disable:4996)
+#include <stdio.h>
+
+int prime[1000100];
+int pset[1000100];
+int cnt;
+
+void eratos()
+{
+	int i, k;
+	
+	prime[1] = 1;
+	for (i = 2; i * i <= 1000000; i++)
+	{
+		if (!prime[i])
+		{
+			for (k = i * i; k <= 1000000; k += i)
+				prime[k] = 1;
+		}
+	}
+}
+
+int main()
+{
+	int i, n;
+
+	eratos();
+
+	for (i = 3; i <= 1000000;i++)
+		if (!prime[i]) pset[cnt++] = i;
+
+	while (1)
+	{
+		int st;
+		scanf("%d", &n);
+		if (!n) break;
+
+		st = 0;
+		while (1)
+		{
+			if (!prime[n - pset[st]])
+			{
+				printf("%d = %d + %d\n", n, pset[st], n - pset[st]);
+				break;
+			}
+			st++;
+		}
+	}
+
+	return 0;
+}
