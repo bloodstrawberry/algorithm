@@ -1,0 +1,40 @@
+#include <stdio.h>
+
+int T, N;
+int MAP[1010][1010];
+int DP[1010][1010]; //DP[i][j]는 i,j를 가장 오른쪽 아래로 하는 비어 있는 가장 큰 정사각형의 길이
+
+int minV(int a, int b)
+{
+	return (a < b) ? a : b;
+}
+
+int main(void) {
+	
+	int tc, i, k, ans;
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T; tc++)
+	{
+		scanf("%d", &N);
+		
+		ans = 0;
+		for (i = 1; i <= N; i++)
+			for (k = 1; k <= N; k++)
+				scanf("%1d", &MAP[i][k]);
+
+		for (i = 1; i <= N; i++)
+		{
+			for (k = 1; k <= N; k++)
+			{
+				if (MAP[i][k] == 1) DP[i][k] = 0;
+				else DP[i][k] = minV(DP[i - 1][k], minV(DP[i][k - 1], DP[i - 1][k - 1])) + 1;
+
+				if (ans < DP[i][k]) ans = DP[i][k];
+			}
+		}
+		printf("#%d %d\n", tc, ans);
+	}
+	
+	return 0;
+}
