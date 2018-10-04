@@ -1,0 +1,75 @@
+#include <iostream>
+#include <stdio.h>
+
+// https://kks227.blog.me/220917078260
+
+using namespace std;
+
+const int MAXN = 500000;
+const int MAXM = 100000;
+
+extern int FindString(int N, char *A, int M, char *B);
+
+char A[MAXN + 5];
+char B[MAXM + 5];
+
+int FindString(int N, char *A, int M, char *B)
+{
+	int i, j, ans;
+	//M의 처음 (x+1)글자 중, 일치하는 접두사/접미사 중 최대 길이
+	//abcdabd -> (6글자) abcdab -> ab cd ab -> 2글자. fail[5] = 2
+	int fail[100100] = { 0 };
+
+	for (i = 1, j = 0; i < M; i++)
+	{
+		while (j > 0 && B[i] != B[j]) j = fail[j - 1];
+		if (B[i] == B[j]) fail[i] = ++j;
+	}
+
+	//for (i = 0; i < M; i++) printf("%d ", fail[i]);
+	//putchar('\n');
+
+	ans = 0;
+	for (i = 0, j = 0; i < N; i++)
+	{
+		//현재 글자가 불일치하면 fail 값을 계속 따라 감.
+		while (j > 0 && A[i] != B[j]) j = fail[j - 1];
+		
+		//현재 글자가 일치
+		if (A[i] == B[j])
+		{
+			//B를 A[i:i+M-1]에서 찾음
+			if (j == M - 1)
+			{
+				//i = 0부터 시작한다면, i-M+1, 문제 조건에 따라 1을 더함.
+				ans++;
+				j = fail[j];
+			}
+			else j++;
+		}
+	}
+
+	return ans;
+}
+
+
+int main(void) {
+	setbuf(stdout, NULL);
+
+	int TestCase; for (scanf("%d", &TestCase); TestCase--;) {
+
+		scanf("%s", A);
+		scanf("%s", B);
+
+		//N = Length of A, M = Length of B
+		int N = 0, M = 0;
+		for (; A[N]; N++);
+		for (; B[M]; M++);
+
+		int answer = FindString(N, A, M, B);
+
+		static int tc = 0;
+		printf("#%d %d\n", ++tc, answer);
+	}
+	return 0;
+}
