@@ -1,0 +1,127 @@
+//baekjoon_2261
+//가장 가까운 두 점
+#include <stdio.h>
+
+int N;
+
+typedef struct st
+{
+	int x;
+	int y;
+}XY;
+
+XY A[100100];
+XY B[100100];
+XY C[100100];
+int cnt;
+
+int minX(XY a, XY b)
+{
+	if (a.x < b.x) return 1;
+	if (a.x == b.x && a.y < b.y) return 1;
+	else return 0;
+}
+
+int minY(XY a, XY b)
+{
+	if (a.y < b.y) return 1;
+	if (a.y == b.y && a.x < b.x) return 1;
+	else return 0;
+}
+
+int dist(XY a, XY b)
+{
+	return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+}
+
+void merge(XY *A, int s, int e, int (*ptr)(XY, XY))
+{
+	int i, j, k, m;
+
+	m = (s + e) / 2;
+
+	i = s;
+	j = m + 1;
+	k = 0;
+
+	while (i <= m && j <= e)
+	{
+		if (ptr(A[i] , A[j])) B[k++] = A[i++];
+		else B[k++] = A[j++];
+	}
+
+	while (i <= m) B[k++] = A[i++];
+	while (j <= e) B[k++] = A[j++];
+
+	for (i = s;i <= e;i++) 
+		A[i] = B[i - s];
+}
+
+void sort(XY *X, int s, int e, int(*ptr)(XY, XY))
+{
+	int m;
+	if (s == e) return;
+
+	m = (s + e) / 2;
+	sort(X, s, m, ptr);
+	sort(X, m + 1, e, ptr);
+
+	merge(X, s, e, ptr);
+}
+
+
+int find(int st, int ed)
+{
+	int i, k, m, minL, minR, minD, L, R;
+	
+	if (ed == st) return 0x7fff0000;
+	if (ed - st == 1) return dist(A[st], A[ed]);
+
+	m = (st + ed) / 2;
+	minL = find(st, m);
+	minR = find(m + 1, ed);
+	minD = (minL < minR) ? minL : minR;
+
+	cnt = 0;
+	//가운데 점에서 x좌표의 차이가 d보다 작은 값들을 C에 저장한다.
+	for (i = st; i <= ed;i++)
+	{
+		int tmp = A[i].x - A[m].x;
+		if (tmp * tmp < minD) C[cnt++] = A[i];
+	}
+
+	if (cnt > 1) sort(C, 0, cnt - 1, minY);
+
+	for (i = 0; i < cnt - 1;i++)
+	{
+		for (k = i + 1; k < cnt;k++)
+		{	
+			//선택한 점을 기준으로 minD의 있는 점들을 하나씩 비교해본다.
+			int tmp = C[i].y - C[k].y;
+			if (tmp * tmp < minD)
+			{
+				int distLR = dist(C[i], C[k]);
+				if (distLR < minD) minD = distLR;		
+			}
+			else break; //정렬했기 때문에 minD 이상의 값이 나오면 더 이상 비교할 필요가 없다.
+		}
+	}
+
+	return minD;
+}
+
+int main(void)
+{
+	int i;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++)
+		scanf("%d %d", &A[i].x, &A[i].y);
+
+	sort(A, 0, N - 1, minX);
+
+	printf("%d\n", find(0, N - 1));
+	
+	return 0;
+}
