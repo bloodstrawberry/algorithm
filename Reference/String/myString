@@ -18,6 +18,12 @@ void my_strcpy(char * src, char * dest){
 	while (*dest++ = *src++);
 }
 
+int strcmp(const char *a, const char *b)
+{
+	while (*a && *a == *b) ++a, ++b;
+	return *a - *b;
+}
+
 int my_strcmp(char * s1, char * s2){
 	int idx = 0;
 	while (s1[idx]){
