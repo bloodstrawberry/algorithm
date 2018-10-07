@@ -1,0 +1,36 @@
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+
+	int divisor[100001] = { 0 };
+	for (int i = 2; i <= 100000; i++)
+		for (int j = i; j <= 100000; j += i)
+			divisor[j]++;
+
+	int ans[100001];
+	int num = 1;
+	int _max = divisor[1];
+	for (int i = 1; i <= 100000; i++)
+	{
+		if (_max <= divisor[i])
+		{
+			_max = divisor[i];
+			num = i;
+		}
+		ans[i] = num;
+	}
+
+	int T, N;
+	cin >> T;
+	for (int tc = 1; tc <= T; tc++)
+	{
+		cin >> N;
+		cout << "#" << tc << " " << ans[N] << "\n";
+	}
+	return 0;
+}
