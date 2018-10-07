@@ -1,0 +1,121 @@
+//baekjoon_1764
+//듣보잡
+
+#include <stdio.h>
+#define MAX_TABLE (1000007)
+
+typedef long long int ll;
+int N, M;
+
+typedef struct st
+{
+	char name[21];
+	struct st *next;
+}HASH;
+
+HASH Hash[MAX_TABLE + 100];
+HASH POOL[500001];
+int cnt;
+
+void strcpy(char *a, char *b)
+{
+	while (*a++ = *b++);
+}
+
+int strcmp(const char *a, const char *b)
+{
+	while (*a && *a == *b) ++a, ++b;
+	return *a - *b;
+}
+
+ll hash(const char *str)
+{
+	ll hash = 5381;
+	int c;
+
+	while (c = *str++)
+	{
+		hash = (((hash << 5) + hash) + c) % MAX_TABLE;
+	}
+
+	return hash % MAX_TABLE;
+}
+
+char* a[500001];
+char* b[500001];
+int listcnt;
+
+void merge(int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (strcmp(a[i], a[j]) < 0) b[k++] = a[i++];
+		else b[k++] = a[j++];
+	}
+
+	while (i <= mid) b[k++] = a[i++];
+	while (j <= end) b[k++] = a[j++];
+	for (i = start; i <= end;i++)
+		a[i] = b[i - start];
+
+}
+
+void sort(int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(start, mid);
+	sort(mid + 1, end);
+	merge(start, end);
+}
+
+int main(void)
+{
+	int i;
+	ll h;
+	HASH *nd;
+	char str[21];
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < N;i++)
+	{
+		scanf("%s", str);
+		h = hash(str);
+
+		nd = &POOL[cnt++];
+		strcpy(nd->name, str);
+
+		nd->next = Hash[h].next;
+		Hash[h].next = nd;
+	}
+
+	for (i = 0; i < M;i++)
+	{
+		scanf("%s", str);
+		h = hash(str);
+
+		for (nd = Hash[h].next; nd; nd = nd->next)
+		{
+			if (!strcmp(nd->name, str))
+				a[listcnt++] = nd->name;
+		}
+	}
+
+	sort(0, listcnt - 1);
+
+	printf("%d\n", listcnt);
+	for (i = 0; i < listcnt;i++)
+		printf("%s\n", a[i]);
+
+	return 0;
+}
