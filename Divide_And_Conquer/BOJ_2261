@@ -60,7 +60,7 @@ void merge(XY *A, int s, int e, int (*ptr)(XY, XY))
 void sort(XY *X, int s, int e, int(*ptr)(XY, XY))
 {
 	int m;
-	if (s == e) return;
+	if (s >= e) return;
 
 	m = (s + e) / 2;
 	sort(X, s, m, ptr);
@@ -104,7 +104,7 @@ int find(int st, int ed)
 		else break;
 	}
 	
-	if (cnt > 1) sort(C, 0, cnt - 1, minY);
+	sort(C, 0, cnt - 1, minY);
 
 	for (i = 0; i < cnt - 1;i++)
 	{
