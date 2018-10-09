@@ -1,0 +1,65 @@
+#include <stdio.h>
+
+int T;
+
+int main(void)
+{
+	int tc, i, k, left, right;
+	unsigned int n1, n2, tmp;
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T;tc++)
+	{
+		left = right = 0;
+		scanf("%x %x", &n1, &n2);
+
+		if (n1 == n2)
+		{
+			printf("0 Any\n");
+			continue;
+		}
+
+		tmp = n1;
+		for (i = 0; i < 32;i++)
+		{
+			if (tmp & 0x80000000)
+			{
+				tmp <<= 1;
+				tmp |= 1;
+			}
+			else tmp <<= 1;
+			
+			if (tmp == n2)
+			{
+				left = i + 1;
+				break;
+			}
+		}
+
+		tmp = n1;
+		for (i = 0; i < 32;i++)
+		{
+			if (tmp & 1)
+			{
+				tmp >>= 1;
+				tmp |= 0x80000000;
+			}
+			else tmp >>= 1;
+
+			if (tmp == n2)
+			{
+
+				right = i + 1;
+				break;
+			}
+		}
+
+		if (left + right == 0) printf("Not possible\n");
+		else if (left == right) printf("%d Any\n", left);
+		else if (left < right) printf("%d Left\n", left);
+		else printf("%d Right\n", right);
+		
+	}
+
+	return 0;
+}
