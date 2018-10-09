@@ -1,0 +1,76 @@
+//baekjoon_2470
+//두 
+#include <stdio.h>
+
+int N;
+int a[100100];
+int b[100100];
+
+void merge(int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (a[i] <= a[j]) b[k++] = a[i++];
+		else b[k++] = a[j++];
+	}
+
+	while (i <= mid) b[k++] = a[i++];
+	while (j <= end) b[k++] = a[j++];
+	for (i = start; i <= end;i++)
+		a[i] = b[i - start];
+
+}
+
+void sort(int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(start, mid);
+	sort(mid + 1, end);
+	merge(start, end);
+}
+
+int abs(int x)
+{
+	return (x > 0) ? x : -x;
+}
+
+int main(void)
+{
+	int i, lp, rp, lans, rans, tmp;
+
+	scanf("%d", &N);
+	
+	for (i = 0; i < N;i++) scanf("%d", &a[i]);
+	sort(0, N - 1);
+
+	lp = 0, rp = N - 1;
+	lans = a[0], rans = a[N - 1];
+	tmp = 0x7fff0000;
+	
+	while (lp<rp)
+	{
+		if (abs(a[lp] + a[rp]) < tmp)
+		{
+			lans = a[lp];
+			rans = a[rp];
+			tmp = abs(a[lp] + a[rp]);
+		}
+
+		if (abs(a[lp]) > abs(a[rp])) lp++;
+		else rp--;	
+	}
+
+	printf("%d %d\n", lans, rans);
+	
+	return 0;
+}
