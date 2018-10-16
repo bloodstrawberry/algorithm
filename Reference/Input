@@ -106,3 +106,20 @@ cout
 참고하시면 좋을 것 같네요.
 
 그러니까, cin, cout보단 printf, scanf를 사용하시면 좀 더 빠르단 이야기 입니다
+
+
+
+freopen("input.txt", "r", stdin) 이용을 가정하고, FastIO 코드가 Linux 환경 (Code::Blocks IDE 이용) 에서는 이용에 문제가 없는데,
+Win 7 + Visual Studio 2017 환경에서는, input.txt 파일의 마지막 int 값 다음에 enter 를 주지 않고 끝나면
+fread 로 읽었을 때 buffer 마지막에 가비지 값(?)이 있어서 의도한 값이 안 나오는 현상이 있네요... 저만 그럴까요?
+
+input.txt 가 아래와 같을 때에
+3
+1 8
+2 5
+1 2
+
+마지막에 enter 가 없는 경우에 fread 호출시의 buffer 내용: +buffer 0x013f22e0 "3\n1 8\n2 5\n1 21 2" char[524288]
+=> 마지막 int 값이 2 가 아닌 21 이 넘어옵니다.
+마지막에 enter 가 있는 경우에 fread 호출시의 buffer 내용: +buffer 0x013f22e0 "3\n1 8\n2 5\n1 2\n 2\r\n" char[524288]
+=> 마지막 int 값이 2 가 정상적으로 넘어옵니다.
