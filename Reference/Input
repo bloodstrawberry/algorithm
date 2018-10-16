@@ -74,3 +74,35 @@ int main(void) {
 
 
 감사합니다.
+
+
+
+
+C++의 std::cin, std::cout은 느린편이라서,
+std::ios::sync_with_stdio(false);
+std::cin.tie(nullptr);
+등과 함께 사용하시어 속도를 향상시켜주세요.
+
+혹은 printf, scanf를 이용하시면 됩니다.
+
+그 외에도 Fast IO 방법들이 많은데 이건 검색해보세요.
+보통 Competitive Programming에서는 위의 테크닉을 많이쓰죠.
+
+좀 더, 첨언하자면
+mmap
+fread
+getchar
+cin with std::ios::sync_withstdio(false), std::cin.tie(nullptr)
+scanf
+cin with std::cin.tie(nullptr)
+cin
+
+fwrite
+cout with std::ios::sync_with_stdio(false), std::cout.tie(0)
+printf
+cout
+
+일반적으로는 입/출력 함수 속도가 위의 순서대로 빠릅니다. (위에있을수록 빠름)
+참고하시면 좋을 것 같네요.
+
+그러니까, cin, cout보단 printf, scanf를 사용하시면 좀 더 빠르단 이야기 입니다
