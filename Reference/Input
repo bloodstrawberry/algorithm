@@ -1,0 +1,76 @@
+#include <stdio.h>
+ 
+ 
+namespace FastIO {
+    const int BSIZE = 524288;
+    char buffer[BSIZE];
+    int p = BSIZE;
+    inline char ReadChar() {
+        if (p == BSIZE) {
+            fread(buffer, 1, BSIZE, stdin);
+            p = 0;
+        }
+        return buffer[p++];
+    }
+    int ReadInt() {
+        char c = ReadChar();
+        while ((c < '0' || c > '9') && c != '-') c = ReadChar();
+        int ret = 0; bool neg = c == '-';
+        if (neg) c = ReadChar();
+        while (c >= '0' && c <= '9') {
+            ret = ret * 10 + c - '0';
+            c = ReadChar();
+        }
+        return neg ? -ret : ret;
+    }
+}
+ 
+ 
+int main(void) {
+    int x = FastIO::ReadInt();
+    printf("%d\n", x);
+}
+
+
+'[H1622] 종민이의 도미노' 문제를 풀다가 다른 분들께 공유하면 도움이 되는 경우가 있겠다 싶어서 글을 씁니다.
+
+
+
+
+해당 문제를 보면, 한 테스트 케이스에 대해 최대 400만개의 정수를 입력받아야 하는 상황입니다.
+
+
+
+
+제가 문제를 해결한 뒤에 서로 다른 입력 방법의 수행시간을 비교해보았습니다. 수행 시간은 채점 결과를 기준으로 적었습니다.
+
+
+
+
+1. scanf("%d", ~)로 입력받은 코드 : 1,817MS
+
+2. 아래의 코드처럼 입력받은 코드 : 727MS, 733MS
+
+입력 이외의 부분은 전혀 수정하지 않았기 때문에, 순수 입력에서만 1.1초를 단축시킨 것입니다.
+
+
+
+
+해당 문제의 수행 시간이 가장 빠른 정답 코드도 제 코드입니다. 두 번째로 빠르신 분의 코드가 1.5초 정도의 수행 시간을 보이네요.
+
+
+
+
+
+그리고 위의 문제는 자바를 사용하시는 분들은 Scanner를 써야하기 때문에 상당히 맞추기 어려운 것으로 보입니다.
+
+
+
+
+따라서 일반적으로 주어진 문제의 입력 크기가 크다면, 자바보다는 C/C++을 선택하여 사용하는 것이 유리하겠습니다. ( 파이썬은 .... )
+
+
+
+
+
+감사합니다.
