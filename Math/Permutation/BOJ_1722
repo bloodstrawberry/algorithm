@@ -1,0 +1,98 @@
+//baekjoon_1722
+//순열의 
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int N, p;
+int A[25];
+ll fact[25];
+int check[25];
+
+int main(void)
+{
+	int i, k;
+	ll mul;
+
+	scanf("%d %d", &N, &p);
+	
+	mul = 1;
+	for (i = 1; i <= 20;i++) mul *= i;
+
+	fact[0] = 1;
+	for (i = 1; i <= 20;i++)
+	{
+		fact[21-i] = mul;
+		mul /= 21 - i;
+	}
+
+	if (p == 1)
+	{
+		ll K, st;
+		scanf("%lld", &K);
+
+		for (i = 1; i <= N;i++)
+		{
+			int cnt, ans;
+
+			st = fact[N - i];
+
+			cnt = 1;
+			for (k = 1; k <= N;k++)
+			{
+				if (K <= st) break;
+				else
+				{
+					st += fact[N - i];
+					cnt++;
+				}
+			}
+
+			K -= (fact[N-i] * (cnt-1));
+
+			ans = 0;
+			for (k = 1; k <= N;k++)
+			{
+				if (check[k]) continue;
+				
+				ans++;
+				if (ans == cnt) 
+				{
+					printf("%d ", k);
+					check[k] = 1;
+					break;
+				}
+			}
+		}
+		putchar('\n');
+	}
+	else
+	{
+		ll ans;
+		int cnt, cnt2;;
+
+		for (i = 1; i <= N;i++) scanf("%d", &A[i]);
+
+		ans = 0;
+		for (i = 1; i <= N;i++)
+		{
+			cnt = 0;
+			for (k = 1; k <= N;k++)
+			{
+				if (check[k]) continue;
+				if (A[i] == k)
+				{
+					check[k] = 1;
+					break;
+				}
+				cnt++;
+			}
+			ans += cnt * fact[N - i];
+		}
+
+		printf("%lld\n", ans+1);
+	}
+
+	return 0;
+}
