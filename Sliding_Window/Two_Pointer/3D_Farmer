@@ -1,0 +1,95 @@
+// 두 배열의 최소 차와 수 구하기.
+
+#include <stdio.h>
+
+int T, N, M, c1, c2;
+
+typedef struct st
+{
+	int x;
+	int z;
+}XZ;
+
+int cow[500500];
+int horse[500500];
+
+int b[500500];
+
+void merge(int *a, int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (a[i] <= a[j]) b[k++] = a[i++];
+		else b[k++] = a[j++];
+	}
+
+	while (i <= mid) b[k++] = a[i++];
+	while (j <= end) b[k++] = a[j++];
+	for (i = start; i <= end;i++)
+		a[i] = b[i - start];
+
+}
+
+void sort(int *a, int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(a, start, mid);
+	sort(a, mid + 1, end);
+	merge(a, start, end);
+}
+
+int dist(int z1, int z2)
+{
+	return (z1 > z2) ? z1 - z2 : z2 - z1;
+}
+
+int main(void)
+{
+	int tc, i, k;
+	
+	scanf("%d", &T);
+	for (tc = 1; tc <= T;tc++)
+	{
+		int min, cnt;
+		scanf("%d %d %d %d", &N, &M, &c1, &c2);
+
+		for (i = 0; i < N;i++) scanf("%d", &cow[i]);
+		for (i = 0; i < M;i++) scanf("%d", &horse[i]);
+
+		cnt = 0;
+		min = 0x7fff0000;
+
+		sort(cow, 0, N - 1);
+		sort(horse, 0, M - 1);
+
+		cow[N] = 0x7fff0000;
+		horse[M] = 0x7fff0000;
+
+		i = k = cnt = 0;
+		while (i < N && k < M)
+		{
+			int tmp = dist(cow[i], horse[k]);
+			if (tmp <= min)
+			{
+				if (tmp == min) cnt++;
+				else min = tmp, cnt = 1;
+			}
+			if (dist(cow[i + 1], horse[k]) > dist(cow[i], horse[k + 1])) k++;
+			else i++;
+		}
+
+		printf("#%d %d %d\n", tc, min + dist(c1,c2), cnt);
+	}
+
+	return 0;
+}
