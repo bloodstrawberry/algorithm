@@ -1,0 +1,110 @@
+#include <stdio.h>
+
+int T, N, M;
+int DP[10001];
+
+typedef struct st
+{
+	int s;
+	int e;
+	int c;
+}ST;
+
+ST a[10001];
+ST b[10001];
+
+int isMin(ST a, ST b)
+{
+	if (a.e < b.e) return 1;
+	if (a.e == b.e && a.s > b.s) return 1;
+	if (a.e == b.e && a.s == b.s && a.c < b.c) return 1;
+	return 0;
+}
+
+void merge(int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (isMin(a[i] ,a[j])) b[k++] = a[i++];
+		else b[k++] = a[j++];
+	}
+
+	while (i <= mid) b[k++] = a[i++];
+	while (j <= end) b[k++] = a[j++];
+	for (i = start; i <= end;i++)
+		a[i] = b[i - start];
+
+}
+
+void sort(int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(start, mid);
+	sort(mid + 1, end);
+	merge(start, end);
+}
+
+
+int maxV(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+int Before(int n)
+{
+
+	int i;
+	for (i = n-1; i >= 0; i--)
+	{
+		if (a[i].e < a[n].s) return i;
+	}
+
+	return 0;
+}
+
+int main(void)
+{
+	int tc, i, k, ans;
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T;tc++)
+	{
+		int cnt;
+
+		scanf("%d %d", &N, &M);
+		for (i = 1; i <= N;i++)
+		{
+			int s, e, c;
+			scanf("%d %d %d", &a[i].s, &a[i].e, &a[i].c);
+		}
+
+		for (i = 1; i <= M;i++) DP[i] = 0;
+
+    //끝나는 시간 기준 정렬.
+		sort(1, N);
+
+		for (i = 1; i <= N;i++)
+		{
+      // i번째 일을 하는 경우
+      // i번째의 start와 겹치지 않는 이전 일 중 가장 큰 index = Before(i)에 i번째 일의 보수를 더하면 된다.
+			DP[i] = DP[Before(i)] + a[i].c; 
+      
+      //i번째 일을 안하는 경우는 DP[i-1]이 최대, 둘을 비교 한다.
+			DP[i] = maxV(DP[i], DP[i - 1]);
+		}
+
+		printf("#%d %d\n",tc, DP[N]);
+	}
+
+	return 0;
+}
