@@ -1,0 +1,31 @@
+#include 
+using namespace std;
+//https://blog.naver.com/zkfkapfl/221207012758
+double Root(double A)
+{
+        double a = 1.0;
+      
+        for(int i=0; i<100; i++) a = 0.5*(a + A / a);
+        
+        return a;
+}
+
+void root(double r)
+{
+	int i;
+
+	for (i = 0; i < 100; i++)
+	{
+		r = (r + 2 / r) / 2;
+		printf("%.10lf\n", r);
+	}
+}
+
+void main()
+{
+         int input;
+         cout << "제곱근을 구할 숫자를 입력해주세요." << endl;
+         cin >> input;
+         Root(input);
+         cout << "루트 " << input << " 은(는) " << Root(input) << "입니다." << endl;
+}
