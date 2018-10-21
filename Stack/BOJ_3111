@@ -1,0 +1,95 @@
+//baekjoon_3111
+//
+
+#include <stdio.h>
+
+char text[30];
+char str[300100];
+
+char stk1[300100];
+char stk2[300100];
+int sp1, sp2;
+
+int main(void)
+{
+	int len1, len2, ptr1, ptr2, i, k;
+	scanf("%s %s", text, str);
+
+	for (len1 = 0; text[len1]; len1++);
+	for (len2 = 0; str[len2]; len2++);
+
+	ptr1 = 0;
+	ptr2 = len2 - 1;
+
+	while (ptr1 <= ptr2)
+	{
+		//왼쪽 검사
+		for (i = ptr1; i <= ptr2;i++)
+		{
+
+			stk1[sp1++] = str[i];
+
+			if (str[i] == text[len1 - 1] && sp1 >= len1)
+			{
+				int tmp = 0;
+				for (k = sp1 - len1; k < sp1;k++)
+					if (stk1[k] != text[tmp++]) break;
+
+				if (k == sp1)
+				{
+					sp1 -= len1;
+					break;
+				}
+			}
+		}
+
+		ptr1 = i + 1;
+
+		//오른쪽 검사
+		for (i = ptr2; i >= ptr1;i--)
+		{
+			stk2[sp2++] = str[i];
+
+			if (str[i] == text[0] && sp2 >= len1)
+			{
+				int tmp = 0;
+				for (k = sp2 - 1; k >= sp2 - len1;k--)
+					if (stk2[k] != text[tmp++]) break;
+
+				if (k == sp2 - len1 - 1)
+				{
+					sp2 -= len1;
+					break;
+				}
+			}
+		}
+
+		ptr2 = i - 1;
+	}
+
+	while (sp2) stk1[sp1++] = stk2[--sp2];
+
+	for (i = 0; i < sp1;i++) str[i] = stk1[i];
+	str[i] = 0;
+
+	sp1 = 0;
+	for (i = 0; str[i];i++)
+	{
+		stk1[sp1++] = str[i];
+
+		if (str[i] == text[len1 - 1] && sp1 >= len1)
+		{
+			int tmp = 0;
+			for (k = sp1 - len1; k < sp1;k++)
+				if (stk1[k] != text[tmp++]) break;
+
+			if (k == sp1) sp1 -= len1;
+		}
+	}
+
+
+	stk1[sp1] = 0;
+	printf("%s\n", stk1);
+
+	return 0;
+}
