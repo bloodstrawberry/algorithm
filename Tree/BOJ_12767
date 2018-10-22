@@ -1,0 +1,147 @@
+//baekjoon_12767
+//Ceiling Function
+
+#include <stdio.h>
+
+int N, K;
+
+typedef struct st
+{
+	int value;
+	struct st *right;
+	struct st *left;
+}NODE;
+
+typedef struct st2
+{
+	NODE *next;
+}Head;
+
+Head HEAD[55];
+NODE POOL[55 * 250];
+int cnt;
+
+char Name[55][50];
+int idx, len;
+
+void Push(int head, int value)
+{
+	NODE *nd = &POOL[cnt++];
+	nd->value = value;
+
+	if (HEAD[head].next)
+	{
+		NODE *tmp = HEAD[head].next;
+	
+		while (tmp)
+		{
+			if (tmp->value < value)
+			{
+				if (tmp->left) tmp = tmp->left;
+				else
+				{
+					tmp->left = nd;
+					break;
+				}
+			}
+			else
+			{
+				if (tmp->right) tmp = tmp->right;
+				else
+				{
+					tmp->right = nd;
+					break;
+				}
+			}
+		}
+	}
+	else 
+		HEAD[head].next = nd;
+}
+
+void DFS(int L, NODE *p, char ch)
+{
+	if (p == NULL) return;
+	//printf("%d %d %c\n", L, p->value, ch);
+	Name[idx][len++] = L + '0';
+	Name[idx][len++] = ch;
+
+	DFS(L+1, p->left, 'L');
+	DFS(L+1, p->right, 'R');
+}
+
+void output(int num)
+{
+	NODE *nd = HEAD[num].next;
+	
+	//printf("%d %d S\n", 0, nd->value);
+	Name[idx][len++] = '0';
+	Name[idx][len++] = 'S';
+
+	DFS(1, nd->left,'L');
+	DFS(1, nd->right,'R');
+}
+
+int strcmp(char *a, char *b)
+{
+	while (*a && *a == *b) ++a, ++b;
+	return *a - *b;
+}
+
+void strcpy(char *a, char *b)
+{
+	while (*a++ = *b++);
+}
+
+int main()
+{
+	int i, k, ans;
+	char cmp[50];
+	scanf("%d %d", &N, &K);
+
+	for (i = 0; i < N;i++)
+	{
+		for (k = 0; k < K;k++)
+		{
+			int tmp;
+			scanf("%d", &tmp);
+			Push(i, tmp);
+		}
+
+		len = 0;
+		output(i);
+		idx++;
+	}
+
+	
+	for (i = 0; i < N;i++)
+	{
+		for (k = i + 1; k < N;k++)
+		{
+			if (strcmp(Name[i], Name[k]) < 0)
+			{
+				char tmp[50];
+
+				strcpy(tmp, Name[i]);
+				strcpy(Name[i], Name[k]);
+				strcpy(Name[k], tmp);
+			}
+		}
+	}
+	
+	ans = 0;
+	cmp[0] = 0;
+
+	for (i = 0; i < N;i++)
+	{
+		if (strcmp(cmp, Name[i]))
+		{
+			ans++;
+			strcpy(cmp, Name[i]);
+		}
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
