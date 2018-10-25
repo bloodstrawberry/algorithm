@@ -1,0 +1,59 @@
+//baekjoon_1126
+//같은 탑, knapsack problem
+#include <stdio.h>
+
+int N;
+int A[51];
+
+//DP[i][j] = i번째 까지의 블럭을 사용하고, 두 탑의 높이차이가 j인 경우.
+//i번째 블록을 사용할지 안할지, 한다면 높은 쪽에 쌓을지 낮은 쪽에 쌓을지의 문제.
+int DP[51][250001];
+
+int max(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+int DFS(int k, int diff)
+{
+
+	if (diff > 250000) return -0x7fff0000;
+	if (k == N)
+	{
+		if (diff == 0) return 0;
+		else return -0x7fff0000;
+	}
+
+	if (DP[k][diff] != -1) return DP[k][diff];
+
+	DP[k][diff] = DFS(k + 1, diff); //블럭을 놓지 않는 경우.
+	DP[k][diff] = max(DP[k][diff], DFS(k + 1, diff + A[k])); //블럭을 높이가 diff인 곳에 놓은 경우.
+	
+	if (A[k] > diff)
+		DP[k][diff] = max(DP[k][diff], diff + DFS(k + 1, A[k] - diff)); //블럭을 높이가 diff인 곳에 놓지 않음. 이때 놓는 블럭이 diff보다 큰 경우.
+	else
+		DP[k][diff] = max(DP[k][diff], A[k] + DFS(k + 1, diff - A[k])); //작은 경우
+
+	return DP[k][diff];
+}
+
+int main(void)
+{
+	int i, k, ans;
+	
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++) scanf("%d", &A[i]);
+	
+	for (i = 0; i < N;i++)
+		for (k = 0; k <= 250000;k++)
+			DP[i][k] = -1;
+
+	ans = DFS(0, 0);
+	
+	if (ans) printf("%d\n", ans);
+	else printf("-1\n");
+
+	
+	return 0;
+}
