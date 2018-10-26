@@ -1,0 +1,62 @@
+//baekjoon_10830
+//행렬 
+
+#include <stdio.h>
+
+int N;
+long long int B;
+
+int Matrix[7][7];
+int Ans[7][7];
+int Temp[7][7];
+
+void Multiply(int A[][7], int B[][7])
+{
+	int i, j, k;
+
+	for (i = 1; i <= N;i++)
+	{
+		for (j = 1; j <= N;j++)
+		{
+			Temp[i][j] = 0;
+			for (k = 1; k <= N;k++)
+				Temp[i][j] += A[i][k] * B[k][j];
+		}
+	}
+
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			A[i][k] = Temp[i][k] % 1000;
+
+}
+
+int main()
+{
+	int i, j, k;
+	scanf("%d %lld", &N, &B);
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+		{
+			scanf("%d", &Matrix[i][k]);
+			if (i == k) Ans[i][k] = 1;
+		}	
+	}
+
+	while (B)
+	{
+		if (B & 1) Multiply(Ans, Matrix);
+		Multiply(Matrix, Matrix);
+		B /= 2;
+	}
+		
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+			printf("%d ", Ans[i][k]);
+		putchar('\n');
+	}
+
+	return 0;
+}
