@@ -1,4 +1,6 @@
 #include <stdio.h>
+//this problem is Sum( Phi(k) ), (a<= k <=b)
+Phi is Euler_Function.
 
 int T;
 int prime[1000001];
