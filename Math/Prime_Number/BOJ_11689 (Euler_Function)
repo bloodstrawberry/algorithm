@@ -1,0 +1,41 @@
+#include <stdio.h>
+
+//Phi(N) = gcd(n,k) = 1인 개수. (1<=k<=n)
+//Phi(9) = 6, 즉 9와 서로소는 1, 2, 4, 5, 7, 8
+
+//Phi(prime) = prime - 1
+//Phi(nm) = Phi(n) * Phi(m), n, m은 서로소
+//Phi(n) = n Phi p|n (1 - 1/p), p is prime
+
+
+typedef long long int ll;
+
+ll N;
+
+ll phi(ll n)
+{
+	ll i;
+	ll ret = n;
+	
+	for (i = 2; i*i <= n;i++)
+	{
+		//printf("%lld %lld\n", i, n);
+		if (!(n%i)) //소인수 확인.
+		{
+			while (!(n%i)) n /= i;
+			ret -= ret / i;
+		}
+	}
+
+	if (n > 1) ret -= ret / n;
+	return ret;
+}
+
+int main()
+{
+
+	scanf("%lld", &N);
+	printf("%lld\n", phi(N));
+
+	return 0;
+}
