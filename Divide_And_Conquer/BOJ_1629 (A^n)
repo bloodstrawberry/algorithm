@@ -1,0 +1,49 @@
+//baekjoon_1629
+//곱셈. A를 B번 곱한 수를 C로 나눈 나머지
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+long long int A, B, C;
+
+//분할 정복
+long long int calc(long long int a, long long int b)
+{
+	if (b == 0) return 1;
+	else if (b == 1) return a % C;
+	else if (b & 1) return (a * calc(a, b - 1)) % C;
+	else
+	{
+		long long int tmp = calc(a, b / 2);
+		return (tmp * tmp) % C;
+	}
+}
+
+int main()
+{
+	long long int ans;
+	long long int mul;
+
+	scanf("%lld %lld %lld", &A, &B, &C);
+
+	//printf("%d\n", calc(A, B));
+	
+	//이진수 응용
+	//27 = 11011 = 2^0 + 2^1 + 2^3 + 2^4 = 1 + 2 + 8 + 16
+	//3^27 = 3^(1+2+8+16)
+	//3^1 * 3^2 * 3^8 * 3*16
+	//제곱을 하면서 1이 나오는 부분만 mul에서 곱해준다.
+
+	mul = A;
+	ans = 1LL;
+	while (B > 0)
+	{
+		if (B % 2 == 1) ans = (ans % C) * (mul % C);
+
+		mul = (mul % C) * (mul % C);
+		B /= 2;
+	}
+
+	printf("%d\n", ans % C);
+	
+	return 0;
+}
