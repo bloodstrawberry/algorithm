@@ -1,0 +1,37 @@
+//baekjoon_9471
+//피사노 주기
+
+#include <stdio.h>
+
+int T;
+int fiv[1000010];
+
+int main()
+{
+	int tc, i, k;
+	
+	scanf("%d", &T);
+	
+	fiv[1] = 1;
+	fiv[2] = 1;
+	for (tc = 1; tc <= T;tc++)
+	{
+		int tmp, m;
+
+		scanf("%d %d", &tmp, &m);
+
+		for (i = 3; i <= 1000000;i++)
+		{
+			fiv[i] = fiv[i - 1] + fiv[i - 2];
+			fiv[i] %= m;
+
+			if (fiv[i] == 1 && !fiv[i - 1])
+			{
+				printf("%d %d\n", tc, i - 1);
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
