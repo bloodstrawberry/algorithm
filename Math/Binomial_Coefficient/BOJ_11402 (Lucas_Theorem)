@@ -1,0 +1,57 @@
+//baekjoon_11402
+//이항 계수 4
+//http://bowbowbow.tistory.com/2
+//Lucas Theorem
+// (n, k) = PHI(ni, ki) (mod p), n = ni * p^i + ... + n0 * p^0;
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+ll N, K, M;
+int A[2010];
+int B[2010];
+
+ll DP[2010][2010];
+
+int main()
+{
+	ll ans;
+	int i, j, cnt;
+
+	scanf("%lld %lld %lld", &N, &K, &M);
+
+	for (i = 0; i <= 2000;i++)
+	{
+		DP[i][0] = 1;
+		DP[i][i] = 1;
+	}
+
+	for (i = 2; i <= 2000;i++)
+	{
+		for (j = 1; j < i;j++)
+			DP[i][j] = (DP[i - 1][j - 1] + DP[i - 1][j]) % M;
+	}
+
+	cnt = 0;
+	while (N || K)
+	{
+		A[cnt] = N % M;
+		B[cnt] = K % M;
+		
+		cnt++;
+		N /= M;
+		K /= M;
+	}
+
+	ans = 1;
+	for (i = 0; i < cnt;i++)
+	{
+		ans *= DP[A[i]][B[i]];
+		ans %= M;
+	}
+		
+	printf("%lld\n", ans);
+
+	return 0;
+}
