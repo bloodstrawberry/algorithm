@@ -1,0 +1,56 @@
+//baekjoon_1788
+//피보나치 수의 확장
+
+#include <stdio.h>
+
+int N;
+int fiv[2001000];
+int plus = 1000000;
+int mod = 1000000000;
+
+int main()
+{
+	int i, k;
+	
+	scanf("%d", &N);
+
+	fiv[-1 + plus] = 1;
+	fiv[1 + plus] = 1;
+	fiv[2 + plus] = 1;
+	
+	if (N >= 0)
+	{
+		for (i = 3; i <= N;i++)
+		{
+			
+			fiv[i + plus] = fiv[i - 1 + plus] + fiv[i - 2 + plus];
+			fiv[i + plus] %= mod;
+		}
+			
+		if (fiv[N+plus] > 0) printf("1\n");
+		else if (!fiv[N+plus]) printf("0\n");
+		else printf("-1\n");
+		
+		printf("%d\n", fiv[N+plus]);
+	}
+	else
+	{
+		for (i = 1; i >= N;i--)
+		{
+			fiv[i - 2 + plus] = fiv[i + plus] - fiv[i - 1 + plus];
+			fiv[i - 2 + plus] %= mod;
+		}
+
+		if (fiv[N + plus] > 0) printf("1\n");
+		else if (!fiv[N + plus]) printf("0\n");
+		else printf("-1\n");
+
+		int ans = fiv[N + plus];
+		
+		printf("%d\n", (ans > 0) ? ans : -ans);
+	}
+
+	
+
+	return 0;
+}
