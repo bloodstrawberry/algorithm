@@ -1,0 +1,71 @@
+//baekjoon_11778
+//피보나치 수와 최대공약수
+//gcd(Fn, Fm) = F_gcd(n,m)
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+ll N, A, B;
+ll mod = 1000000007;
+
+ll Matrix[4][4];
+ll Ans[4][4];
+ll Temp[4][4];
+
+void Multiply(ll A[][4], ll B[][4])
+{
+	int i, j, k;
+
+	for (i = 1; i <= 2;i++)
+	{
+		for (j = 1; j <= 2;j++)
+		{
+			Temp[i][j] = 0;
+			for (k = 1; k <= 2;k++)
+				Temp[i][j] += A[i][k] * B[k][j];
+		}
+	}
+
+	for (i = 1; i <= 2;i++)
+		for (k = 1; k <= 2;k++)
+			A[i][k] = Temp[i][k] % mod;
+
+}
+
+ll gcd(ll a, ll b)
+{
+	return b ? gcd(b, a%b) : a;
+}
+
+int main()
+{
+	int i, k;
+	ll ans, tmp;
+
+	scanf("%lld %lld", &A, &B);
+
+	tmp = gcd(A, B);
+	
+	Matrix[1][1] = 1;
+	Matrix[1][2] = 1;
+	Matrix[2][1] = 1;
+	Matrix[2][2] = 0;
+
+	Ans[1][1] = 1;
+	Ans[2][2] = 1;
+
+	N = tmp;
+	while (N)
+	{
+		if (N & 1) Multiply(Ans, Matrix);
+		Multiply(Matrix, Matrix);
+		N /= 2;
+	}
+
+	ans = Ans[1][2];
+
+	printf("%lld\n", ans);
+
+	return 0;
+}
