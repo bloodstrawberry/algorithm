@@ -1,0 +1,80 @@
+//baekjoon_11439
+//이항 계수 5
+
+// 소인수 분해
+// 20C5 = 20!/5!/15!
+// 20C5 = 19 X 17 X 16 X 3
+// 20!에서 2의 제곱의 개수 -> 20/2 + 20/4 + 20/8 + 20/16 = 10 + 5 + 2 + 1 = 18;
+// 5!에서 2의 제곱의 개수 -> 5/2 + 5/4 = 2 + 1 = 3
+// 15! = 7 + 3 + 1 = 11
+// 18 - 3 - 11 = 4개. 
+
+//즉 20C5 -> 2~20까지 각각의 개수를 구하면 됨.
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+ll N, K, M;
+int check[4001000];
+
+ll cnt(ll n, ll p)
+{
+	ll k = 0;
+	while (n > 0)
+	{
+		k += n / p;
+		n /= p;
+	}
+
+	return k;
+}
+
+ll pow(ll a, ll b)
+{
+	ll x, y;
+	x = 1;
+	y = a;
+
+	while (b)
+	{
+		if (b & 1)
+		{
+			x *= y;
+			x %= M;
+		}
+
+		y *= y;
+		y %= M;
+		b /= 2;
+	}
+
+	return x;
+}
+
+
+int main()
+{
+	ll ans;
+	int i, k;
+
+	scanf("%lld %lld %lld", &N, &K, &M);
+
+	ans = 1;
+	for (i = 2; i <= N;i++)
+	{
+		if (!check[i])
+		{
+			for (k = 2 * i; k <= N;k += i)
+				check[k] = 1;
+
+			ll tmp = cnt(N, i) - cnt(K, i) - cnt(N - K, i);
+			ans = ans * pow(i, tmp);
+			ans %= M;
+		}
+	}
+
+	printf("%lld\n", ans);
+
+	return 0;
+}
