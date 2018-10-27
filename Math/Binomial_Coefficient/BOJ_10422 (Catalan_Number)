@@ -1,0 +1,53 @@
+//baekjoon_10422
+//괄호
+
+//카탈란 수, Catalan Number
+//여는 괄호 n개와 닫는 괄호 n개로 이루어진 올바른 문자열의 개수 = Cn
+//항 n+1개를 곱하는 순서의 수 = 괄호 n개 필요 = Cn,   ((ab)c)d (a(bc))d (ab)(cd) a((bc)d) a(b(cd))
+//단말 정점이 n+1개인 풀 바이너리 트리의 개수 (풀 바이너리 트리 : 자식이 2개 or 0개)
+//n x n 개의 정사각형으로 이루어져 있는 격자에서 대각선을 지나가지 않고 가장 왼쪽 아래에서 오른쪽 위로 지나가는 방법의 수
+
+// Cn = (2n)!/(n+1)!/n!
+// Cn = (2n,n) - (2n, n+1)
+// C0 = 1
+// Cn+1 = sigma(i=0 ~ n) Ci * Cn-i
+// 1, 1, 2, 5, 14, 42, 132, ...
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int T, L;
+
+ll C[2510];
+ll mod = 1000000007;
+
+int main()
+{
+	int i, k, tc;
+
+	C[0] = 1;
+
+	for (i = 1; i <= 2500;i++)
+	{
+		C[i] = 0;
+		for (k = 0; k < i;k++)
+		{
+			// Cn+1 = sigma(i=0 ~ n) Ci * Cn-i
+			// Cn = sigma(i = 0 ~ n-1) Ci * Cn-1-i
+			C[i] += C[k] * C[i - 1 - k];
+			C[i] %= mod;
+		}
+	}
+	
+	scanf("%d", &T);
+
+	for (tc = 1; tc <= T;tc++)
+	{
+		//괄호 문자열의 개수가 홀수면 올바른 괄호가 불가능 하다.
+		scanf("%d", &L);
+		printf("%lld\n", L % 2 ? 0 : C[L / 2]);
+	}
+
+	return 0;
+}
