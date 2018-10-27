@@ -1,0 +1,71 @@
+//baekjoon_10826
+//피보나치 수 4
+
+#include <stdio.h>
+
+#define MAX (100000)
+
+int N;
+
+char ANS[MAX];
+char fiv1[MAX];
+char fiv2[MAX];
+
+int main()
+{
+	int i, k, carry;
+	scanf("%d", &N);
+
+	if (!N)
+	{
+		printf("0\n");
+		return 0;
+	}
+	else if (N <= 2)
+	{
+		printf("1\n");
+		return 0;
+	}
+	
+	fiv1[0] = '1';
+	fiv2[0] = '1';
+
+	for (i = 3; i <= N;i++)
+	{
+
+		//ANS = fiv1 + fiv2;
+		carry = 0;
+		for (k = 0; fiv2[k];k++)
+		{
+			if (fiv1[k] + fiv2[k] + carry > 105)
+			{
+				ANS[k] = fiv1[k] + fiv2[k] - '0' - 10 + carry;
+				carry = 1;
+			}
+			else
+			{
+				ANS[k] = fiv1[k] + fiv2[k] - '0' + carry;	
+				carry = 0;
+			}
+		}
+
+		
+		if (carry) ANS[k] = '1';
+
+		//fiv1 = fiv2;
+		for (k = 0; fiv2[k];k++) fiv1[k] = fiv2[k];
+		fiv1[k] = '0';
+
+		//fiv2 = ANS;
+		for (k = 0; ANS[k];k++)	fiv2[k] = ANS[k];
+
+	}
+
+	for (k = 0; ANS[k];k++);
+
+	for (i = k - 1; i >= 0;i--)
+		printf("%c", ANS[i]);
+	putchar('\n');
+
+	return 0;
+}
