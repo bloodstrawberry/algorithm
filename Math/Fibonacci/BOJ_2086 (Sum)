@@ -1,0 +1,90 @@
+//baekjoon_2086
+//피보나치 수의 합
+//F1 + ... + Fn = Fn+2 - 1
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+ll N, A, B;
+ll mod = 1000000000;
+
+ll Matrix[4][4];
+ll Ans[4][4];
+ll Temp[4][4];
+
+void Multiply(ll A[][4], ll B[][4])
+{
+	int i, j, k;
+
+	for (i = 1; i <= 2;i++)
+	{
+		for (j = 1; j <= 2;j++)
+		{
+			Temp[i][j] = 0;
+			for (k = 1; k <= 2;k++)
+				Temp[i][j] += A[i][k] * B[k][j];
+
+			if (Temp[i][j] >= mod) Temp[i][j] = mod + Temp[i][j] % mod;
+		}
+	}
+
+	for (i = 1; i <= 2;i++)
+		for (k = 1; k <= 2;k++)
+			A[i][k] = Temp[i][k];
+
+}
+
+int main()
+{
+	int i, k;
+	ll ans;
+
+	scanf("%lld %lld", &A, &B);
+
+	Matrix[1][1] = 1;
+	Matrix[1][2] = 1;
+	Matrix[2][1] = 1;
+	Matrix[2][2] = 0;
+
+	Ans[1][1] = 1;
+	Ans[2][2] = 1;
+
+
+	N = B + 2;
+	while (N)
+	{
+		if (N & 1) Multiply(Ans, Matrix);
+		Multiply(Matrix, Matrix);
+		N /= 2;
+	}
+
+	ans = Ans[1][2];
+
+	Matrix[1][1] = 1;
+	Matrix[1][2] = 1;
+	Matrix[2][1] = 1;
+	Matrix[2][2] = 0;
+
+	Ans[1][1] = 1;
+	Ans[1][2] = 0;
+	Ans[2][1] = 0;
+	Ans[2][2] = 1;
+
+	N = A + 1;
+	while (N)
+	{
+		if (N & 1) Multiply(Ans, Matrix);
+		Multiply(Matrix, Matrix);
+		N /= 2;
+	}
+
+	ans = (ans - Ans[1][2]);
+
+	if (ans < 0) ans += mod;
+
+	if (ans <= mod) printf("%lld\n", ans % mod);
+	else printf("%09lld\n", ans % mod);
+
+	return 0;
+}
