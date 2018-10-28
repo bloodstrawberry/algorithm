@@ -1,0 +1,111 @@
+//baekjoon_2143
+//두 배열의 
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int T, N, M;
+int A[1010];
+int B[1010];
+int pSumA[1010];
+int pSumB[1010];
+
+int b[1010 * 1010];
+int ListA[1010 * 1010];
+int ListB[1010 * 1010];
+int cntN, cntM;
+
+void merge(int *a, int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (a[i] <= a[j]) b[k++] = a[i++];
+		else b[k++] = a[j++];
+	}
+
+	while (i <= mid) b[k++] = a[i++];
+	while (j <= end) b[k++] = a[j++];
+	for (i = start; i <= end;i++)
+		a[i] = b[i - start];
+
+}
+
+void sort(int *a, int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(a, start, mid);
+	sort(a, mid + 1, end);
+	merge(a, start, end);
+}
+
+int main()
+{
+	ll ans;
+	int i, k, lptr, hptr;
+
+	scanf("%d %d", &T, &N);
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%d", &A[i]);
+		pSumA[i] = pSumA[i - 1] + A[i];
+	}
+
+	scanf("%d", &M);
+	for (i = 1; i <= M;i++)
+	{
+		scanf("%d", &B[i]);
+		pSumB[i] = pSumB[i - 1] + B[i];
+	}
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = i; k <= N;k++)
+			ListA[cntN++] = pSumA[k] - pSumA[i - 1];
+	}
+	
+	for (i = 1; i <= M;i++)
+	{
+		for (k = i; k <= M;k++)
+			ListB[cntM++] = pSumB[k] - pSumB[i - 1];
+	}
+
+	sort(ListA, 0, cntN - 1);
+	sort(ListB, 0, cntM - 1);
+
+	lptr = 0;
+	hptr = cntM - 1;
+
+	ans = 0;
+	while (lptr < cntN && hptr >= 0)
+	{
+		if (ListA[lptr] + ListB[hptr] == T)
+		{
+			ll lcnt, hcnt;
+
+			lcnt = hcnt = 1;
+
+			while (ListA[lptr] == ListA[lptr + 1] && lptr < cntN - 1) lptr++, lcnt++;
+			while (ListB[hptr] == ListB[hptr - 1] && hptr > 0) hptr--, hcnt++;
+			
+			lptr++, hptr--;
+			ans += lcnt * hcnt;
+		}
+		else if (ListA[lptr] + ListB[hptr] > T) hptr--;
+		else lptr++;
+	}
+
+	printf("%lld\n", ans);
+
+	return 0;
+}
