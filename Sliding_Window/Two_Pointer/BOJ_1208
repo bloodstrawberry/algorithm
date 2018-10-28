@@ -1,0 +1,114 @@
+//baekjoon_1208
+//부분 집합의 합 2
+//meet in the middle
+//https://kks227.blog.me/221382873753
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int N, S, M;
+
+int A[40];
+int first[1 << 20];
+int second[1 << 20];
+int b[1 << 20];
+
+void merge(int *a, int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (a[i] <= a[j]) b[k++] = a[i++];
+		else b[k++] = a[j++];
+	}
+
+	while (i <= mid) b[k++] = a[i++];
+	while (j <= end) b[k++] = a[j++];
+	for (i = start; i <= end;i++)
+		a[i] = b[i - start];
+
+}
+
+void sort(int *a, int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(a,start, mid);
+	sort(a,mid + 1, end);
+	merge(a,start, end);
+}
+
+int main() 
+{
+	int i, k, lptr, hptr;
+	ll ans;
+
+	scanf("%d %d", &N, &S);
+
+	for (i = 0; i < N;i++) scanf("%d", &A[i]);
+
+	M = N / 2;
+	N -= M;
+
+	for (i = 0; i < (1 << N);i++)
+	{
+		for (k = 0; k < N;k++)
+			if (i & (1 << k)) first[i] += A[k];
+	}
+
+	for (i = 0; i < (1 << M);i++)
+	{
+		for (k = 0; k < M;k++)
+			if (i & (1 << k)) second[i] += A[k+N];
+	}
+
+	N = (1 << N);
+	M = (1 << M);
+
+	sort(first, 0, N - 1);
+	sort(second, 0, M - 1);
+
+	ans = 0;
+	lptr = 0;
+	hptr = M - 1;
+	while (lptr < N && hptr >= 0)
+	{
+		if (first[lptr] + second[hptr] > S) hptr--;
+		else if (first[lptr] + second[hptr] == S)
+		{
+			int lcnt, hcnt;
+
+			lcnt = hcnt = 1;
+			while (1)
+			{
+				if (first[lptr] == first[lptr + 1] && lptr < N - 1) lptr++, lcnt++;
+				else break;
+			}
+
+			while (1)
+			{
+				if (second[hptr] == second[hptr - 1] && hptr > 0) hptr--, hcnt++;
+				else break;
+			}
+
+			lptr++, hptr--;
+			ans += (ll) lcnt * hcnt;
+		}
+		else lptr++;
+		
+	}
+
+	if (!S) ans--;
+	printf("%lld\n", ans);
+
+	return 0;
+}
