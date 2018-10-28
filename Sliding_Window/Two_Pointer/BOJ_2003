@@ -1,0 +1,35 @@
+//baekjoon_2003
+//수들의 
+
+#include <stdio.h>
+
+int N, M;
+int A[10010];
+
+int main() 
+{
+	int i, k;
+	int left, right, sum, ans;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < N;i++) scanf("%d", &A[i]);
+	A[N] = 0x7fff0000;
+
+	sum = A[0];
+	left = right = ans = 0;
+	while (left <= right && right < N)
+	{
+		if (sum < M) sum += A[++right];
+		else if (sum == M) ans++, sum += A[++right];
+		else
+		{
+			sum -= A[left++];
+			if (left > right && left < N) right = left, sum = A[left];
+		}
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
