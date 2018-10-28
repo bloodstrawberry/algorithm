@@ -1,0 +1,106 @@
+//baekjoon_7453
+//합이 0인 네 정수
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int N;
+int A[4010], B[4010], C[4010], D[4010];
+int AB[4010 * 4010], CD[4010 * 4010];
+int b[4010 * 4010];
+int cnt;
+
+void merge(int *a, int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (a[i] <= a[j]) b[k++] = a[i++];
+		else b[k++] = a[j++];
+	}
+
+	while (i <= mid) b[k++] = a[i++];
+	while (j <= end) b[k++] = a[j++];
+	for (i = start; i <= end;i++)
+		a[i] = b[i - start];
+
+}
+
+void sort(int *a, int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(a, start, mid);
+	sort(a, mid + 1, end);
+	merge(a, start, end);
+}
+
+ll bsearch(int data)
+{
+	int l, r, m;
+	ll rtn;
+
+	rtn = 0;
+	l = 0, r = cnt - 1;
+	while (l <= r)
+	{
+		m = (l + r) / 2;
+
+		if (CD[m] == data)
+		{
+			int tmp = m - 1;
+			while (CD[tmp] == data && tmp) rtn++, tmp--;
+
+			while (CD[m] == data && m <= cnt) rtn++, m++;
+			return rtn;
+		}
+		else if (CD[m] < data) l = m + 1;
+		else r = m - 1;
+	}
+
+	return 0;
+}
+
+int main()
+{
+	ll ans, tmpcnt;
+	int i, k, tmp;
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++) scanf("%d %d %d %d", &A[i], &B[i], &C[i], &D[i]);
+
+	cnt = 0;
+	for (i = 0; i < N;i++)
+		for (k = 0; k < N;k++)
+			AB[cnt] = A[i] + B[k], CD[cnt++] = C[i] + D[k];
+
+	sort(AB, 0, cnt - 1);
+	sort(CD, 0, cnt - 1);
+
+	ans = 0;
+	tmp = AB[0] - 1;
+	tmpcnt = 0;
+	for (i = 0; i < cnt;i++)
+	{
+		if (tmp != AB[i])
+		{
+			tmpcnt = bsearch(-AB[i]);
+			ans += tmpcnt;
+			tmp = AB[i];
+		}
+		else ans += tmpcnt;
+	}
+
+	printf("%lld\n", ans);
+
+	return 0;
+}
