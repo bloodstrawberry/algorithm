@@ -1,0 +1,51 @@
+//backjoon_11403
+//경로 찾기, 경로가 존재 -> 최단 경로가 존재 -> 
+
+// Floyd_Warhall
+// D[k][i][j] = i->j로 이동하는 최단경로. 이때, 중간에 방문할 수 있는 정점은 1,2, ..., k
+// D[k][i][j]는 k가 경로에 없는 경우와 경로에 있는 경우로 나뉨
+
+// k가 경로에 없는 경우
+// 1 ~ k-1로 이루어져 있다와 같은 말 -> D[k-1][i][j]
+
+// k가 경로에 있는 경우
+// i -> k -> j, i->k (1~k-1)    k -> j (1~k-1)
+// D[k-1][i][k] + D[k-1][k][j]
+
+// D[0][i][j] = A[i][j]
+// k>=1, min( D[k-1][i][j], D[k-1][i][k] + D[k-1][k][j])
+
+// for (k = 1; k <= N; k++)
+//	 for (i = 1; i <= N; i++)
+//	 	for (j = 1; j <= N; j++)
+//	 		if (D[i][j] > D[i][k] + D[k][j]) D[i][j] = D[i][k] + D[k][j];
+
+#include <stdio.h>
+
+int N;
+int D[101][101];
+
+int main(void)
+{
+	int i, k, j;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			scanf("%d", &D[i][k]);
+
+	for (k = 1; k<=N; k++)
+		for (i = 1; i<=N; i++) 
+			for (j = 1; j<=N; j++) 
+				if (D[i][k] == 1 && D[k][j] == 1) D[i][j] = 1;
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+			printf("%d ", D[i][k]);
+		putchar('\n');
+	}
+
+	return 0;
+}
