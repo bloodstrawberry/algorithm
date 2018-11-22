@@ -1,0 +1,31 @@
+#include <stdio.h>
+
+int T, N;
+
+int DP[101000];
+
+int main()
+{
+	int i, k, tc;
+
+	scanf("%d",&T);
+	for(tc = 1; tc<=T;tc++)
+	{
+		int max;
+		scanf("%d",&N);	
+
+		max = 0;
+		for(i = 1; i<=N;i++) DP[i] = 0;
+		for(i = 1; i<=N;i++)
+		{
+			int tmp;
+			scanf("%d",&tmp);
+			DP[tmp] = DP[tmp-1] + 1;
+			max = (max < DP[tmp]) ? DP[tmp] : max;
+		}	
+		
+		printf("%d\n",N - max);
+	}	
+  
+	return 0;
+}
