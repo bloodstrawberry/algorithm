@@ -1,0 +1,145 @@
+//baekjoon_5896
+//효율적으로 소 사기, cow coupons
+
+#include <stdio.h>
+
+typedef long long int ll;
+int N, K;
+ll M;
+
+typedef struct st
+{
+	ll value;
+	int idx;
+}HEAP;
+
+HEAP price[50500];
+HEAP coupon[50500];
+HEAP diff[50500];
+int phn, chn, dhn;
+
+int check[50500];
+ll Plist[50500];
+ll Clist[50500];
+
+HEAP pop(HEAP *heap, int& hn)
+{
+	int i;
+	HEAP ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--].value = 0x7fff0000;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i * 2].value > heap[i].value && heap[i * 2 + 1].value > heap[i].value) break;
+		else if (heap[i * 2].value < heap[i * 2 + 1].value)
+		{
+			tmp = heap[i * 2];
+			heap[i * 2] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i * 2 + 1];
+			heap[i * 2 + 1] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(HEAP *heap, int& hn, ll x, int index)
+{
+	int i;
+	HEAP tmp;
+
+	heap[++hn].value = x;
+	heap[hn].idx = index;
+
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2].value < heap[i].value) return;
+
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+int main() 
+{
+	int i, k, ans;
+
+	scanf("%d %d %lld", &N, &K, &M);
+
+	//for (i = 0; i < K;i++) push(diff, dhn, 0, 0);
+	dhn = K; // 사용할 수 있는 쿠폰의 개수.
+
+	for (i = 0; i < N;i++)
+	{
+		ll p, c;
+
+		scanf("%lld %lld", &p, &c);
+
+		Plist[i] = p;
+		Clist[i] = c;
+
+		push(price, phn, p, i);
+		push(coupon, chn, c, i);
+	}
+
+	// b번째 소에서 쿠폰을 사용하려고 하는 경우,
+	// 그 전에 쿠폰을 사용한 소(a)에서 C(a) 대신 P(a)를 쓰고 C(b)를 쓰는게 이득인 경우 체크.
+	// 그 전에 쿠폰을 사용한 소가 없다면 0의 비용이 더 든다.
+	// 매번 소를 고를 때, 최소의 비용이 들도록 하면서 쿠폰을 사용하는 경우와 P(b)를 그냥 고르는 것 중 이득인 것을 취한다.
+
+	ans = 0;
+	int cnt = 0;
+	while (M > 0 && ans < N)
+	{
+		cnt++;
+		while (check[price[1].idx]) pop(price, phn);
+		while (check[coupon[1].idx]) pop(coupon, chn);
+
+		//diff[1] -> 현재 쿠폰을 사용하여 할인 받은 금액 중 가장 작은 금액.
+		//쿠폰이 남았다면 0이 된다.
+		//따라서 (할인 받은 금액 + 현재 선택된 쿠폰가의 소)가 원가 보다 작다면
+		//쿠폰을 현재의 소에 쓰는게 낫다.
+		if (diff[1].value + coupon[1].value < price[1].value)
+		{
+			printf("cnt : %d\n", cnt);
+			HEAP tmp = coupon[1];
+			ll cost = diff[1].value + tmp.value;
+			
+			if (M < cost) break;
+			
+			M -= cost;
+			pop(diff, dhn);
+			push(diff, dhn, Plist[tmp.idx] - Clist[tmp.idx],0);
+			check[tmp.idx] = 1;
+		}
+		else
+		{
+			printf("cnt2 : %d\n", cnt);
+			HEAP tmp = price[1];
+			ll cost = tmp.value;
+			
+			if (M < cost) break;
+			M -= cost;
+			check[tmp.idx] = 1;
+		}
+
+		ans++;
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
