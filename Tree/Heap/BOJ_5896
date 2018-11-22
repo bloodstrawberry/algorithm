@@ -101,10 +101,8 @@ int main()
 	// 매번 소를 고를 때, 최소의 비용이 들도록 하면서 쿠폰을 사용하는 경우와 P(b)를 그냥 고르는 것 중 이득인 것을 취한다.
 
 	ans = 0;
-	int cnt = 0;
 	while (M > 0 && ans < N)
 	{
-		cnt++;
 		while (check[price[1].idx]) pop(price, phn);
 		while (check[coupon[1].idx]) pop(coupon, chn);
 
@@ -114,7 +112,6 @@ int main()
 		//쿠폰을 현재의 소에 쓰는게 낫다.
 		if (diff[1].value + coupon[1].value < price[1].value)
 		{
-			printf("cnt : %d\n", cnt);
 			HEAP tmp = coupon[1];
 			ll cost = diff[1].value + tmp.value;
 			
@@ -127,7 +124,6 @@ int main()
 		}
 		else
 		{
-			printf("cnt2 : %d\n", cnt);
 			HEAP tmp = price[1];
 			ll cost = tmp.value;
 			
