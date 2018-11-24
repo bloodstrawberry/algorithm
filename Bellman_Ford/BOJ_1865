@@ -1,0 +1,88 @@
+//baekjoon_1865
+//
+
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int T, N, M, W;
+
+typedef struct st
+{
+	int node;
+	int weight;
+	struct st *next;
+}NODE;
+
+NODE HEAD[510];
+NODE POOL[10000];
+int cnt;
+
+int dist[510];
+
+void Make(int p, int c, int w)
+{
+	NODE *nd = &POOL[cnt++];
+
+	nd->node = c;
+	nd->weight = w;
+
+	nd->next = HEAD[p].next;
+	HEAD[p].next = nd;
+}
+
+int main()
+{
+	int i, k, flag, tc;
+
+	scanf("%d", &T);
+
+	for (tc = 1; tc <= T;tc++)
+	{
+		int p, c, w;
+		scanf("%d %d %d", &N, &M, &W);
+			
+		cnt = 0;
+		for (i = 1; i <= N;i++) HEAD[i].next = 0;
+		for (i = 1; i <= N;i++) dist[i] = INF;
+
+		for (i = 0; i < M;i++)
+		{
+			scanf("%d %d %d", &p, &c, &w);
+			Make(p, c, w);
+			Make(c, p, w);
+		}
+
+		for (i = 0; i < W;i++)
+		{
+			scanf("%d %d %d", &p, &c, &w);
+			Make(p, c, -w);
+		}
+
+		dist[1] = flag = 0; 
+
+		for (i = 1; i <= N;i++) 
+		{
+			for (k = 1; k <= N;k++)
+			{
+				for (NODE *p = HEAD[k].next; p; p = p->next)
+				{
+					int y, z;
+
+					y = p->node;
+					z = p->weight;
+
+					if (dist[k] != INF && dist[y] > dist[k] + z)
+					{
+						dist[y] = dist[k] + z;
+						if (i == N) flag = 1; 
+					}
+				}
+			}
+		}
+
+		if (flag) printf("YES\n");
+		else printf("NO\n");
+	}
+
+	return 0;
+}
