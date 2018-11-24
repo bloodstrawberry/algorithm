@@ -1,0 +1,88 @@
+//baekjoon_11657
+//타임머신, Bellman_Ford
+
+// 1번 도시에서, 나머지 도시로 가는 가장 빠른 최단 거리.
+
+// A -> B까지의 최단 경로는 최대 V-1개의 간선이 필요.
+// O(VE), E<=V*V, O(V^3)
+// 1번 더 check한 후, 최단 경로의 값이 변경된다면 음수 사이클이 존재함을 알 수 있다.
+
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int N, M;
+
+typedef struct st
+{
+	int node;
+	int weight;
+	struct st *next;
+}NODE;
+
+NODE HEAD[510];
+NODE POOL[6060];
+int cnt;
+
+int dist[510];
+
+void Make(int p, int c, int w)
+{
+	NODE *nd = &POOL[cnt++];
+
+	nd->node = c;
+	nd->weight = w;
+
+	nd->next = HEAD[p].next;
+	HEAD[p].next = nd;
+}
+
+int main()
+{
+	int i, k, flag;
+
+	scanf("%d %d", &N, &M);
+	
+	for (i = 1; i <= N;i++) dist[i] = INF;
+
+	for (i = 0; i < M;i++)
+	{
+		int p, c, w;
+
+		scanf("%d %d %d", &p, &c, &w);
+		Make(p, c, w);
+	}
+
+	dist[1] = flag = 0; // flag = 1, 음수 사이클 존재.
+	
+	for (i = 1; i <= N;i++) // N-1번 check해야 하지만, 1번 더 check하면 음수 사이클 여부를 알 수 있음.
+	{
+		for (k = 1; k <= N;k++)
+		{
+			for (NODE *p = HEAD[k].next; p; p = p->next)
+			{
+				int y, z;
+
+				y = p->node;
+				z = p->weight;
+
+				if (dist[k] != INF && dist[y] > dist[k] + z) 
+				{
+					dist[y] = dist[k] + z;
+					if (i == N) flag = 1; // N번째에서 갱신이 된 경우. 즉 음수 사이클이 생김.
+				}
+			}
+		}
+	}
+
+	if (flag) printf("-1\n");
+	else
+	{
+		for (i = 2; i <= N;i++)
+		{
+			if (dist[i] == INF) dist[i] = -1;
+			printf("%d\n", dist[i]);
+		}
+	}
+
+	return 0;
+}
