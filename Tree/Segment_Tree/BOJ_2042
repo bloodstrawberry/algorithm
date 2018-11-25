@@ -1,4 +1,5 @@
 //baekjoon_2042
+//구간 
 
 #pragma warning(disable : 4996)
 #include <stdio.h>
