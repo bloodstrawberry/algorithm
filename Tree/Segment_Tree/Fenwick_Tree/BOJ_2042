@@ -1,0 +1,69 @@
+//baekjoon_2042
+//구간 합 구하기. Fenwick_Tree, Binary_Indexed_Tree
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+ll A[1000100];
+ll tree[1000100];
+int idx;
+
+int N, M, K;
+
+void update(int i, ll diff)
+{
+	while (i <= N)
+	{
+		tree[i] += diff;
+		i += (i & -i);
+	}
+}
+
+ll sum(int i)
+{
+	ll ans;
+
+	ans = 0;
+	while (i)
+	{
+		ans += tree[i];
+		i -= (i & -i);
+	}
+
+	return ans;
+}
+
+
+int main()
+{
+	int i, k;
+
+	scanf("%d %d %d", &N, &M, &K);
+
+	M += K;
+
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%lld", &A[i]);
+		update(i, A[i]);
+	}
+
+	for (i = 0; i < M;i++)
+	{
+		int a, b;
+		ll c, diff;
+
+		scanf("%d %d %lld", &a, &b, &c);
+
+		if (a == 1)
+		{
+			diff = c - A[b];
+			A[b] = c;
+			update(b, diff);
+		}
+		else printf("%lld\n", sum(c) - sum(b-1));
+	}
+
+	return 0;
+}
