@@ -1,5 +1,6 @@
 //baekjoon_1956
 //운동. 최소 경로 cycle 찾기.
+//결과를 보고 다 더해본 후 가장 짧은 경로 찾기.
 
 #include <stdio.h>
 
