@@ -46,7 +46,7 @@ ll sum(int l, int r)
 		}
 	}
 
-if (l == r) ans += tree[l];
+	if (l == r) ans += tree[l];
 
 	return ans;
 }
