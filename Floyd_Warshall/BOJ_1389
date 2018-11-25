@@ -1,0 +1,53 @@
+//baekjoon_1389
+
+#include <stdio.h>
+
+int N, M;
+int MAP[110][110];
+int SUM[110];
+
+int main()
+{
+	int k, i, j, ans, idx;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < M;i++)
+	{
+		int p, c;
+		
+		scanf("%d %d", &p, &c);
+		MAP[p][c] = MAP[c][p] = 1;
+	}
+
+	for (k = 1; k <= N;k++)
+	{
+		for (i = 1; i <= N;i++)
+		{
+			for (j = 1; j <= N;j++)
+			{
+				if (i == j) continue;
+
+				if (MAP[i][k] && MAP[k][j])
+				{
+					if (!MAP[i][j]) MAP[i][j] = MAP[i][k] + MAP[k][j];
+					else
+						MAP[i][j] = (MAP[i][j] < MAP[i][k] + MAP[k][j]) ? MAP[i][j] : MAP[i][k] + MAP[k][j];
+				}
+			}
+		}
+	}
+	
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			SUM[i] += MAP[i][k];
+	
+	idx = 0;
+	ans = 0x7fff0000;
+	for (i = 1; i <= N;i++)
+		if (ans > SUM[i]) ans = SUM[i], idx = i;
+
+	printf("%d\n", idx);
+
+	return 0;
+}
