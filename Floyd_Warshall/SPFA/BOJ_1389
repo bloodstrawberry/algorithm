@@ -1,0 +1,108 @@
+//baekjoon_1389
+//케빈 베이컨의 6단계 법칙
+
+#include <stdio.h>
+#define INF (0x7fff0000)
+
+int T, N, M;
+int MAP[110][110];
+
+typedef struct st
+{
+	int to;
+	int cost;
+}EDGE;
+
+EDGE Edge[110][110];
+
+int Que[110 * 110];
+int RP, WP;
+int c[110];
+int d[110];
+
+int SPFA(int n)
+{
+	int i, ret;
+
+	RP = WP = 0;
+	for (i = 1; i <= N;i++) d[i] = INF, c[i] = 0;
+
+	d[n] = 0;
+	c[n] = 1;
+	Que[WP++] = n;
+
+	while (WP > RP)
+	{
+		int from = Que[RP++];
+
+		c[from] = 0;
+
+		for (i = 1; i <= Edge[from][0].to;i++)
+		{
+			int to = Edge[from][i].to;
+			int cost = Edge[from][i].cost;
+
+			if (d[to] > d[from] + cost)
+			{
+				d[to] = d[from] + cost;
+				if (!c[to])
+				{
+					Que[WP++] = to;
+					c[to] = 1;
+				}
+			}
+		}
+	}
+
+	ret = 0;
+	for (i = 1; i <= N;i++)
+	{
+		if (d[i] == INF) continue;
+		ret += d[i];
+	}
+	
+	return ret;
+}
+
+int main()
+{
+	int i, k, j, p, c, ans, idx;
+
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N; i++)
+		for (k = 1; k <= N; k++)
+			MAP[i][k] = 0;
+
+	for (i = 0; i < M; i++)
+	{
+		scanf("%d %d", &p, &c);
+		MAP[p][c] = MAP[c][p] = 1;
+	}
+
+	for (i = 1; i <= N;i++)
+	{
+		Edge[i][0].to = 0; // Edge[i][0]은 Edge[i]의 개수.
+		for (k = 1; k <= N;k++)
+		{
+			if (MAP[i][k])
+			{
+				Edge[i][++Edge[i][0].to].cost = MAP[i][k];
+				Edge[i][Edge[i][0].to].to = k;
+			}
+		}
+	}
+
+	idx = 0;
+	ans = 0x7fff0000;
+	for (i = 1; i <= N;i++)
+	{
+		int tmp = SPFA(i);
+		if (ans > tmp) ans = tmp, idx = i;
+	}
+
+	printf("%d\n", idx);
+	
+	return 0;
+}
