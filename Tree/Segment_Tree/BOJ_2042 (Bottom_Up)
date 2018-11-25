@@ -1,0 +1,87 @@
+//baekjoon_2042
+//
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+ll tree[3000000];
+int idx;
+
+int N, M, K;
+
+void update(int x, ll diff)
+{
+	x += idx;
+
+	tree[x] += diff;
+	while (x > 1) tree[x /= 2] += diff;
+}
+
+ll sum(int l, int r)
+{
+	ll ans;
+
+	l += idx;
+	r += idx;
+	
+	ans = 0;
+
+	while (l < r)
+	{
+		if (l % 2 == 0) l /= 2;
+		else
+		{
+			ans += tree[l];
+			l += 1;
+			l /= 2;
+		}
+
+		if (r % 2 == 1) r /= 2;
+		else
+		{
+			ans += tree[r];
+			r -= 1;
+			r /= 2;
+		}
+	}
+
+if (l == r) ans += tree[l];
+
+	return ans;
+}
+
+
+int main()
+{
+	int i, k, log;
+	
+	scanf("%d %d %d", &N, &M, &K);
+
+	M += K;
+	
+	//idx = 1 << 20;
+	for (log = 1; (1 << log) <= N;log++);
+	idx = 1 << log;
+	idx--;
+
+	for (i = 1; i <= N;i++)
+	{
+		ll x;
+		scanf("%lld", &x);
+		update(i, x); // idx + i 가 1번째 bottom
+	}
+
+	for (i = 0; i < M;i++)
+	{
+		int a, b;
+		ll c;
+
+		scanf("%d %d %lld", &a, &b, &c);
+
+		if (a == 1) update(b, c - tree[idx + b]);
+		else printf("%lld\n", sum(b, c));
+	}
+
+	return 0;
+}
