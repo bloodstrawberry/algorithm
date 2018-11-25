@@ -1,0 +1,47 @@
+//baekjoon_1956
+//운동. 최소 cycle 찾기. MAP[i][i] 검사.
+
+#include <stdio.h>
+
+int V, E;
+int MAP[410][410];
+
+int main()
+{
+	int k, i, j, ans;
+
+	scanf("%d %d", &V, &E);
+
+	for (i = 0; i < E;i++)
+	{
+		int p, c, w;
+
+		scanf("%d %d %d", &p, &c, &w);
+		MAP[p][c] = w;
+	}
+
+	for (k = 1; k <= V;k++)
+	{
+		for (i = 1; i <= V;i++)
+		{
+			for (j = 1; j <= V;j++)
+			{
+      
+        //if (i == j) continue; 주석처리 하면 i -> x, x -> i 의 경로를 찾게 된다.
+				if (MAP[i][k] && MAP[k][j])
+				{
+					if (!MAP[i][j] || MAP[i][j] > MAP[i][k] + MAP[k][j]) MAP[i][j] = MAP[i][k] + MAP[k][j];
+				}
+			}
+		}
+	}
+
+	ans = -1;
+
+	for (i = 1; i <= V;i++)
+		if (MAP[i][i] != 0)
+			if (ans == -1 || ans > MAP[i][i]) ans = MAP[i][i];
+
+	printf("%d\n", ans);
+	return 0;
+}
