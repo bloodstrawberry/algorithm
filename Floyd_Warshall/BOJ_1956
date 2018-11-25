@@ -1,0 +1,60 @@
+//baekjoon_1956
+//운동. 최소 경로 cycle 찾기.
+
+#include <stdio.h>
+
+int V, E;
+int MAP[410][410];
+
+int main()
+{
+	int k, i, j, ans;
+
+	scanf("%d %d", &V, &E);
+
+	for (i = 0; i < E;i++)
+	{
+		int p, c, w;
+
+		scanf("%d %d %d", &p, &c, &w);
+		MAP[p][c] = w;
+	}
+	
+	for (k = 1; k <= V;k++)
+	{
+		for (i = 1; i <= V;i++)
+		{
+			for (j = 1; j <= V;j++)
+			{
+
+				if (i == j) continue;
+
+				if (MAP[i][k] && MAP[k][j])
+				{
+					if (!MAP[i][j]) MAP[i][j] = MAP[i][k] + MAP[k][j];
+					else
+						MAP[i][j] = (MAP[i][j] < MAP[i][k] + MAP[k][j]) ? MAP[i][j] : MAP[i][k] + MAP[k][j];
+				}
+			}
+		}
+	}
+
+	ans = 0x7fff0000;
+
+	for (i = 1; i < V;i++)
+	{
+		for (k = i + 1; k <= V;k++)
+		{
+			if (MAP[i][k] && MAP[k][i])
+			{
+				int tmp = MAP[i][k] + MAP[k][i];
+				if (ans > tmp) ans = tmp;
+			}
+		}
+	}
+
+	if (ans == 0x7fff0000) printf("-1\n");
+	else printf("%d\n", ans);
+
+	return 0;
+}
