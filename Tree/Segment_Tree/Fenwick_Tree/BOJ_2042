@@ -1,13 +1,18 @@
 //baekjoon_2042
 //구간 합 구하기. Fenwick_Tree, Binary_Indexed_Tree
 
+// tree[i]에는 i부터 "앞"으로 마지막 비트합을 저장.
+// tree[13], 13 = 110[1] => 1, A[13] ~ A[13] 저장.
+// tree[12], 12 = 1[1]00 => 4. A[9] ~ A[12] 저장.
+
+// SUM(13) = SUM(1101) = tree[1101] + tree[1100] + tree[1000]
+
 #include <stdio.h>
 
 typedef long long int ll;
 
 ll A[1000100];
-ll tree[1000100];
-int idx;
+ll tree[1000100]; 
 
 int N, M, K;
 
