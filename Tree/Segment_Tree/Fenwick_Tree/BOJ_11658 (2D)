@@ -1,0 +1,71 @@
+//baekjoon_11658
+//구간 합 구하기 3, 2D_Fenwick_Tree
+
+#include <stdio.h>
+
+int N, M, K;
+
+int A[1100][1100];
+int tree[1100][1100];
+
+void update(int x, int y, int value)
+{
+	int i, k;
+	
+	for (i = x; i <= N;i += i & -i)
+		for (k = y; k <= N;k += k & -k)
+			tree[i][k] += value;
+}
+
+int sum(int x, int y)
+{
+	int i, k, ans;
+	
+	ans = 0;
+	for (i = x; i; i -= i & -i)
+		for (k = y; k; k -= k & -k)
+			ans += tree[i][k];
+
+	return ans;
+}
+
+int main()
+{
+	int i, k;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+		{
+			scanf("%d", &A[i][k]);
+			update(i, k, A[i][k]);
+		}
+	}
+
+	for (i = 0; i < M;i++)
+	{
+		int w;
+
+		scanf("%d", &w);
+
+		if (w)
+		{
+			int x1, y1, x2, y2;
+
+			scanf("%d %d %d %d", &x1, &y1, &x2, &y2);
+			printf("%d\n", sum(x2, y2) - sum(x1 - 1, y2) - sum(x2, y1 - 1) + sum(x1 - 1, y1 - 1));
+		}
+		else
+		{
+			int x, y, value;
+
+			scanf("%d %d %d", &x, &y, &value);
+			update(x, y, value - A[x][y]);
+			A[x][y] = value;
+		}
+	}
+		
+	return 0;
+}
