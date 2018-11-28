@@ -43,7 +43,7 @@ void update_range(int s, int e, int left, int right, int Node, ll diff)
 	//lazy 반영 후 시작.
 	update_lazy(s, e, Node);
 
-	if (right < s || left > e) return;
+	if (right < s || e < left) return;
 	if (left <= s && e <= right) //범위에 포함이 된다면.
 	{
 		tree[Node] += (e - s + 1) * diff;
@@ -70,7 +70,7 @@ ll findSum(int s, int e, int a, int b, int Node)
 	//lazy 반영 후 시작.
 	update_lazy(s, e, Node);
 
-	if (b < s || a > e) return 0;
+	if (b < s || e < a) return 0;
 	if (a <= s && e <= b) return tree[Node];
 
 	return findSum(s, (s + e) / 2, a, b, Node * 2) + findSum((s + e) / 2 + 1, e, a, b, Node * 2 + 1);
