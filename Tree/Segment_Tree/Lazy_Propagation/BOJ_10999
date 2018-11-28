@@ -1,0 +1,117 @@
+//baekjoon_10999
+//구간 합 구하기 2
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int N, M, K;
+
+ll A[1000000];
+ll tree[4000000];
+ll lazy[4000000];
+
+//기존 세그먼트 트리와 동일한 init
+ll init(int s, int e, int Node)
+{
+	if (s == e) return tree[Node] = A[s];
+
+	return tree[Node] = init(s, (s + e) / 2, Node * 2) + init((s + e) / 2 + 1, e, Node * 2 + 1);
+}
+
+void update_lazy(int s, int e, int Node)
+{
+	if (lazy[Node]) //lazy가 있다면.
+	{
+		tree[Node] += (e - s + 1) * lazy[Node]; //현재 노드에 반영
+
+		if (s != e) // 끝 노드가 아닌 경우.
+		{
+			lazy[Node * 2] += lazy[Node]; //기존의 lazy가 있을 수 있기 때문에 증가.
+			lazy[Node * 2 + 1] += lazy[Node];
+		}
+		lazy[Node] = 0;
+	}
+
+	return;
+}
+
+//update parameter : start, end, Node, index, diff
+//update_range : index -> left~right
+void update_range(int s, int e, int left, int right, int Node, ll diff)
+{
+	//lazy 반영 후 시작.
+	update_lazy(s, e, Node);
+
+	if (right < s || left > e) return;
+	if (left <= s && e <= right) //범위에 포함이 된다면.
+	{
+		tree[Node] += (e - s + 1) * diff;
+		if (s != e)
+		{
+			lazy[Node * 2] += diff;
+			lazy[Node * 2 + 1] += diff;
+		}
+
+		//lazy 설정 후, 나중에 update.
+		return;
+	}
+
+	update_range(s, (s + e) / 2, left, right, Node * 2, diff);
+	update_range((s + e) / 2 + 1, e, left, right, Node * 2 + 1, diff);
+
+	tree[Node] = tree[Node * 2] + tree[Node * 2 + 1];
+
+	return;
+}
+
+ll findSum(int s, int e, int a, int b, int Node)
+{
+	//lazy 반영 후 시작.
+	update_lazy(s, e, Node);
+
+	if (b < s || a > e) return 0;
+	if (a <= s && e <= b) return tree[Node];
+
+	return findSum(s, (s + e) / 2, a, b, Node * 2) + findSum((s + e) / 2 + 1, e, a, b, Node * 2 + 1);
+}
+
+int main(void)
+{
+	int i, k;
+
+	scanf("%d %d %d", &N, &M, &K);
+
+	M += K;
+	for (i = 1; i <= N;i++) scanf("%d", &A[i]);
+
+	init(1, N, 1);
+
+	for (i = 0; i < M;i++)
+	{
+		int a;
+
+		scanf("%d", &a);
+
+		if (a == 1)
+		{
+			int b, c;
+			ll d;
+
+			scanf("%d %d %lld", &b, &c, &d);
+
+			// boj_2942의 경우, b번째 수를 c로 바꾸기 때문에 A[b]를 갱신해야 하지만, 
+			// 이 문제의 경우 특정값으로 더하기만 하기 때문에 갱신 불필요.
+			update_range(1, N, b, c, 1, d); 
+		}
+		else
+		{
+			int b, c;
+			scanf("%d %d", &b, &c);
+			printf("%lld\n", findSum(1, N, b, c, 1));
+		}
+	}
+
+	return 0;
+}
+
