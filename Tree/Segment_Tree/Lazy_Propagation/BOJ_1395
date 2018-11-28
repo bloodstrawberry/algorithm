@@ -1,0 +1,81 @@
+//baekjoon_1395
+//스위치 
+
+#include <stdio.h>
+
+int N, M;
+
+int A[100000];
+int tree[400000];
+int lazy[400000];
+
+void update_lazy(int s, int e, int Node)
+{
+	if (lazy[Node])
+	{
+		if (lazy[Node] & 1) tree[Node] = (e - s + 1) - tree[Node];
+		if (s != e)
+		{
+			lazy[Node * 2] += lazy[Node];
+			lazy[Node * 2 + 1] += lazy[Node];
+		}
+		lazy[Node] = 0;
+	}
+
+	return;
+}
+
+void update_range(int s, int e, int left, int right, int Node, int sw)
+{
+	update_lazy(s, e, Node);
+
+	if (right < s || e < left) return;
+	if (left <= s && e <= right)
+	{
+		tree[Node] = (e - s + 1) - tree[Node];
+		if (s != e)
+		{
+			lazy[Node * 2] += sw;
+			lazy[Node * 2 + 1] += sw;
+		}
+
+		return;
+	}
+
+	update_range(s, (s + e) / 2, left, right, Node * 2, sw);
+	update_range((s + e) / 2 + 1, e, left, right, Node * 2 + 1, sw);
+
+	tree[Node] = tree[Node * 2] + tree[Node * 2 + 1];
+
+	return;
+}
+
+int findSum(int s, int e, int a, int b, int Node)
+{
+	update_lazy(s, e, Node);
+
+	if (b < s || e < a) return 0;
+	if (a <= s && e <= b) return tree[Node];
+
+	return findSum(s, (s + e) / 2, a, b, Node * 2) + findSum((s + e) / 2 + 1, e, a, b, Node * 2 + 1);
+}
+
+int main(void)
+{
+	int i, k;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < M;i++)
+	{
+		int o, s, t;
+
+		scanf("%d %d %d", &o, &s, &t);
+
+		if (o) printf("%d\n", findSum(1, N, s, t, 1));
+		else update_range(1, N, s, t, 1, 1);
+	}
+
+	return 0;
+}
+
