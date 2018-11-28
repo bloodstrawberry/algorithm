@@ -1,0 +1,122 @@
+//baekjoon_12844
+//XOR
+
+#include <stdio.h>
+
+int N, M;
+
+int A[500100];
+int tree[2000100];
+int lazy[2000100];
+
+int init(int s, int e, int Node)
+{
+	if (s == e) return tree[Node] = A[s];
+
+	return tree[Node] = init(s, (s + e) / 2, Node * 2) ^ init((s + e) / 2 + 1, e, Node * 2 + 1);
+}
+
+
+void update_lazy(int s, int e, int Node)
+{
+	if (lazy[Node])
+	{
+		if ((e - s + 1) & 1) tree[Node] ^= lazy[Node];
+		if (s != e)
+		{
+			lazy[Node * 2] ^= lazy[Node];
+			lazy[Node * 2 + 1] ^= lazy[Node];
+		}
+		lazy[Node] = 0;
+	}
+
+	return;
+}
+
+void update_range(int s, int e, int left, int right, int Node, int value)
+{
+	update_lazy(s, e, Node);
+
+	if (right < s || e < left) return;
+	if (left <= s && e <= right)
+	{
+		if ((e - s + 1) & 1) tree[Node] ^= value;
+		if (s != e)
+		{
+			lazy[Node * 2] ^= value;
+			lazy[Node * 2 + 1] ^= value;
+		}
+
+		return;
+	}
+
+	update_range(s, (s + e) / 2, left, right, Node * 2, value);
+	update_range((s + e) / 2 + 1, e, left, right, Node * 2 + 1, value);
+
+	tree[Node] = tree[Node * 2] ^ tree[Node * 2 + 1];
+
+	return;
+}
+
+int findXOR(int s, int e, int a, int b, int Node)
+{
+	update_lazy(s, e, Node);
+
+	if (b < s || e < a) return 0;
+	if (a <= s && e <= b) return tree[Node];
+
+	return findXOR(s, (s + e) / 2, a, b, Node * 2) ^ findXOR((s + e) / 2 + 1, e, a, b, Node * 2 + 1);
+}
+
+int main(void)
+{
+	int i, k;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++) scanf("%d", &A[i]);
+
+	init(1, N, 1);
+
+	scanf("%d", &M);
+	for (i = 0; i < M;i++)
+	{
+		int t;
+
+		scanf("%d", &t);
+
+		if (t == 1)
+		{
+			int a, b, c;
+
+			scanf("%d %d %d", &a, &b, &c);
+			a++, b++;
+
+			if (a > b)
+			{
+				int tmp;
+				tmp = a, a = b, b = tmp;
+			}
+
+			update_range(1, N, a, b, 1, c);
+		}
+		else
+		{
+			int a, b;
+
+			scanf("%d %d", &a, &b);
+			a++, b++;
+
+			if (a > b)
+			{
+				int tmp;
+				tmp = a, a = b, b = tmp;
+			}
+
+			printf("%d\n", findXOR(1, N, a, b, 1));
+		}
+	}
+
+	return 0;
+}
+
