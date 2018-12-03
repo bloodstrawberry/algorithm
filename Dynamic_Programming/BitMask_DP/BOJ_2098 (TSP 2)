@@ -18,7 +18,7 @@ int main(void)
 			scanf("%d", &MAP[i][k]);
 
 	for (i = 0; i < (1 << N);i++)
-		for (k = 0; k <= N;k++)
+		for (k = 1; k <= N;k++)
 			D[i][k] = 100000000;
 
 	D[1][1] = 0; // 1번 도시 부터 시작;
