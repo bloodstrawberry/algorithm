@@ -1,0 +1,46 @@
+//baekjoon_2098
+//외판원 순회, 1~N번 도시.
+
+#include <stdio.h>
+
+int N;
+int MAP[16][16];
+
+int D[1 << 16][16];
+int main(void)
+{
+	int i, j, k, ans;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			scanf("%d", &MAP[i][k]);
+
+	for (i = 0; i < (1 << N);i++)
+		for (k = 0; k <= N;k++)
+			D[i][k] = 100000000;
+
+	D[1][1] = 0; // 1번 도시 부터 시작;
+	for (i = 0; i < (1 << N);i++)
+	{
+		for (j = 2; j <= N;j++)
+		{
+			if (i & (1 << (j-1))) //D[i][j] = 1~i까지 도착한 후, j가 현재 위치인 경우. 즉 i에 j가 포함되어 있는지 체크.
+			{
+				for (k = 1; k <= N;k++)
+					if ((i & (1 << (k-1))) && MAP[k][j])
+						D[i][j] = (D[i][j] < D[i - (1 << (j-1))][k] + MAP[k][j]) ? D[i][j] : D[i - (1 << (j-1))][k] + MAP[k][j];
+			}
+		}
+	}
+
+	ans = 100000000;
+	for (i = 2; i <= N;i++)
+		if (MAP[i][1]) ans = (ans < D[(1 << N) - 1][i] + MAP[i][1]) ? ans : D[(1 << N) - 1][i] + MAP[i][1];
+
+	printf("%d\n", ans);
+
+	return 0;
+}
+
