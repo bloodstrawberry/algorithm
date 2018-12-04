@@ -15,6 +15,7 @@ int MAP[20][20];
 // 1. D[S | (1<<j)][j] = D[S][i] + A[i][j];
 // 2. D[S][i] = min(D[S-(1<<i)][j] + A[j][i];
 
+//2. D[S][i] = min(D[S-(1<<i)][j] + A[j][i];를 이용한 코드.
 int D[1<<20][20];
 int main(void)
 {
