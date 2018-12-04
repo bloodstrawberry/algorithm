@@ -1,0 +1,48 @@
+#include <stdio.h>
+
+int N;
+int MAP[16][16];
+
+// 1~i까지 도착한 후, j를 가는 경우
+// 1. D[S | (1<<j)][j] = D[S][i] + A[i][j]; 이용
+int D[1<<16][16];
+
+int main(void)
+{
+	int i, j, k, ans;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++)
+		for (k = 0; k < N;k++)
+			scanf("%d", &MAP[i][k]);
+
+	for (i = 0; i < (1 << N);i++)
+		for (k = 0; k < N;k++)
+			D[i][k] = 100000000;
+
+    
+  // D[S | (1<<j)][j] = D[S][i] + A[i][j];
+	D[1][0] = 0; // 출발점, 0번 도시 방문 -> 2^0 = 1;
+	for (i = 0; i < (1 << N);i++)
+	{
+		for (j = 1; j < N;j++)
+		{
+			if (!(i & (1 << j))) // 상태 i에서 j를 방문하지 않았다면.
+			{
+                for(k = 0; k<N;k++)
+                	if(D[i | (1<<j)][j] > D[i][k] + MAP[k][j] && MAP[k][j] && (i & (1<<k))) 
+                        D[i | (1<<j)][j] = D[i][k] + MAP[k][j]; // 현 상태에서 j를 방문한 경우를 변경      
+          	}
+		}
+	}
+		
+	ans = 100000000;
+	for (i = 1; i < N;i++)
+		if (MAP[i][0]) ans = (ans < D[(1 << N) - 1][i] + MAP[i][0]) ? ans : D[(1 << N) - 1][i] + MAP[i][0];
+	
+	printf("%d\n", ans);
+
+	return 0;
+}
+
