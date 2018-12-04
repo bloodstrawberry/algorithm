@@ -30,10 +30,10 @@ int main(void)
 		{
 			if (!(i & (1 << j))) // 상태 i에서 j를 방문하지 않았다면.
 			{
-                for(k = 0; k<N;k++)
-                	if(D[i | (1<<j)][j] > D[i][k] + MAP[k][j] && MAP[k][j] && (i & (1<<k))) 
-                        D[i | (1<<j)][j] = D[i][k] + MAP[k][j]; // 현 상태에서 j를 방문한 경우를 변경      
-          	}
+                		for(k = 0; k<N;k++)
+                			if(D[i | (1<<j)][j] > D[i][k] + MAP[k][j] && MAP[k][j] && (i & (1<<k))) 
+                        			D[i | (1<<j)][j] = D[i][k] + MAP[k][j]; // 현 상태에서 j를 방문한 경우를 변경      
+          		}
 		}
 	}
 		
