@@ -116,15 +116,8 @@ void Add(char* name, char* number, char* birthday, char* email, char* memo)
 
 	for (i = 0; i < 5; i++)
 	{
-		if (Hash[i][h[i]].next == 0)
-		{
-			Hash[i][h[i]].next = hashTable[i];
-		}
-		else
-		{
-			hashTable[i]->next = Hash[i][h[i]].next;
-			Hash[i][h[i]].next = hashTable[i];
-		}
+		hashTable[i]->next = Hash[i][h[i]].next;
+		Hash[i][h[i]].next = hashTable[i];
 	}
 
 }
