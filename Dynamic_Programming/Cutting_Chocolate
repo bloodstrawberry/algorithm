@@ -1,0 +1,68 @@
+#include <stdio.h>
+
+int T, N, M;
+int D[55][55][55][55]; //D[sr][sc][er][ec] = (sr,sc) ~ (er,ec)일 때 필요한 건포도
+int A[55][55];
+int S[55][55];
+
+int minV(int a, int b)
+{
+	return (a<b)? a:b;
+}
+
+int Find(int sr, int sc, int er, int ec)
+{
+	int ret, i, k;
+	if(sr == er && sc == ec) return 0;
+	if(D[sr][sc][er][ec] != -1) return D[sr][sc][er][ec];
+
+	ret = 0x7ff0000;
+	
+  //가로로 나눈다.
+	for(i = sr ; i < er; i++)
+		ret = minV(ret, Find(sr, sc, i, ec) + Find(i+1,sc,er,ec));
+
+  //세로로 나눈다.
+	for(i = sc ; i < ec; i++)
+		ret = minV(ret, Find(sr, sc, er, i) + Find(sr, i+1, er, ec));
+	
+  //합친 후, 모든 건포도를 한번 더 더한다.
+	ret += (S[er][ec] - S[er][sc-1] - S[sr-1][ec] + S[sr-1][sc-1]);
+	
+	return D[sr][sc][er][ec] = ret;
+} 
+
+
+
+int main()
+{
+	int i, j, k, l, tc;
+	
+	scanf("%d",&T);
+	for(tc = 1; tc<=T;tc++)
+	{
+		scanf("%d %d",&N, &M);
+		
+		for(i = 1; i<=N;i++)
+			for(j = 1; j<=M;j++)
+				for(k = 1; k<=N;k++)
+					for(l = 1; l<=M;l++)
+						D[i][j][k][l] = -1;
+
+		for(i = 1; i<=N;i++)
+			for(k = 1; k<=M;k++)
+				scanf("%d",&A[i][k]);
+		
+		for(i = 1; i<=N;i++)
+			for(k = 1; k<=M;k++)
+				S[i][k] = 0;
+
+		for(i = 1; i<=N;i++)
+			for(k = 1; k<=M;k++)
+				S[i][k] = S[i-1][k] + S[i][k-1] - S[i-1][k-1] + A[i][k];
+
+		printf("#%d %d\n", tc, Find(1,1,N,M));  
+	}
+  
+    return 0;
+}
