@@ -24,7 +24,7 @@ int main(void)
 			for (k = 0; k < (1 << 10);k++)
 			{
 				if (!D[i][j][k]) continue;
-				if (!(k & (1 << j))) continue;
+				//if (!(k & (1 << j))) continue;
 
 				if (j + 1 <= 9)
 				{
