@@ -1,0 +1,102 @@
+//baekjoon_1086
+//박성원. N개의 수를 정렬하여 K로 나눠 떨어지는 경우의 수 
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int N, K;
+
+// D[S][M] = 사용한 순열에 포함된 수의 집합이 S이고 나머지가 M인 것의 개수
+// [M][A[L]] -> 새로운 수 = M * 10^A[L]의 길이 + A[L]
+// (M * 10^A[L]의 길이 + A[L]) % K 
+// D[S|(1<<L)][next] += D[S][M]
+
+// 숫자가 매우 크므로, 나머지 연산의 규칙을 이용.
+// (A+B)%C = A%C+B%C,  (A*B)%C = (A%C)*(B%C)%C.
+
+ll D[1 << 15][100]; 
+int len[16];
+int A[16];
+int Ten[51];  
+char Str[16][55];
+
+ll gcd(ll x, ll y)
+{
+	return (y) ? gcd(y, x % y) : x;
+}
+
+
+int main()
+{
+	int i, j, k;
+	ll t1, t2, g;
+
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++)
+	{
+		scanf("%s", Str[i]);
+
+		for (k = 0; Str[i][k];k++);
+		len[i] = k;
+	}
+
+	scanf("%d", &K);
+	for (i = 0; i < N;i++)
+	{
+		for (k = 0; k < len[i];k++)
+		{
+			A[i] = A[i] * 10 + (Str[i][k] - '0'); //기존의 수를 미리 나머지 계산.
+			A[i] %= K;
+		}
+	}
+
+	//10^n 승을 미리 계산.
+	Ten[0] = 1;
+	for (i = 1; i <= 50;i++)
+	{
+		Ten[i] = Ten[i - 1] * 10;
+		Ten[i] %= K;
+	}
+
+	D[0][0] = 1;
+	for (i = 0; i < (1 << N);i++)
+	{
+		for (j = 0; j < K;j++)
+		{
+			for (k = 0; k < N;k++)
+			{
+				if (!(i&(1 << k)))
+				{
+					// 현재까지 사용한 수 123(j) + 추가할 수 k
+					// : 123(j) * k의 길이 + k
+					// j는 modulus로만 기억해두면 충분.
+
+					int next = j * Ten[len[k]];
+					next %= K;
+					next += A[k];
+					next %= K;
+					D[i | (1 << k)][next] += D[i][j];
+				}
+			}
+		}
+	}
+
+	t1 = D[(1 << N) - 1][0];
+	t2 = 1;
+
+	// N! 계산.
+	for (i = 2; i <= N;i++) t2 *= (ll)i;
+
+	g = gcd(t1, t2);
+
+	t1 /= g;
+	t2 /= g;
+
+	printf("%lld/%lld\n", t1, t2);
+
+
+	return 0;
+}
