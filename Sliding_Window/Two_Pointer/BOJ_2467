@@ -1,0 +1,59 @@
+//baekjoon_2467
+//용액.
+
+#include <stdio.h>
+
+int N;
+int a[100100];
+
+int absV(int x)
+{
+	return (x > 0) ? x : -x;
+}
+
+int main(void)
+{
+	int tc, i, lp, rp, lans, rans, tmp;
+
+	scanf("%d", &N);
+
+	for (i = 0; i < N;i++) scanf("%d", &a[i]);
+	//sort(0, N - 1);
+
+	lp = 0, rp = N - 1;
+	lans = a[0], rans = a[N - 1];
+	tmp = 0x7fff0000;
+
+	while (lp<rp)
+	{
+		if (absV(a[lp] + a[rp]) <= absV(tmp))
+		{
+
+
+			if (absV(a[lp] + a[rp]) == absV(tmp))
+			{
+				if (a[lp] + a[rp] < tmp)
+				{
+					lans = a[lp];
+					rans = a[rp];
+					tmp = a[lp] + a[rp];
+				}
+			}
+			else
+			{
+				lans = a[lp];
+				rans = a[rp];
+				tmp = a[lp] + a[rp];
+			}
+
+		}
+
+		if (absV(a[lp]) > absV(a[rp])) lp++;
+		else rp--;
+	}
+
+	printf("%d %d\n", lans, rans);
+	
+
+	return 0;
+}
