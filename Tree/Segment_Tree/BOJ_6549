@@ -1,0 +1,88 @@
+//baekjoon_6549
+//히스토그램에서 가장 큰 직사각형.
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int N;
+int A[101000];
+int tree[404000];
+
+//직사각형 중 가장 작은 사각형의 index를 저장.
+void init(int s, int e, int Node)
+{
+	if (s == e) tree[Node] = s;
+	else
+	{
+		init(s, (s + e) / 2, Node * 2);
+		init((s + e) / 2 + 1, e, Node * 2 + 1);
+
+		if (A[tree[Node * 2]] <= A[tree[Node * 2 + 1]]) tree[Node] = tree[Node * 2];
+		else tree[Node] = tree[Node * 2 + 1];
+	}
+}
+
+int query(int s, int e, int a, int b, int Node)
+{
+	int m1, m2;
+	if (e < a || b < s) return -1;
+	if (a <= s && e <= b) return tree[Node];
+
+	m1 = query(s, (s + e) / 2, a, b, 2 * Node);
+	m2 = query((s + e) / 2 + 1, e, a, b, 2 * Node + 1);
+	
+	if (m1 == -1) return m2;
+	else if (m2 == -1) return m1;
+	else return (A[m1] <= A[m2]) ? m1 : m2;
+}
+
+ll largest(int s, int e)
+{
+	int m;
+	ll area, tmp;
+
+	//s~e중 가장 작은 사각형의 index m을 구함.
+	m = query(1, N, s, e, 1);
+
+	//area = e~s와 index m의 높이.
+	area = (ll)(e - s + 1) * (ll)A[m]; 
+
+	//작은 것을 기준으로 양 옆의 직사각형 중 큰 것을 리턴.
+	if (s <= m - 1)
+	{
+		tmp = largest(s, m - 1);
+		if (area < tmp) area = tmp;
+	}
+
+	if (m + 1 <= e)
+	{
+		tmp = largest(m + 1, e);
+		if (area < tmp) area = tmp;
+	}
+
+	//즉 s~e중 가장 높이가 작은 직사각형을 찾고.
+	//왼쪽, 오른쪽, 그리고 s~e중 높이가 작은 직사각형 중 가장 큰 것을 리턴한다. 
+
+	return area;
+}
+
+int main(void)
+{
+	int i, k;
+
+	while (1)
+	{
+		scanf("%d", &N);
+		
+		if (!N) break;
+	
+		for (i = 1; i <= N;i++) scanf("%d", &A[i]);
+		
+		init(1, N, 1);
+
+		printf("%lld\n", largest(1, N));
+	}
+	
+	return 0;
+}
