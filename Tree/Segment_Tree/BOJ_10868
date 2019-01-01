@@ -1,4 +1,6 @@
 //baekjoon_10868
+//최솟값.
+
 #pragma warning(disable : 4996)
 #include <stdio.h>
 
