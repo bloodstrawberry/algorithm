@@ -9,7 +9,7 @@ int n;
 // tree[1] = MAX까지 포함하는 가장 긴 증가하는 수열의 길이. (1~MAX)
 // tree[2] = MAX/2까지 포함하는 가장 긴 증가하는 수열의 길이. 1 ~ (1+MAX)/2
 // tree[3] = (1+MAX)/2 +1 ~ MAX
-int tree[4004000]; 
+int tree[2100000]; 
 
 int max(int a, int b)
 {
