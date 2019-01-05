@@ -1,0 +1,58 @@
+//baekjoon_12015
+//가장 긴 증가하는 부분 수열 2.
+//with DP
+
+#include <stdio.h>
+#define MAX (1000000)
+
+int N;
+int A[MAX + 1000];
+int D[MAX + 1000]; //D[i] = 길이가 i인 최장증가수열의 마지막 수의 최소값.
+
+int bsearch(int x, int size)
+{
+	int l, r, m;
+
+	l = 1;
+	r = size - 1;
+
+	while (l <= r)
+	{
+
+		m = (l + r) / 2;
+		if (D[m] >= x) r = m - 1;
+		else l = m + 1;
+	}
+
+	return l;
+}
+
+int main(void)
+{
+	int i, k, ans;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++) scanf("%d", &A[i]);
+
+	ans = 1;
+	D[1] = A[1];
+
+	for (i = 2; i <= N;i++)
+	{
+		if (D[ans] < A[i]) // 다음 수열이 가장 긴 수열의 길이보다 크다면, ans는 +1 이 된다.
+		{
+			D[ans + 1] = A[i];
+			ans++;
+		}
+		else
+		{
+			int tmp = bsearch(A[i], ans); //그렇지 않다면 길이가 i인 최장증가수열의 마지막 수의 최소값을 A[i]로 갱신한다.
+			D[tmp] = A[i];
+		}
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
