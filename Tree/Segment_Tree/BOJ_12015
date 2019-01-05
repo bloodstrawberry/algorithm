@@ -1,0 +1,90 @@
+//baekjoon_12015
+//가장 긴 증가하는 부분 수열 2.
+
+#include <stdio.h>
+#define MAX (1000000)
+typedef long long int ll;
+
+int n;
+// tree[1] = MAX까지 포함하는 가장 긴 증가하는 수열의 길이. (1~MAX)
+// tree[2] = MAX/2까지 포함하는 가장 긴 증가하는 수열의 길이. 1 ~ (1+MAX)/2
+// tree[3] = (1+MAX)/2 +1 ~ MAX
+int tree[4004000]; 
+
+int max(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+int maximum(int s, int e, int a, int b, int node)
+{
+	if (b < s || e < a) return 0;
+	if (a <= s && e <= b) return tree[node];
+
+	return max(maximum(s, (s + e) / 2, a, b, node * 2), maximum((s + e) / 2 + 1, e, a, b, node * 2 + 1));
+}
+
+void update(int s, int e, int index, int value, int node)
+{
+	if (index < s || e < index) return;
+
+	tree[node] = max(tree[node], value);
+
+	if (s != e)
+	{
+		update(s, (s + e) / 2, index, value, node * 2);
+		update((s + e) / 2 + 1, e, index, value, node * 2 + 1);
+	}
+}
+
+int main(void)
+{
+	int i, k, ans, tmp;
+
+	scanf("%d", &n);
+
+	ans = 0;
+	for (i = 0; i < n;i++)
+	{
+		int num;
+
+		scanf("%d", &num);
+
+		// 1 2 3 4 5 8 1 3
+		// 마지막 3이 들어온다면 tmp는 2를 리턴하게 된다.
+		//             6              8을 사용한 최고 길이 = 6
+		//         4       6          4를 사용한 최고 길이 = 4
+		//       2   4   5   6        2를 사용한 최고 길이 = 2
+		//      1 2 3 4 5 0 0 6       1을 사용한 최고 길이 = 1
+
+
+		// ----------------------------------------------------
+		// 1 3 5 7 8 2 5 
+		//             5              8을 사용한 최고 길이 = 5
+		//		   2       5          4를 사용한 최고 길이 = 2
+		//       2   2   3   5        2를 사용한 최고 길이 = 2
+		//      1 2 2 0 3 0 4 5       1을 사용한 최고 길이 = 1
+
+		// 1 3 5 7 8 2 5 4
+		// 마지막 4가 들어온다면 위의 세그먼트 트리에 의해 tmp는 2를 리턴하게 된다. 
+	
+		// index 4를 포함하는 트리를 tmp+1과 비교하여 업데이트 해줘야한다.
+		//             5              8을 사용한 최고 길이 = 5
+		//		   3       5          4를 사용한 최고 길이 = 3
+		//       2   3   3   5        2를 사용한 최고 길이 = 2
+		//      1 2 2 3 3 0 4 5       1을 사용한 최고 길이 = 1
+
+		tmp = maximum(1, MAX, 1, num - 1, 1); 
+
+		if (ans < tmp + 1) ans = tmp + 1;
+
+		update(1, MAX, num, tmp + 1, 1); //tmp + 1이 커질 때만 tree값이 바뀌게 되는건 아닐거다.
+	}
+	
+	printf("%d\n", ans);
+
+	return 0;
+}
+
+
+
