@@ -78,7 +78,7 @@ int main(void)
 
 		if (ans < tmp + 1) ans = tmp + 1;
 
-		update(1, MAX, num, tmp + 1, 1); //tmp + 1이 커질 때만 tree값이 바뀌게 되는건 아닐거다.
+		update(1, MAX, num, tmp + 1, 1);
 	}
 	
 	printf("%d\n", ans);
