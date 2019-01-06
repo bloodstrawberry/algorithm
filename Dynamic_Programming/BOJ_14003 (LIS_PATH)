@@ -2,6 +2,7 @@
 /가장 긴 증가하는 부분 수열 5.
 
 #include <stdio.h>
+#define MAX (1000000)
 
 int N;
 //A[][0] : 수열
