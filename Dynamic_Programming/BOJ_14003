@@ -1,0 +1,76 @@
+//baekjoon_14003
+/가장 긴 증가하는 부분 수열 5.
+
+#include <stdio.h>
+
+int N;
+//A[][0] : 수열
+//A[][1] : 수열의 경로 저장.
+int A[MAX + 1000][2];
+int D[MAX + 1000]; //D[i] = 길이가 i인 최장증가수열의 마지막 수의 최소값.
+int ANS[MAX + 1000];
+int anscnt;
+
+int bsearch(int x, int size)
+{
+	int l, r, m;
+
+	l = 1;
+	r = size - 1;
+
+	while (l <= r)
+	{
+
+		m = (l + r) / 2;
+		if (D[m] >= x) r = m - 1;
+		else l = m + 1;
+	}
+
+	return l;
+}
+
+int main(void)
+{
+	int i, k, ans;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++) scanf("%d", &A[i][0]);
+
+	ans = 1;
+	D[1] = A[1][0];
+	A[1][1] = 1;
+
+	for (i = 2; i <= N;i++)
+	{
+		if (D[ans] < A[i][0])
+		{
+			D[ans + 1] = A[i][0];
+			A[i][1] = ans + 1; //현재 길이를 기억해 둔다.
+			ans++;
+		}
+		else
+		{
+			int tmp = bsearch(A[i][0], ans);
+			D[tmp] = A[i][0];
+			A[i][1] = tmp; // 현재 길이를 갱신한다.
+		}
+	}
+
+	printf("%d\n", ans);
+
+	anscnt = ans;
+	for (i = N; i >= 1;i--)
+	{
+		if (A[i][1] == anscnt) //현재 길이를 만족하는 순서대로 값을 찾는다.
+		{
+			ANS[anscnt] = A[i][0];
+			anscnt--; //찾았으니 다음으로 작은 값을 찾을 수 있도록 한다.
+		}
+	}
+
+	for (i = 1; i <= ans;i++) printf("%d ", ANS[i]);
+	putchar('\n');
+
+	return 0;
+}
