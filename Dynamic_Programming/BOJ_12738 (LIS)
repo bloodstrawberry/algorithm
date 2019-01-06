@@ -3,6 +3,7 @@
 //with Binary_Search.
 
 #include <stdio.h>
+#define MAX (1000000)
 
 int N;
 int A[MAX + 1000];
