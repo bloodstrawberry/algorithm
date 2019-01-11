@@ -1,0 +1,142 @@
+//baekjoon_2336
+//굉장한 학생.
+
+#include <stdio.h>
+
+#define INF (500500)
+
+int N;
+int tree[1 << 20]; //tree[i] = 1번 시험을 i등한 학생의 3번 시험 등수. 학생은 2번 시험 기준으로 정렬한다.
+
+typedef struct st
+{
+	int first;
+	int second;
+	int third;
+}EXAM;
+
+EXAM A[500500];
+EXAM B[500500];
+
+void merge(int start, int end)
+{
+	int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (A[i].second <= A[j].second) B[k++] = A[i++];
+		else B[k++] = A[j++];
+	}
+
+	while (i <= mid) B[k++] = A[i++];
+	while (j <= end) B[k++] = A[j++];
+	for (i = start; i <= end;i++)
+		A[i] = B[i - start];
+
+}
+
+void sort(int start, int end)
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(start, mid);
+	sort(mid + 1, end);
+	merge(start, end);
+}
+
+int min(int a, int b)
+{
+	return (a < b) ? a : b;
+}
+
+void init(int s, int e, int Node)
+{
+	tree[Node] = INF;
+	if (s != e)
+	{
+		init(s, (s + e) / 2, Node * 2);
+		init((s + e) / 2 + 1, e, Node * 2 + 1);
+	}
+}
+
+int minimum(int s, int e, int a, int b, int Node)
+{
+	if (e < a || b < s) return INF;
+	if (a <= s && e <= b) return tree[Node];
+
+	return min(minimum(s, (s + e) / 2, a, b, Node * 2), minimum((s + e) / 2 + 1, e, a, b, Node * 2 + 1));
+}
+
+void update(int s, int e, int index, int value, int node)
+{
+	if (index < s || e < index) return;
+
+	tree[node] = min(tree[node], value);
+	if (s != e)
+	{
+		update(s, (s + e) / 2, index, value, node * 2);
+		update((s + e) / 2 + 1, e, index, value, node * 2 + 1);
+	}
+}
+
+int main(void)
+{
+	int i, k, ans;
+
+	scanf("%d", &N);
+	
+	for (i = 1; i <= N;i++)
+	{
+		int tmp;
+		scanf("%d", &tmp);
+		A[tmp].first = i;
+	}
+
+	for (i = 1; i <= N;i++)
+	{
+		int tmp;
+		scanf("%d", &tmp);
+		A[tmp].second = i;
+	}
+
+	for (i = 1; i <= N;i++)
+	{
+		int tmp;
+		scanf("%d", &tmp);
+		A[tmp].third = i;
+	}
+	
+	sort(1, N);
+
+	init(1, N, 1);
+
+	ans = 0;
+
+	for (i = 1; i <= N;i++)
+	{
+		// 2번째 성적이 높은 순으로 넣기 때문에
+		// best에 들어가는 A[i]의 2번째 성적은 앞 사람보다 항상 낮게 된다.
+		// best : 1번째 성적 보다 높은 사람 중(등수는 낮은 사람) 3번째 성적이 가장 높은 사람의 등수.
+		int best = minimum(1, N, 1, A[i].first, 1);
+
+		// 따라서 best가 A[i]의 3번째 등수 보다 높다는 것은, 
+		// 1, 2번째 성적은 A[i]보다 잘한 사람이 있어도 3번째 성적은 잘하는 사람이 없다는 것을 의미.
+		// 즉 A[i]는 굉장한 학생이 된다.
+		if (best > A[i].third) ans++;
+		update(1, N, A[i].first, A[i].third, 1);
+	}
+
+	printf("%d\n", ans);
+
+	return 0;
+}
+
+
+
