@@ -1,0 +1,76 @@
+//baekjoon_3006
+//터보소트.
+
+#include <stdio.h>
+
+int A[100100];
+
+// tree[i]에는 i부터 "앞"으로 마지막 비트합을 저장.
+// tree[13], 13 = 110[1] => 1, A[13] ~ A[13] 저장.
+// tree[12], 12 = 1[1]00 => 4. A[9] ~ A[12] 저장.
+// SUM(13) = SUM(1101) = tree[1101] + tree[1100] + tree[1000]
+
+int tree[100100]; // 입력으로 주어진 A[i]가 이동(정렬)되었으면 0, 아니면 1
+int position[100100]; // i가 몇번째 있는 지 기록.
+
+int N, M, K;
+
+void update(int i, int diff)
+{
+	while (i <= N)
+	{
+		tree[i] += diff;
+		i += (i & -i);
+	}
+}
+
+int sum(int i)
+{
+	int ans;
+
+	ans = 0;
+	while (i)
+	{
+		ans += tree[i];
+		i -= (i & -i);
+	}
+
+	return ans;
+}
+
+int main()
+{
+	int i, k, right, left;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%d", &A[i]); //A[i] 를 저장해 둘 필요는 없음.
+		position[A[i]] = i;
+		update(i, 1);
+	}
+
+	for (i = 1; i <= N;i++)
+		printf("%d ", position[i]);
+	putchar('\n');
+
+	left = 1, right = N;
+	for (i = 1; i <= N;i++)
+	{
+		if (i & 1)
+		{
+			update(position[left], -1);
+			printf("%d\n", sum(position[left]) - sum(0));
+			left++;
+		}
+		else
+		{
+			update(position[right], -1);
+			printf("%d\n", sum(N) - sum(position[right] - 1));
+			right--;
+		}
+	}
+	
+	return 0;
+}
