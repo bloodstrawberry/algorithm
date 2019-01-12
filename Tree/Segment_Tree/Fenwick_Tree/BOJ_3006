@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+int N;
 int A[100100];
 
 // tree[i]에는 i부터 "앞"으로 마지막 비트합을 저장.
@@ -12,8 +13,6 @@ int A[100100];
 
 int tree[100100]; // 입력으로 주어진 A[i]가 이동(정렬)되었으면 0, 아니면 1
 int position[100100]; // i가 몇번째 있는 지 기록.
-
-int N, M, K;
 
 void update(int i, int diff)
 {
