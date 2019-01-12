@@ -1,0 +1,73 @@
+//baekjoon_3653
+//영화 수집.
+
+#include <stdio.h>
+
+int T, N, M, K;
+int A[200100];
+
+// tree[i]에는 i부터 "앞"으로 마지막 비트합을 저장.
+// tree[13], 13 = 110[1] => 1, A[13] ~ A[13] 저장.
+// tree[12], 12 = 1[1]00 => 4. A[9] ~ A[12] 저장.
+// SUM(13) = SUM(1101) = tree[1101] + tree[1100] + tree[1000]
+
+int tree[200100]; // M 만큼 비워둔다. 즉 M + 1번째 칸 부터 tree를 채우게 된다.
+int position[100100]; 
+
+void update(int i, int diff)
+{
+	while (i <= K)
+	{
+		tree[i] += diff;
+		i += (i & -i);
+	}
+}
+
+int sum(int i)
+{
+	int ans;
+
+	ans = 0;
+	while (i)
+	{
+		ans += tree[i];
+		i -= (i & -i);
+	}
+
+	return ans;
+}
+
+int main()
+{
+	int i, k, tc;
+
+	scanf("%d", &T);
+	for (tc = 1; tc <= T;tc++)
+	{
+		scanf("%d %d", &N, &M);
+
+		K = N + M;
+		for (i = 1; i <= N;i++)
+		{
+			update(M + i, 1); // M 칸 떨어진 칸 부터 1을 채워나간다.
+			position[i] = M + i; 
+		}
+
+		for (i = M; i >= 1;i--)
+		{
+			int x;
+
+			scanf("%d", &x);
+			printf("%d ", sum(position[x] - 1)); // x의 앞에 몇 개의 디스크가 있는지 출력
+			update(position[x], -1);
+			position[x] = i; //x의 위치를 변경. 즉 M부터 하나씩 감소하게 된다.
+			update(position[x], 1);
+		}
+
+		putchar('\n');
+
+		for (i = 1; i <= N + M;i++) tree[i] = 0; //초기화
+	}
+	
+	return 0;
+}
