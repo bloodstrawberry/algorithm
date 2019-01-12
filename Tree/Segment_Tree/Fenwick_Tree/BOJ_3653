@@ -16,7 +16,7 @@ int position[100100];
 
 void update(int i, int diff)
 {
-	while (i <= K)
+	while (i <= K) // << tree의 크기는 N이 아니고 N+M이 된다.
 	{
 		tree[i] += diff;
 		i += (i & -i);
