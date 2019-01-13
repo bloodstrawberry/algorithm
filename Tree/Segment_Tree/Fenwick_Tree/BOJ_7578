@@ -1,0 +1,76 @@
+//baekjoon_7578
+//공장.
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+// tree[i]에는 i부터 "앞"으로 마지막 비트합을 저장.
+// tree[13], 13 = 110[1] => 1, A[13] ~ A[13] 저장.
+// tree[12], 12 = 1[1]00 => 4. A[9] ~ A[12] 저장.
+
+// SUM(13) = SUM(1101) = tree[1101] + tree[1100] + tree[1000]
+
+// A[i] < A[j] 면서, B[i] > B[j]의 개수.
+// A[i] < A[j] 는 트리에 넣는 순서로 해결한다.
+// B[i] > B[j] 는 트리에서 개수를 세는 방식으로 해결한다.
+
+int N;
+int A[500100];
+int tree[500100];
+int position[1001000];
+
+void update(int i, int diff)
+{
+	while (i <= N)
+	{
+		tree[i] += diff;
+		i += (i & -i);
+	}
+}
+
+int sum(int i)
+{
+	int ans;
+
+	ans = 0;
+	while (i)
+	{
+		ans += tree[i];
+		i -= (i & -i);
+	}
+
+	return ans;
+}
+
+int main()
+{
+	int i, k;
+	ll ans;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++) scanf("%d", &A[i]);
+
+	for (i = 1; i <= N;i++)
+	{
+		int tmp;
+
+		scanf("%d", &tmp);
+		position[tmp] = i;
+	}
+
+	ans = 0;
+	for (i = 1; i <= N;i++)
+	{
+		//A[1]부터 순서대로 처리.
+		//A[i]의 position을 찾아 그 위치에서 (N)까지의 합을 더해야 하므로.
+		//sum(N) - sum(position[A[i]]를 계속 더하면 된다.
+		if (position[A[i]] + 1 <= N) ans += (ll)(sum(N) - sum(position[A[i]]));
+		update(position[A[i]], 1);
+	}
+
+	printf("%lld\n", ans);
+
+	return 0;
+}
