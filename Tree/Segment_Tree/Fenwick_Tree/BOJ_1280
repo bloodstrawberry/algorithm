@@ -1,0 +1,84 @@
+//baekjoon_1280
+//나무 심기.
+
+#include <stdio.h>
+
+#define MOD (1000000007)
+typedef long long int ll;
+
+// tree[i]에는 i부터 "앞"으로 마지막 비트합을 저장.
+// tree[13], 13 = 110[1] => 1, A[13] ~ A[13] 저장.
+// tree[12], 12 = 1[1]00 => 4. A[9] ~ A[12] 저장.
+
+// SUM(13) = SUM(1101) = tree[1101] + tree[1100] + tree[1000]
+
+// x1 x2 x3 [xi = x4]
+// x4 - x1 + x4 - x2 + x4 - x3 == 3*x4 - (x1+x2+x3) : 좌표의 합
+// 3 = cnt에서. x1~x3의 합 = dist에서 계산.
+
+int N;
+int K = 200000;
+ll cntTree[200100]; //좌표 i에 심어져 있는 나무의 개수.
+ll distTree[200100]; // cnt[i] * i (i에 심어져 있는 좌표의 합)
+
+void update(ll *tree, int i, ll diff)
+{
+	while (i <= K)
+	{
+		tree[i] += diff;
+		i += (i & -i);
+	}
+}
+
+ll sum(ll *tree, int i)
+{
+	ll ans;
+
+	ans = 0;
+	while (i)
+	{
+		ans += tree[i];
+		i -= (i & -i);
+	}
+
+	return ans;
+}
+
+ll sumRange(ll *tree, int l, int r)
+{
+	if (l > r) return 0;
+	return sum(tree, r) - sum(tree, l - 1);
+}
+
+int main()
+{
+	int i, k;
+	ll ans, x, price;
+
+	scanf("%d", &N);
+
+	ans = 1;
+
+	scanf("%lld", &x);
+	x++;
+	update(cntTree, x, 1);
+	update(distTree, x, x);
+
+	for (i = 1; i < N;i++)
+	{
+		scanf("%lld", &x);
+		x++;
+
+		// x * sumRange(cntTree, 1, x - 1) - sumRange(distTree, 1, x - 1) : 오른쪽 나무
+		// x * (- sumRange(cntTree, x + 1, K)) + + sumRange(distTree, x + 1, K) : 왼쪽 나무
+		price = x * (sumRange(cntTree, 1, x - 1) - sumRange(cntTree, x + 1, K)) - sumRange(distTree, 1, x - 1) + sumRange(distTree, x + 1, K);
+		price %= MOD;
+		ans = (ans * price) % MOD;
+		update(cntTree, x, 1);
+		update(distTree, x, x);
+	}
+
+	printf("%lld\n", ans);
+
+	return 0;
+}
