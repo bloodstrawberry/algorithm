@@ -20,12 +20,12 @@ int hash(int index, int len)
 	int i, ret, mul;
 
 	ret = 0, mul = 1;
-	for (i = index + len - 1; i >= index;i--)
+	for (i = index + len - 1; i >= index; i--)
 	{
 		ret += (str[i] - '0') * mul;
 		mul *= 2;
 	}
-	
+
 	return ret;
 }
 
@@ -34,9 +34,9 @@ int check(int index)
 	int i;
 
 	if (hash(index, 3) != 5) return 0; // 5 = 101
-	if (hash(index+46, 4) != 10) return 0; // 10 = 1010
-	if (hash(index+92, 3) != 5) return 0;
-	
+	if (hash(index + 46, 4) != 10) return 0; // 10 = 1010
+	if (hash(index + 92, 3) != 5) return 0;
+
 	return 1;
 }
 
@@ -51,10 +51,10 @@ int bacode_check(int index)
 
 	odd = ANS[index].A + ANS[index].B[1] + ANS[index].B[3] + ANS[index].B[5] + ANS[index].C[1] + ANS[index].C[3];
 	even = ANS[index].B[0] + ANS[index].B[2] + ANS[index].B[4] + ANS[index].C[0] + ANS[index].C[2] + ANS[index].C[4];
-	
+
 	//printf("here : %d \n", odd + even * 3);
 	//printf("there : %d\n", ANS[index].C[5]);
-	
+
 
 	ans = (odd + even * 3) % 10;
 	ans = 10 - ans;
@@ -66,39 +66,70 @@ int bacode_check(int index)
 void print_bacode(int index)
 {
 	int i;
-	
+
 	printf("%d", ANS[index].A);
-	for (i = 0; i < 6;i++) printf("%d", ANS[index].B[i]);
-	for (i = 0; i < 6;i++) printf("%d", ANS[index].C[i]);
+	for (i = 0; i < 6; i++) printf("%d", ANS[index].B[i]);
+	for (i = 0; i < 6; i++) printf("%d", ANS[index].C[i]);
 }
 
-int main() 
+typedef long long int ll;
+
+ll longAns[100];
+
+ll change(ANSWER ans)
+{
+	ll ret;
+
+	ret = 0;
+
+	ret += (ll) ans.A	* 1000000000000;
+	ret += (ll) ans.B[0] * 100000000000;
+	ret += (ll) ans.B[1] * 10000000000;
+	ret += (ll) ans.B[2] * 1000000000;
+	ret += (ll) ans.B[3] * 100000000;
+	ret += (ll) ans.B[4] * 10000000;
+	ret += (ll) ans.B[5] * 1000000;
+	ret += (ll) ans.C[0] * 100000;
+	ret += (ll) ans.C[1] * 10000;
+	ret += (ll) ans.C[2] * 1000;
+	ret += (ll) ans.C[3] * 100;
+	ret += (ll) ans.C[4] * 10;
+	ret += (ll) ans.C[5] * 1;
+	
+	return ret;
+}
+
+void make_ans(int cnt)
+{
+	
+	int i, k;
+	for (i = 0; i < cnt; i++)
+		longAns[i] = change(ANS[i]);
+
+	for (i = 0; i < cnt - 1; i++)
+	{
+		for (k = i + 1; k < cnt; k++)
+		{
+			if (longAns[i] > longAns[k])
+			{
+				ll tmp = longAns[i];
+				longAns[i] = longAns[k];
+				longAns[k] = tmp;
+
+				int intmp = ANS[i].A;
+				ANS[i].A = ANS[k].A;
+				ANS[k].A = intmp;
+			}
+		}
+	}
+
+}
+
+int main()
 {
 	int tc, i, k, a, cnt;
 
-	//HASH_L[13] = 0;
-	//HASH_L[25] = 1;
-	//HASH_L[19] = 2;
-	//HASH_L[61] = 3;
-	//HASH_L[35] = 4;
-	//HASH_L[49] = 5;
-	//HASH_L[47] = 6;
-	//HASH_L[59] = 7;
-	//HASH_L[55] = 8;
-	//HASH_L[11] = 9;
-
-	//HASH_G[39] = 0;
-	//HASH_G[51] = 1;
-	//HASH_G[27] = 2;
-	//HASH_G[33] = 3;
-	//HASH_G[29] = 4;
-	//HASH_G[57] = 5;
-	//HASH_G[5] = 6;
-	//HASH_G[17] = 7;
-	//HASH_G[9] = 8;
-	//HASH_G[23] = 9;
-
-	for (i = 0; i < 256;i++) HASH_LG[0][i] = HASH_LG[1][i] = HASH_C[i] = -1;
+	for (i = 0; i < 256; i++) HASH_LG[0][i] = HASH_LG[1][i] = HASH_C[i] = -1;
 
 	HASH_LG[0][13] = 0;
 	HASH_LG[0][25] = 1;
@@ -204,18 +235,19 @@ int main()
 	LIST_A[9][5] = 0;
 
 	scanf("%d", &T);
-	for (tc = 1; tc <= T;tc++)
+	for (tc = 1; tc <= T; tc++)
 	{
-		printf("%d ", tc);
+		//printf("%d ", tc);
 		int len;
 		scanf("%s", str);
 
 		for (len = 0; str[len]; len++);
-		printf("%d\n", len);
+		for (i = 0; i < len; i++) rev[len - i - 1] = str[i];
+		
+		//printf("%d\n", len);
 
 		cnt = 0;
-		
-		for (i = 0; i < len - 94;i++)
+		for (i = 0; i < len - 94; i++)
 		{
 			if (str[i] == '0') continue;
 
@@ -223,18 +255,15 @@ int main()
 
 			if (check(i))
 			{
-				printf("here %d \n", i);
-				for (k = i; k < i + 95;k++) printf("%c", str[k]);
-				putchar('\n');
 				// index = i 부터 101 , 끝에도 101, 가운데 01010이 있다면 바코드.
 				// A값 찾기.
 				for (a = 0; a < 10; a++)
 				{
-					
+
 					int tmp, flag;
 
 					tmp = flag = 0;
-					for (k = i + 3; k < i + 45;k++)
+					for (k = i + 3; k < i + 45; k++)
 					{
 						if (HASH_LG[LIST_A[a][tmp]][hash(k, 7)] == -1)
 						{
@@ -243,99 +272,19 @@ int main()
 						}
 
 						ANS[cnt].B[tmp] = HASH_LG[LIST_A[a][tmp]][hash(k, 7)];
-						//printf("%d", HASH_LG[LIST_A[a][tmp]][hash(k, 7)]);
+
 						tmp++;
 						k += 6;
 					}
-					//putchar('\n');
+				
 					if (flag == 0) break;
 				}
 
-				//for (k = 0; k < 6;k++) printf("%d ", ANS[cnt].B[k]);
-				printf("a : %d\n", a);
-				//if (a == 10) break;
-				//putchar('\n');
 				ANS[cnt].A = a;
-				//printf("%d\n", ANS[cnt].A);
-				// 50부터 그룹 C
+
 				int cnt_C = 0;
 				int C_check = 0;
-				for (k = i + 50; k < i + 92;k++)
-				{
-					if (HASH_C[hash(k, 7)] == -1)
-					{
-						C_check = 1;
-						break;
-					}
-					ANS[cnt].C[cnt_C++] = HASH_C[hash(k, 7)];
-					printf("c : %d %d\n", hash(k, 7), HASH_C[hash(k, 7)]);
-					k += 6;
-				}
-
-				//for (k = 0; k < 6;k++) printf("%d ", ANS[cnt].C[k]);
-
-				//putchar('\n');
-				if (!C_check && bacode_check(cnt))
-				{
-					//printf("bacode!\n");
-					print_bacode(cnt);
-					putchar('\n');
-					cnt++;
-					i += 93;
-					ans_flag = 1;
-				}
-
-				if (ans_flag) continue;
-
-
-				//거꾸로 체크. ---------------------------------------------------------------------------------------------------------------
-
-				int revcnt = 0;
-				for (k = i; k < i + 95;k++) rev[revcnt++] = str[k];
-				//for (k = i; k < i + 95;k++) printf("%c", str[k]);
-				//putchar('\n');
-				//printf("revcnt : %d\n", revcnt);
-				for (k = i; k < i + 95;k++) str[k] = rev[--revcnt];
-				
-				//for (k = i; k < i + 95;k++) printf("%c", str[k]);
-				//putchar('\n');
-
-				for (a = 0; a < 10; a++)
-				{
-					int tmp, flag;
-
-					tmp = flag = 0;
-					for (k = i + 3; k < i + 45;k++)
-					{
-						if (HASH_LG[LIST_A[a][tmp]][hash(k, 7)] == -1)
-						{
-							flag = 1;
-							//printf("here\n");
-							break;
-						}
-
-						ANS[cnt].B[tmp] = HASH_LG[LIST_A[a][tmp]][hash(k, 7)];
-						printf("%d", HASH_LG[LIST_A[a][tmp]][hash(k, 7)]);
-						tmp++;
-						k += 6;
-					}
-					//putchar('\n');
-					if (flag == 0) break;
-				}
-
-				printf("a : %d\n", a);
-
-				//printf("a : %d\n", a);
-				//for (k = 0; k < 6;k++) printf("%d ", ANS[cnt].B[k]);
-
-				//if (a == 10) break;
-				//putchar('\n');
-				ANS[cnt].A = a;
-				//printf("%d\n", ANS[cnt].A);
-				// 50부터 그룹 C
-				cnt_C = 0;
-				C_check = 0;
-				for (k = i + 50; k < i + 92;k++)
+				for (k = i + 50; k < i + 92; k++)
 				{
 					if (HASH_C[hash(k, 7)] == -1)
 					{
@@ -353,39 +302,93 @@ int main()
 				if (!C_check && bacode_check(cnt))
 				{
 					//printf("bacode!\n");
-					print_bacode(cnt);
-					putchar('\n');
+					//print_bacode(cnt);
+					//putchar('\n');
 					cnt++;
 					i += 93;
 					ans_flag = 1;
 				}
 
 			}
-			
-			
-		
 
 		}
-		
+
+		for (i = 0; i < len; i++) str[i] = rev[i];
+		for (i = 0; i < len - 94; i++)
+		{
+			if (str[i] == '0') continue;
+
+			int ans_flag = 0;
+
+			if (check(i))
+			{
+				for (a = 0; a < 10; a++)
+				{
+
+					int tmp, flag;
+
+					tmp = flag = 0;
+					for (k = i + 3; k < i + 45; k++)
+					{
+						if (HASH_LG[LIST_A[a][tmp]][hash(k, 7)] == -1)
+						{
+							flag = 1;
+							break;
+						}
+
+						ANS[cnt].B[tmp] = HASH_LG[LIST_A[a][tmp]][hash(k, 7)];
+						tmp++;
+						k += 6;
+					}
+
+					if (flag == 0) break;
+				}
+
+				ANS[cnt].A = a;
+
+				int cnt_C = 0;
+				int C_check = 0;
+				for (k = i + 50; k < i + 92; k++)
+				{
+					if (HASH_C[hash(k, 7)] == -1)
+					{
+						C_check = 1;
+						break;
+					}
+					ANS[cnt].C[cnt_C++] = HASH_C[hash(k, 7)];
+			
+					k += 6;
+				}
+
+				if (!C_check && bacode_check(cnt))
+				{
 	
+					//print_bacode(cnt);
+					//putchar('\n');
+					cnt++;
+					i += 93;
+					ans_flag = 1;
+				}
+			}
+		}
 
+		make_ans(cnt);
 
+		printf("#%d %d ", tc, cnt);
+		for (i = 0; i < cnt; i++)
+		{
+			if (ANS[i].A == 0) printf("0");
+			printf("%lld ", longAns[i]);
 
+		}
+		putchar('\n');
 	}
-	
-	
+
+
 
 
 	return 0;
 
 }
-
-
-
-
-
-
-
-
 
 
