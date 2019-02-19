@@ -116,9 +116,9 @@ void make_ans(int cnt)
 				longAns[i] = longAns[k];
 				longAns[k] = tmp;
 
-				int intmp = ANS[i].A;
-				ANS[i].A = ANS[k].A;
-				ANS[k].A = intmp;
+				//int intmp = ANS[i].A;
+				//ANS[i].A = ANS[k].A;
+				//ANS[k].A = intmp;
 			}
 		}
 	}
@@ -377,8 +377,8 @@ int main()
 		printf("#%d %d ", tc, cnt);
 		for (i = 0; i < cnt; i++)
 		{
-			if (ANS[i].A == 0) printf("0");
-			printf("%lld ", longAns[i]);
+			//if (ANS[i].A == 0) printf("0");
+			printf("%013lld ", longAns[i]);
 
 		}
 		putchar('\n');
