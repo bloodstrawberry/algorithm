@@ -32,7 +32,9 @@ int hash(int index, int len)
 int check(int index)
 {
 	int i;
-
+	
+	if(index >= 1 && str[index-1] == 1) return 0;
+	
 	if (hash(index, 3) != 5) return 0; // 5 = 101
 	if (hash(index + 46, 4) != 10) return 0; // 10 = 1010
 	if (hash(index + 92, 3) != 5) return 0;
