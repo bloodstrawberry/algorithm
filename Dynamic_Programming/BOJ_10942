@@ -1,0 +1,61 @@
+//baekjoon_10942
+#pragma warning(disable : 4996)
+#include <stdio.h>
+
+int N, S, E, M;
+int Arr[2010];
+int DP[2010][2010];
+
+void input()
+{
+	int i;
+
+	scanf("%d", &N);
+
+	for (i = 1; i <= N;i++)
+		scanf("%d", &Arr[i]);
+}
+
+int DFS(int s, int e)
+{
+    //ARR에서 1개 == 길이가 1은 무조건 팰린드롬.
+	if (s == e) return 1;
+    //ARR에서 길이가 2인 경우 문자열이 같으면 팰린드롬.
+	else if (s + 1 == e)
+	{
+		if (Arr[s] == Arr[e]) return 1;
+		return 0;
+	}
+
+    //메모이제이션, 이미 구한 값은 그대로 리턴.
+	if (DP[s][e] >= 0) return DP[s][e];
+    
+    //일단 Arr에서 총 길이 중 Arr[S]와 Arr[E]가 다르면 무조건 팰린드롬이 아님.
+	if (Arr[s] != Arr[e]) return DP[s][e] = 0;
+	
+    //Arr[S] == Arr[E]라면, DP[S+1][E-1]이 팰린드롬이면 DP[S][E]도 팰린드롬이니깐 DFS로 확인.
+    else return DP[s][e] = DFS(s + 1, e - 1);
+}
+
+int main()
+{
+	int i, k;
+
+	input();
+
+    //보통 초기화를 음수 -1로 함.
+	for (i = 1; i <= N;i++)
+		for (k = 1; k <= N;k++)
+			DP[i][k] = -1;
+    
+	scanf("%d", &M);
+
+	for (i = 1; i <= M;i++)
+	{
+		scanf("%d %d", &S, &E);
+        //DFS(S,E) == DP[S][E] == Arr[S]~Arr[E]가 팰린드롬이면 1, 아니면 0
+		printf("%d\n", DFS(S,E));
+	}
+	
+	return 0;
+}
