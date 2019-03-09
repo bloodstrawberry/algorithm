@@ -1,0 +1,122 @@
+#include <stdio.h>
+
+int N, M;
+int MAP[330][330];
+int SUM[330][330]; // 1,1 ~ i,j까지의 합.
+int A[330];
+int ty1, ty2, ansy1, ansy2;
+
+int calSum(int x1, int y1, int x2, int y2)
+{
+	return SUM[x2][y2] - SUM[x1 - 1][y2] - SUM[x2][y1 - 1] + SUM[x1 - 1][y1 - 1];
+}
+
+int calculate(int x1, int x2)
+{
+	int i, k, ts, te, max;
+
+	//고정된 세로를 1차원 배열로 만들기.
+	for (i = 1; i <= M;i++)
+	{
+		A[i] = calSum(x1, i, x2, i);
+		printf("%d ", A[i]);
+	}
+
+	putchar('\n');
+	//DP를 이용하여 1차원 배열에서 구간의 최대 합 구하기.
+	max = -99999999;
+
+	ts = te = 1;
+	for (i = 2; i <= M;i++)
+	{
+		if (A[i] + A[i - 1] > A[i])
+		{
+			te = i;
+			A[i] += A[i - 1];
+			if (A[i] > max)
+			{
+				max = A[i];
+				ty1 = ts;
+				ty2 = te;
+			}
+		}
+		else
+		{
+			ts = i + 1;
+		}
+	}
+		
+	return max;
+}
+
+int main()
+{
+	int i, k, x1, x2, y1, y2;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= M;k++)
+		{
+			scanf("%d", &MAP[i][k]);
+			SUM[i][k] = SUM[i - 1][k] + SUM[i][k - 1] - SUM[i - 1][k - 1] + MAP[i][k];
+		}
+	}
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= M;k++)
+		{
+			printf("%d ", SUM[i][k]);
+		}
+		putchar('\n');
+	}
+
+	int max = -9999999;
+	x1 = y1 = x2 = y2 = 0;
+	for (i = 1; i <= N;i++)
+	{
+		for (k = i; k <= N;k++)
+		{
+			printf("%d %d\n", i, k);
+			int tmp;
+      
+      //고정된 세로 길이에서 가장 큰 값을 찾는다.
+			tmp = calculate(i, k);
+			printf("tmp : %d\n", tmp);
+
+			if (max <= tmp)
+			{
+				
+				//합이 같은 경우 더 적은 면적으로 갱신.
+				if (max == tmp)
+				{
+					if ((k - i) * (ty2 - ty1) < (x2 - x1) * (ty2 - ty1))
+					{
+						x1 = i;
+						x2 = k;
+
+						ansy1 = ty1;
+						ansy2 = ty2;
+					}
+				}
+				else
+				{
+					x1 = i;
+					x2 = k;
+
+					ansy1 = ty1;
+					ansy2 = ty2;
+
+					max = tmp;
+				}
+			}
+		}
+	}
+	
+	printf("%d %d %d %d\n", x1, ansy1, x2, ansy2);
+	printf("%d\n", max);
+
+	return 0;
+}
