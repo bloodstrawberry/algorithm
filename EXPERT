@@ -1,0 +1,212 @@
+HEAP
+
+int heap[100];
+int hn;
+
+int pop(int *heap, int& hn)
+{
+	int i;
+	int ret, tmp;
+
+	ret = heap[1];
+	heap[1] = heap[hn];
+	heap[hn--] = 0x7fff0000;
+
+	for (i = 1; i * 2 <= hn;)
+	{
+		if (heap[i * 2] > heap[i] && heap[i * 2 + 1] > heap[i]) break;
+		else if (heap[i * 2] < heap[i * 2 + 1])
+		{
+			tmp = heap[i * 2];
+			heap[i * 2] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2;
+		}
+		else
+		{
+			tmp = heap[i * 2 + 1];
+			heap[i * 2 + 1] = heap[i];
+			heap[i] = tmp;
+
+			i = i * 2 + 1;
+		}
+	}
+
+	return ret;
+}
+
+void push(int *heap, int& hn, int x)
+{
+	int i;
+	int tmp;
+
+	heap[++hn] = x;
+
+	for (i = hn; i > 1; i /= 2)
+	{
+		if (heap[i / 2] < heap[i]) return;
+
+		tmp = heap[i / 2];
+		heap[i / 2] = heap[i];
+		heap[i] = tmp;
+	}
+}
+
+-------------------------------------------------------------------------------------------------------
+SEGMENT
+
+typedef long long ll;
+
+int N, M, K;
+ll Arr[1001000];
+ll tree[4001000];
+
+ll init(int s, int e, int Node)
+{
+	if (s == e) return tree[Node] = Arr[s];
+
+	return tree[Node] = init(s, (s + e) / 2, Node * 2) + init((s + e) / 2 + 1, e, Node * 2 + 1);
+}
+
+ll findSum(int s, int e, int a, int b, int Node)
+{
+	if (b < s || a > e) return 0;
+	if (a <= s && b >= e) return tree[Node];
+
+	return findSum(s, (s + e) / 2, a, b, Node * 2) + findSum((s + e) / 2 + 1, e, a, b, Node * 2 + 1);
+}
+
+void update(int s, int e, int Node, int index, int diff)
+{
+	if (index < s || e < index) return;
+	tree[Node] += diff;
+	
+	if (s != e)
+	{
+		update(s, (s + e) / 2, Node * 2, index, diff);
+		update((s + e) / 2 + 1, e, Node * 2 + 1, index, diff);
+	}
+}
+
+-------------------------------------------------------------------------------------------------------
+FENWICK 1D
+
+int N, M, K;
+int A[1001000];
+int tree[1001000];
+
+void update(int *tree, int x, long long diff)
+{
+	for (int i = x; i <= N; i += i & -i) tree[i] += diff;
+}
+
+int sum(int *tree, int x)
+{
+	int ans = 0;
+	for (int i = x; i > 0; i -= i & -i) ans += tree[i];
+
+	return ans;
+}
+
+int main()
+{
+	int i, k;
+
+	scanf("%d %d %d", &N, &M, &K);
+
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%d", &A[i]);
+		update(tree, i, A[i]);
+	}
+
+	for (i = 0; i < M + K;i++)
+	{
+		int a, b, c;
+
+		scanf("%d %d %d", &a, &b, &c);
+		if (a == 2) printf("%d\n", sum(tree, c) - sum(tree, b - 1));
+		else
+		{
+			int diff;
+
+			diff = c - A[b];
+			A[b] = c;
+			update(tree, b, diff);
+		}
+	}
+
+	return 0;
+}
+-------------------------------------------------------------------------------------------------------
+
+FENWICK 2D
+
+int N, M, K;
+int A[1100][1100];
+int tree[1100][1100];
+
+void update(int x, int y, int value)
+{
+	int i, k;
+	
+	for (i = x; i <= N;i += i & -i)
+		for (k = y; k <= N;k += k & -k)
+			tree[i][k] += value;
+}
+
+int sum(int x, int y)
+{
+	int i, k, ans;
+	
+	ans = 0;
+	for (i = x; i; i -= i & -i)
+		for (k = y; k; k -= k & -k)
+			ans += tree[i][k];
+
+	return ans;
+}
+
+int main()
+{
+	int i, k;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 1; i <= N;i++)
+	{
+		for (k = 1; k <= N;k++)
+		{
+			scanf("%d", &A[i][k]);
+			update(i, k, A[i][k]);
+		}
+	}
+
+	for (i = 0; i < M;i++)
+	{
+		int w;
+
+		scanf("%d", &w);
+
+		if (w)
+		{
+			int x1, y1, x2, y2;
+
+			scanf("%d %d %d %d", &x1, &y1, &x2, &y2);
+			printf("%d\n", sum(x2, y2) - sum(x1 - 1, y2) - sum(x2, y1 - 1) + sum(x1 - 1, y1 - 1));
+		}
+		else
+		{
+			int x, y, value;
+
+			scanf("%d %d %d", &x, &y, &value);
+			update(x, y, value - A[x][y]);
+			A[x][y] = value;
+		}
+	}
+		
+	return 0;
+}
+
+
