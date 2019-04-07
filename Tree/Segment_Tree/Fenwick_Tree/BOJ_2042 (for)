@@ -1,0 +1,53 @@
+//baekjoon_2042
+//구간 합 구하기. for
+
+#include <stdio.h>
+typedef long long int ll;
+
+int N, M, K;
+int A[1001000];
+ll tree[1001000];
+
+void update(ll *tree, int x, long long diff)
+{
+	for (int i = x; i <= N; i += i & -i) tree[i] += diff;
+}
+
+ll sum(ll *tree, int x)
+{
+	ll ans = 0;
+	for (int i = x; i > 0; i -= i & -i) ans += tree[i];
+
+	return ans;
+}
+
+int main()
+{
+	int i, k;
+
+	scanf("%d %d %d", &N, &M, &K);
+
+	for (i = 1; i <= N;i++)
+	{
+		scanf("%d", &A[i]);
+		update(tree, i, A[i]);
+	}
+
+	for (i = 0; i < M + K;i++)
+	{
+		int a, b, c;
+
+		scanf("%d %d %d", &a, &b, &c);
+		if (a == 2) printf("%lld\n", sum(tree, c) - sum(tree, b - 1));
+		else
+		{
+			int diff;
+
+			diff = c - A[b];
+			A[b] = c;
+			update(tree, b, diff);
+		}
+	}
+
+	return 0;
+}
