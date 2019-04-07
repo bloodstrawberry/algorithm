@@ -89,6 +89,34 @@ void update(int s, int e, int Node, int index, int diff)
 	}
 }
 
+int main(void)
+{
+	int i;
+	ll c, diff;
+	int a, b;
+
+
+	scanf("%d %d %d", &N, &M, &K);
+
+	for (i = 1; i <= N;i++)
+		scanf("%lld", &Arr[i]);
+
+	init(1, N, 1);
+
+	for (i = 0; i < M * 2;i++)
+	{
+		scanf("%d %d %lld", &a, &b, &c);
+		if (a == 1)
+		{
+			diff = c - Arr[b];
+			Arr[b] = c;
+			update(1, N, 1, b, diff);
+		}
+		else printf("%lld\n", findSum(1, N, b, c, 1));
+	}
+
+	return 0;
+}
 -------------------------------------------------------------------------------------------------------
 FENWICK 1D
 
