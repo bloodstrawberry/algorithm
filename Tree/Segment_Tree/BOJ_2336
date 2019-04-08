@@ -68,7 +68,7 @@ void init(int s, int e, int Node)
 
 int minimum(int s, int e, int a, int b, int Node)
 {
-	if (e < a || b < s) return INF;
+	if (b < s || e < a) return INF;
 	if (a <= s && e <= b) return tree[Node];
 
 	return min(minimum(s, (s + e) / 2, a, b, Node * 2), minimum((s + e) / 2 + 1, e, a, b, Node * 2 + 1));
