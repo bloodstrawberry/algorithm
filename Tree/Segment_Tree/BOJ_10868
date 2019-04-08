@@ -22,7 +22,7 @@ int init(int s, int e, int Node)
 
 int findMin(int s, int e, int a, int b, int Node)
 {
-	if (e < a || b < s) return 0x7fff0000;
+	if (b < s || e < a) return 0x7fff0000;
 	if (a <= s && e <= b) return tree[Node];
 
 	return min(findMin(s, (s + e) / 2, a, b, Node * 2), findMin((s + e) / 2 + 1, e, a, b, Node * 2 + 1));
