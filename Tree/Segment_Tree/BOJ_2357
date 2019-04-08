@@ -44,7 +44,7 @@ int findMin(int s, int e, int a, int b, int Node)
 
 int findMax(int s, int e, int a, int b, int Node)
 {
-	if (e < a || b < s) return 0;
+	if (b < s || e < a) return 0;
 
 	if (a <= s && e <= b) return maxtree[Node];
 
