@@ -26,7 +26,7 @@ void init(int s, int e, int Node)
 int query(int s, int e, int a, int b, int Node)
 {
 	int m1, m2;
-	if (e < a || b < s) return -1;
+	if (b < s || e < a) return -1;
 	if (a <= s && e <= b) return tree[Node];
 
 	m1 = query(s, (s + e) / 2, a, b, 2 * Node);
