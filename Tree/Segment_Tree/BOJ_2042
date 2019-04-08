@@ -18,8 +18,8 @@ ll init(int s, int e, int Node)
 
 ll findSum(int s, int e, int a, int b, int Node)
 {
-	if (b < s || a > e) return 0;
-	if (a <= s && b >= e) return tree[Node];
+	if (b < s || e < a) return 0;
+	if (a <= s && e <= b) return tree[Node];
 
 	return findSum(s, (s + e) / 2, a, b, Node * 2) + findSum((s + e) / 2 + 1, e, a, b, Node * 2 + 1);
 }
