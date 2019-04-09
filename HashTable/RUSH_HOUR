@@ -1,0 +1,419 @@
+#include <stdio.h>
+
+int T, N;
+
+typedef struct st
+{
+	int r;
+	int c;
+	char dir;
+}CAR;
+
+CAR Car[15];
+
+int MAP[10][10];
+
+void printMap()
+{
+	int i, k;
+
+	for (i = 0; i <= 6;i++)
+	{
+		for (k = 0; k <= 6;k++)
+		{
+			if (MAP[i][k] == -1) printf("* ");
+			else if (!MAP[i][k]) printf("%c ", 'x');
+			else printf("%d ", MAP[i][k]);
+		}
+		putchar('\n');
+	}
+	putchar('\n');
+}
+
+typedef struct st2
+{
+	int r;
+	int c;
+}RC;
+
+RC rc['Z'];
+
+int MIN;
+
+int check()
+{
+	int i, tr, tc;
+
+	tr = Car[1].r;
+	tc = Car[1].c;
+
+	//1번 자동차 앞에 MAP[][]이 1개라도 막고 있으면 return 0;
+	for (i = tc + 1; i <= 5;i++)
+		if (MAP[tr][i]) return 0;
+
+	//모두 뚫려 있으면 return 1;
+	return 1;
+}
+
+int isMoveE(int sr, int sc, int move, char dir)
+{
+	int i;
+
+
+	if (dir == 'E')
+	{
+		if (sc + move >= 6) return 0;
+		if (MAP[sr][sc + move]) return 0;
+
+	}
+	else
+	{
+		if (sc + move + 1 >= 6) return 0;
+		if (MAP[sr][sc + move + 1]) return 0;
+	}
+
+	return 1;
+}
+
+int isMoveW(int sr, int sc, int move, char dir)
+{
+	int i;
+
+
+
+	if (dir == 'E')
+	{
+		if (sc - move - 1 <= 0) return 0;
+		if (MAP[sr][sc - move - 1]) return 0;
+
+	}
+	else
+	{
+		if (sc - move <= 0) return 0;
+		if (MAP[sr][sc - move]) return 0;
+	}
+
+	return 1;
+}
+
+int isMoveS(int sr, int sc, int move, char dir)
+{
+	int i;
+
+	if (dir == 'S')
+	{
+		if (sr + move >= 6) return 0;
+		if (MAP[sr + move][sc]) return 0;
+
+	}
+	else
+	{
+		if (sr + move + 1 >= 6) return 0;
+		if (MAP[sr + move + 1][sc]) return 0;
+	}
+
+	return 1;
+}
+
+int isMoveN(int sr, int sc, int move, char dir)
+{
+	int i;
+
+
+
+	if (dir == 'S')
+	{
+		if (sr - move - 1 <= 0) return 0;
+		if (MAP[sr - move - 1][sc]) return 0;
+
+	}
+	else
+	{
+		if (sr - move <= 0) return 0;
+		if (MAP[sr - move][sc]) return 0;
+	}
+
+	return 1;
+}
+
+int hashTable[(1 << 25) + 10];
+
+//car = 이전에 움직인 차.
+
+int hash()
+{
+	int i, k, ret, cnt;
+
+	cnt = 1, ret = 0;
+	for (i = 1; i <= 5;i++)
+	{
+		for (k = 1; k <= 5;k++)
+		{
+			if (MAP[i][k]) ret += cnt;
+			cnt *= 2;
+		}
+	}
+
+	return ret;
+}
+
+void DFS(int L, int car)
+{
+	//printf("Level : %d car : %d\n", L, car);
+	//printMap();
+
+	int i, k, c, move, chk;
+	int reMAP[6][6];
+
+	int h = hash();
+
+	if (hashTable[h] > L) hashTable[h] = L;
+	else return;
+	
+	
+
+	if (L > MIN) return;
+
+	if (check())
+	{
+		if (L < MIN) MIN = L;
+		return;
+	}
+
+	for (c = 1; c <= N;c++)
+	{
+		//DFS(L, car), 이전에 움직인 car는 다시 움직일 필요가 없다.
+		if (c == car) continue;
+		//c번 차를 움직인다.
+		//어떠한 경우든 최대 3번 앞으로 가거나 뒤로 갈 수 있다.
+
+		//동과 서쪽 방향의 차인 경우.
+		if (Car[c].dir == 'E' || Car[c].dir == 'W')
+		{
+			//동으로 3칸.
+			for (move = 1; move <= 3;move++)
+			{
+
+				//동으로 움직일 수 있는지
+				if (isMoveE(Car[c].r, Car[c].c, move, Car[c].dir))
+				{
+					//printf("here 1 : car num : %d, r: %d c: %d\n", c, Car[c].r, Car[c].c);
+					//가능하다면
+					//현재 지도를 저장해두고.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							reMAP[i][k] = MAP[i][k];
+
+
+					//현재 차의 위치를 0으로 만든 후.
+					MAP[Car[c].r][Car[c].c] = 0;
+					MAP[Car[c].r][Car[c].c + rc[Car[c].dir].c] = 0;
+
+					//움직인다.
+					MAP[Car[c].r][Car[c].c + move] = c;
+					MAP[Car[c].r][Car[c].c + rc[Car[c].dir].c + move] = c;
+
+					//차 이동.
+					Car[c].c += move;
+
+					//움직인 차번호 C를 넘겨서 DFS
+					DFS(L + 1, c);
+
+					//맵을 복귀시킨다.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							MAP[i][k] = reMAP[i][k];
+
+					//차 번호를 복귀 시킨다.
+					Car[c].c -= move;
+				}
+				else break; // 더 이상 동으로 움직일 수 없음.
+			}
+
+			//서로 3칸.
+			for (move = 1; move <= 3;move++)
+			{
+				//서로 움직일 수 있는지
+				//if (L == 11 && car == 7) printf("%d %d %d %d %d %c %d\n", c, isMoveW(Car[c].r, Car[c].c, move, Car[c].dir) , move, Car[c].r, Car[c].c, Car[c].dir, MAP[Car[c].r][Car[c].c - move]);
+				if (isMoveW(Car[c].r, Car[c].c, move, Car[c].dir))
+				{
+					//printf("here 2 : car num : %d, r: %d c: %d\n", c, Car[c].r, Car[c].c);
+					//가능하다면
+					//현재 지도를 저장해두고.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							reMAP[i][k] = MAP[i][k];
+
+
+
+					//현재 차의 위치를 0으로 만든 후.
+					MAP[Car[c].r][Car[c].c] = 0;
+					MAP[Car[c].r][Car[c].c + rc[Car[c].dir].c] = 0;
+
+					//움직인다.
+					MAP[Car[c].r][Car[c].c - move] = c;
+					MAP[Car[c].r][Car[c].c + rc[Car[c].dir].c - move] = c;
+
+					//차 이동.
+					Car[c].c -= move;
+
+					//움직인 차번호 C를 넘겨서 DFS
+					DFS(L + 1, c);
+
+					//맵을 복귀시킨다.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							MAP[i][k] = reMAP[i][k];
+
+					//차 번호를 복귀 시킨다.
+					Car[c].c += move;
+				}
+				else break; // 더 이상 동으로 움직일 수 없음.
+			}
+
+		}
+		else
+		{
+			//남으로 3칸.
+			for (move = 1; move <= 3;move++)
+			{
+
+				//남으로 움직일 수 있는지
+				if (isMoveS(Car[c].r, Car[c].c, move, Car[c].dir))
+				{
+					//가능하다면
+					//현재 지도를 저장해두고.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							reMAP[i][k] = MAP[i][k];
+
+
+					//현재 차의 위치를 0으로 만든 후.
+					MAP[Car[c].r][Car[c].c] = 0;
+					MAP[Car[c].r + rc[Car[c].dir].r][Car[c].c] = 0;
+
+					//움직인다.
+					MAP[Car[c].r + move][Car[c].c] = c;
+					MAP[Car[c].r + rc[Car[c].dir].r + move][Car[c].c] = c;
+
+					//차 이동.
+					Car[c].r += move;
+
+					//움직인 차번호 C를 넘겨서 DFS
+					DFS(L + 1, c);
+
+					//맵을 복귀시킨다.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							MAP[i][k] = reMAP[i][k];
+
+					//차 복귀.
+					Car[c].r -= move;
+				}
+				else break; // 더 이상 동으로 움직일 수 없음.
+			}
+
+			//북으로 3칸.
+			for (move = 1; move <= 3;move++)
+			{
+				//북으로 움직일 수 있는지
+				if (isMoveN(Car[c].r, Car[c].c, move, Car[c].dir))
+				{
+					//printf("here 2 : car num : %d, r: %d c: %d\n", c, Car[c].r, Car[c].c);
+					//가능하다면
+					//현재 지도를 저장해두고.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							reMAP[i][k] = MAP[i][k];
+
+
+
+					//현재 차의 위치를 0으로 만든 후.
+					MAP[Car[c].r][Car[c].c] = 0;
+					MAP[Car[c].r + rc[Car[c].dir].r][Car[c].c] = 0;
+
+					//움직인다.
+					MAP[Car[c].r - move][Car[c].c] = c;
+					MAP[Car[c].r + rc[Car[c].dir].r - move][Car[c].c] = c;
+
+					//차 이동.
+					Car[c].r -= move;
+
+					//움직인 차번호 C를 넘겨서 DFS
+					DFS(L + 1, c);
+
+					//맵을 복귀시킨다.
+					for (i = 1; i <= 5;i++)
+						for (k = 1; k <= 5;k++)
+							MAP[i][k] = reMAP[i][k];
+
+					//차 복귀.
+					Car[c].r += move;
+				}
+				else break; // 더 이상 북으로 움직일 수 없음.
+			}
+
+		}
+
+	}
+
+}
+
+int main()
+{
+	int i, k, tc;
+
+	rc['E'].r = 0;
+	rc['E'].c = -1;
+
+	rc['W'].r = 0;
+	rc['W'].c = 1;
+
+	rc['S'].r = -1;
+	rc['S'].c = 0;
+
+	rc['N'].r = 1;
+	rc['N'].c = 0;
+
+	scanf("%d", &T);
+
+	for (i = 0; i <= 6;i++)
+		for (k = 0; k <= 6;k++)
+			MAP[i][k] = -1;
+
+	for (i = 1; i <= 5;i++)
+		for (k = 1; k <= 5;k++)
+			MAP[i][k] = 0;
+
+	for (tc = 1; tc <= T;tc++)
+	{
+		MIN = 0x7fff0000;
+
+		scanf("%d", &N);
+
+		int log = 1 << 25;
+
+		for (i = 0; i <= log;i++) hashTable[i] = 0x7fff0000;
+
+		for (i = 1; i <= 5;i++)
+			for (k = 1; k <= 5;k++)
+				MAP[i][k] = 0;
+
+		for (i = 1; i <= N;i++)
+		{
+			scanf("%d %d %c", &Car[i].r, &Car[i].c, &Car[i].dir);
+
+			MAP[Car[i].r][Car[i].c] = i;
+			MAP[Car[i].r + rc[Car[i].dir].r][Car[i].c + rc[Car[i].dir].c] = i;
+		}
+
+		//printf("hash : %d\n", hash());
+
+		DFS(1, 0);
+
+		if (MIN == 0x7fff0000) printf("#%d %d\n", tc, -1);
+		else printf("#%d %d\n", tc, MIN);
+	}
+
+	return 0;
+}
