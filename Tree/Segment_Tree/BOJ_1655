@@ -1,0 +1,52 @@
+//baekjoon_1655
+//가운데를 말해요.
+//숫자의 개수를 센다.
+//세그먼트 트리는 구간의 숫자를 포함하고 있고, 원하는 숫자는 항상 (i+2)/2가 된다.
+//따라서 왼쪽 트리가 해당 숫자보다 크면 왼쪽으로, 그렇지 않으면 오른쪽으로 가서 가운데를 찾는다.
+
+#include <stdio.h>
+#define MID (10000)
+#define MAX (20000)
+
+int N;
+int tree[1<<16]; // -10000 ~ 10000, 1<<16 = 65536
+
+void update(int s, int e, int node, int index)
+{
+	if(index < s || e < index) return;
+
+	tree[node]++;
+
+	if(s != e)
+	{
+		update(s, (s+e)/2, node * 2, index);
+		update((s+e)/2 + 1, e, node * 2 + 1, index);
+	}
+}
+
+int query(int s, int e, int node, int value)
+{
+	if(s == e) return s;
+
+	if(value <= tree[node*2])
+		return query(s, (s+e)/2, node * 2, value);
+	else
+		return query((s+e)/2+1, e, node * 2 + 1, value - tree[node * 2]); 
+}
+
+int main() 
+{
+	int i, k;
+    
+	scanf("%d", &N);
+	for(i = 0; i<N;i++)
+	{
+		int tmp;
+		scanf("%d", &tmp);
+		update(0, MAX, 1, tmp + MID);
+		printf("%d\n", query(0, MAX, 1, (i+2) / 2) - MID);
+	}
+
+
+	return 0;
+}
