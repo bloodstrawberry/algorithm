@@ -1,0 +1,149 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <cstdio>
+#define ll long long int
+
+#include <time.h>
+#include <stdio.h>
+#include <string.h>
+
+
+typedef struct {
+	int hat;
+	int top;
+	int bot;
+	ll sold;
+} Store;
+int N, Q, q, x, y, c, k, leaf_count;
+ll ans;
+Store store[400000 + 5];
+
+void sell(int store_num, int set) {
+
+	int hat_count = 0;
+	int top_count = 0;
+	int bot_count = 0;
+	int node = leaf_count + store_num - 1;
+	while (node) {
+
+		hat_count += store[node].hat;
+		top_count += store[node].top;
+		bot_count += store[node].bot;
+		node = node >> 1;
+	}
+	if (hat_count*top_count*bot_count == 0) return;
+	int min = hat_count < top_count ? hat_count : top_count;
+	min = min < bot_count ? min : bot_count;
+	min = set < min ? set : min;
+	node = leaf_count + store_num - 1;
+
+	store[node].hat -= min;
+	store[node].top -= min;
+	store[node].bot -= min;
+
+	while (node) {
+		store[node].sold += min;
+		node = node >> 1;
+	}
+
+
+}
+
+void ware(int node, int l_bound, int u_bound, int left, int right, int item, int qnt) {
+
+	if (left == l_bound && right == u_bound) {
+		if (item == 1) store[node].hat += qnt;
+		else if (item == 2) store[node].top += qnt;
+		else if (item == 3) store[node].bot += qnt;
+		return;
+	}
+	int mid = (l_bound + u_bound) / 2;
+	if (left >= (mid + 1)) {
+		ware(2 * node + 1, mid + 1, u_bound, left, right, item, qnt); return;
+	}
+	if (right <= mid) {
+		ware(2 * node, l_bound, mid, left, right, item, qnt); return;
+	}
+	ware(2 * node, l_bound, mid, left, mid, item, qnt);
+	ware(2 * node + 1, mid + 1, u_bound, mid + 1, right, item, qnt);
+
+}
+
+ll surv(int node, int l_bound, int u_bound, int left, int right) {
+
+	if (left == l_bound && right == u_bound) {
+		return store[node].sold;
+	}
+	int mid = (l_bound + u_bound) / 2;
+	if (left >= (mid + 1)) return surv(2 * node + 1, mid + 1, u_bound, left, right);
+	if (right <= mid) return surv(2 * node, l_bound, mid, left, right);
+
+	return surv(node * 2, l_bound, mid, left, mid) + surv(node * 2 + 1, mid + 1, u_bound, mid + 1, right);
+}
+
+
+void init() {
+	ans = 0;
+	scanf("%d %d", &N, &Q);
+
+	leaf_count = 1;
+
+	while (leaf_count < N) {
+		leaf_count *= 2;
+	}
+
+	for (int i = 0; i < 4 * N; i++) {
+		store[i].hat = 0;
+		store[i].top = 0;
+		store[i].bot = 0;
+		store[i].sold = 0;
+	}
+}
+
+void execc() {
+
+
+	while (Q--) {
+
+		scanf("%d", &q);
+		if (q == 1) {
+			scanf("%d %d %d %d", &x, &y, &c, &k);
+			//printf("입고");
+			ware(1, 1, leaf_count, x, y, c, k);
+			continue;
+			//납품
+		}
+		if (q == 2) {
+			scanf("%d %d", &x, &c);
+			//printf("판매");
+			sell(x, c);
+			//판매
+			continue;
+		}if (q == 3) {
+			scanf("%d %d", &x, &y);
+			ans += (surv(1, 1, leaf_count, x, y));
+			continue;
+		}
+
+
+	}
+
+}
+
+int main() {
+	clock_t before;
+	double result;
+	before = clock();
+	int T;
+	scanf("%d", &T);
+
+	for (int t = 1; t <= T; t++) {
+		printf("#%d ", t);
+		init();
+		execc();
+		printf("%lld\n", ans);
+
+	}
+result = (double)(clock() - before) / CLOCKS_PER_SEC;
+	printf("%5.2fs\n", result);
+	return 0;
+}
