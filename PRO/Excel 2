@@ -1,0 +1,333 @@
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#include <stdio.h>
+
+#define MAXR		99
+#define MAXC		26
+
+#define MAXL		100
+
+extern void init(int C, int R);
+extern void set(int col, int row, char input[]);
+extern void update(int value[MAXR][MAXC]);
+
+#define INIT		100
+#define SET			200
+#define UPDATE		300
+
+static int R;
+static int C;
+
+static int gethash(int value[MAXR][MAXC]) {
+	int ret = 0;
+
+	for (int r = 0; r < R; ++r)
+		for (int c = 0; c < C; ++c)
+			ret = (ret * 7 + value[r][c]) & 0x7fffffff;
+
+	return ret;
+}
+
+static bool run() {
+	int  Q;
+	bool okay = true;
+
+	scanf("%d", &Q);
+
+	for (int q = 0; q < Q; ++q) {
+		int cmd, row, col;
+		int userhash, answerhash;
+
+		char input[MAXL];
+		int value[MAXR][MAXC];
+
+		scanf("%d", &cmd);
+
+		switch (cmd) {
+		case INIT:
+			scanf("%d %d", &C, &R);
+			if (okay) init(C, R);
+			break;
+		case SET:
+			scanf("%d %d %s", &col, &row, input);
+			if (okay) set(col, row, input);
+			break;
+		case UPDATE:
+			scanf("%d", &answerhash);
+			if (okay) {
+				update(value);
+				userhash = gethash(value);
+				if (answerhash != userhash)
+					okay = false;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	return okay && Q > 0;
+}
+
+#define IMPOSSIBLE (1000000001)
+
+int maxR, maxC;
+int Alphabet['Z' + 1];
+
+//함수 포인터를 이용해 명령어 실행.
+int(*calculate['Z'])(int c1, int r1, int c2, int r2);
+
+typedef struct st
+{
+	//명령어가 실행되는 곳.
+	int row; 
+	int col;
+
+	//두 변수를 저장.
+	int r1;
+	int c1;
+	int r2;
+	int c2;
+
+	//명령어
+	char command;
+}RC;
+
+RC Que[20000];
+int WP, RP;
+
+typedef struct st2
+{
+	int possible;
+	RC Command;
+}REF;
+
+int table[MAXR][MAXC]; //값을 저장할 table
+REF reftable[MAXR][MAXC];//계산 가능한지 체크 + 명령어 저장 table.
+
+int ADD(int c1, int r1, int c2, int r2)
+{
+	if (table[r1][c1] == IMPOSSIBLE || table[r2][c2] == IMPOSSIBLE) return IMPOSSIBLE;
+	return table[r1][c1] + table[r2][c2];
+}
+
+int SUB(int c1, int r1, int c2, int r2)
+{
+	if (table[r1][c1] == IMPOSSIBLE || table[r2][c2] == IMPOSSIBLE) return IMPOSSIBLE;
+	return table[r1][c1] - table[r2][c2];
+}
+
+int MUL(int c1, int r1, int c2, int r2)
+{
+	if (table[r1][c1] == IMPOSSIBLE || table[r2][c2] == IMPOSSIBLE) return IMPOSSIBLE;
+	return table[r1][c1] * table[r2][c2];
+}
+
+int DIV(int c1, int r1, int c2, int r2)
+{
+	if (table[r1][c1] == IMPOSSIBLE || table[r2][c2] == IMPOSSIBLE) return IMPOSSIBLE;
+	return table[r1][c1] / table[r2][c2];
+}
+
+int MAX(int c1, int r1, int c2, int r2)
+{
+	int i, k, ret;
+
+	ret = -1000000000;
+	for (i = c1; i <= c2; i++)
+	{
+		for (k = r1; k <= r2; k++)
+		{
+			if (table[k][i] == IMPOSSIBLE) return IMPOSSIBLE;
+			if (ret < table[k][i]) ret = table[k][i];
+		}	
+	}
+	return ret;
+}
+
+int MIN(int c1, int r1, int c2, int r2)
+{
+	int i, k, ret;
+
+	ret = 1000000000;
+	for (i = c1; i <= c2; i++)
+	{
+		for (k = r1; k <= r2; k++)
+		{
+			
+			if (table[k][i] == IMPOSSIBLE) return IMPOSSIBLE;
+			if (ret > table[k][i]) ret = table[k][i];
+		}		
+	}
+	return ret;
+}
+
+int SUM(int c1, int r1, int c2, int r2)
+{
+	int i, k, ret;
+
+	ret = 0;
+	for (i = c1; i <= c2; i++)
+	{
+		for (k = r1; k <= r2; k++)
+		{
+			if (table[k][i] == IMPOSSIBLE) return IMPOSSIBLE;
+			ret += table[k][i];
+		}	
+	}
+	return ret;
+}
+
+
+void init(int C, int R)
+{
+	int i, k;
+	
+
+	maxC = C - 1;
+	maxR = R - 1;
+
+	//각 명령어 함수 포인터 저장. ex) SUM => 'M'
+	calculate['D'] = ADD;
+	calculate['B'] = SUB;
+	calculate['L'] = MUL;
+	calculate['V'] = DIV;
+	calculate['X'] = MAX;
+	calculate['N'] = MIN;
+	calculate['M'] = SUM;
+
+	//string -> int로 간단히 변환하기 위해 배열 설정.
+	for (i = 0; i <= 26;i++) Alphabet['A' + i] = i;
+
+	//table 초기화
+	for (i = 0; i < MAXC;i++)
+		for (k = 0; k < MAXR;k++)
+			reftable[k][i].possible = table[k][i] = 0;
+}
+
+int string_to_int(char input[])
+{
+	int i;
+	int len, ret, mul;
+
+	ret = 0, mul = 1;
+	for (len = 0; input[len];len++)
+	{
+		ret *= 10;
+		ret += input[len] - '0';
+	}
+	
+	return ret;
+}
+
+//input을 파싱해서 row, col, 그리고 명령이 실행될 r1, c1, r2, c2 저장.
+RC changeRC(char input[], char command, int col, int row)
+{
+	RC ret;
+	int flag;
+
+	ret.c1 = Alphabet[input[0]];
+
+	if (input[2] == ',') //A1 인경우.
+	{
+		ret.r1 = input[1] - '0';
+		ret.c2 = Alphabet[input[3]];
+
+		if (input[5] == ')') ret.r2 = input[4] - '0';
+		else ret.r2 = (input[4] - '0') * 10 + (input[5] - '0');
+	}
+	else //A12인 경우
+	{
+		ret.r1 = (input[1] - '0') * 10 + input[2] - '0';	
+		ret.c2 = Alphabet[input[4]];
+		if (input[6] == ')') ret.r2 = input[5] - '0';
+		else ret.r2 = (input[5] - '0') * 10 + input[6] - '0';
+	}
+	
+	ret.r1--, ret.r2--;
+
+	ret.col = col;
+	ret.row = row;
+	ret.command = command;
+
+	return ret;
+}
+
+
+
+void set(int col, int row, char input[])
+{
+	RC tmp;
+	int ret = IMPOSSIBLE;
+
+	col--, row--;
+	if (input[0] == '-') //음수인 경우.
+	{
+		ret = string_to_int(input + 1) * -1;
+		table[row][col] = ret;
+		reftable[row][col].possible = 0; //계산 가능
+	}
+	else if(input[0] <= '9') //양수인 경우.
+	{
+		ret = string_to_int(input);
+		table[row][col] = ret;
+		reftable[row][col].possible = 0; //계산 가능
+	}
+	else //함수가 들어오는 경우.
+	{
+		tmp = changeRC(input + 4, input[2], col, row);
+		table[row][col] = ret;
+		reftable[row][col].Command = tmp; //명령어 저장
+		reftable[row][col].possible = IMPOSSIBLE; //계산 불가능
+	}	
+}
+
+void update(int value[MAXR][MAXC])
+{
+	int i, k, ret;
+
+	WP = RP = 0; //Que 초기화
+	for (i = 0; i < MAXR; i++)
+	{
+		for (k = 0; k < MAXC; k++)
+			if (reftable[i][k].possible == IMPOSSIBLE) //현재 명령어를 담는다.
+				Que[WP++] = reftable[i][k].Command, table[i][k] = IMPOSSIBLE;
+	}
+		
+
+	while (RP < WP)
+	{
+		RC out;
+		
+		out = Que[RP++];
+		ret = calculate[out.command](out.c1, out.r1, out.c2, out.r2);
+
+		if (ret == IMPOSSIBLE) 	Que[WP++] = out; //명령이 불가능하면 큐로 다시 push
+		else table[out.row][out.col] = ret;
+	}
+
+	//return
+	for (i = 0; i < MAXR; i++)
+		for (k = 0; k < MAXC; k++)
+			value[i][k] = table[i][k];
+}
+
+int main() {
+	int TC;
+
+	//freopen("sample_input.txt", "r", stdin);
+
+	setbuf(stdout, NULL);
+	scanf("%d", &TC);
+
+	int totalscore = 0;
+	for (int testcase = 1; testcase <= TC; ++testcase) {
+		int score = run() ? 100 : 0;
+		printf("#%d %d\n", testcase, score);
+		totalscore += score;
+	}
+	printf("total score = %d\n", totalscore / TC);
+	return 0;
+}
