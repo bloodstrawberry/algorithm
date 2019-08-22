@@ -1,0 +1,275 @@
+#define MAX 30000
+#define COMPLETE (43046720)
+
+using namespace std;
+
+typedef struct st
+{
+	int min;
+	int max;
+	int hash;
+	int index;
+}BLOCK;
+
+BLOCK block1[30300 * 5];
+BLOCK block2[30300 * 5];
+int bidx1, bidx2;
+int check1[30300];
+int check2[30300];
+
+BLOCK match1[30300];
+BLOCK match2[30300];
+int midx1, midx2;
+
+BLOCK b[30300 * 5];
+int temp[4][4];
+
+void rotate(int module[4][4]) // 90도 로테이트
+{
+	register int i, k;
+	for (i = 0; i < 4; i++)
+		for (k = 0; k < 4; k++)
+			temp[i][k] = module[i][k];
+
+	for (i = 0; i < 4; i++)
+		for (k = 0; k < 4; k++)
+			module[i][k] = temp[k][3 - i];
+}
+
+void flip(int module[4][4])
+{
+	register int i, k;
+	for (i = 0; i < 4; i++)
+		for (k = 0; k < 4; k++)
+			temp[i][k] = module[i][k];
+
+	for (i = 0; i < 4; i++)
+	{
+		int tmp;
+
+		tmp = module[0][i];
+		module[0][i] = module[3][i];
+		module[3][i] = tmp;
+
+		tmp = module[1][i];
+		module[1][i] = module[2][i];
+		module[2][i] = tmp;
+	}
+}
+
+int makehash(int module[4][4])
+{
+	register int i, k, mul, ret;
+
+	mul = 1;
+	ret = 0;
+	for (i = 0; i < 4; i++)
+	{
+		for (k = 0; k < 4; k++)
+		{
+			ret += module[k][i] * mul;
+			mul *= 3;
+		}
+	}
+
+	return ret;
+}
+
+void CutBase(int module[4][4], int minValue)
+{
+	register int i, k;
+	for (i = 0; i < 4; i++)
+		for (k = 0; k < 4; k++)
+			module[i][k] -= minValue;
+}
+
+BLOCK findMinMax(int module[4][4])
+{
+	BLOCK ret;
+	register int i, k, min, max;
+
+	min = 100;
+	max = 0;
+
+	for (i = 0; i < 4; i++)
+	{
+		for (k = 0; k < 4; k++)
+		{
+			if (min > module[i][k]) min = module[i][k];
+			if (max < module[i][k]) max = module[i][k];
+		}
+	}
+
+	ret.max = max;
+	ret.min = min;
+	ret.hash = 0;
+	ret.index = 0;
+
+	return ret;
+}
+
+int isBlockOnlyMax(BLOCK a, BLOCK b)
+{
+	return (a.max > b.max);
+}
+
+int isBlockHighMin(BLOCK a, BLOCK b)
+{
+	if (a.hash < b.hash) return 1;
+
+	if (a.hash == b.hash)
+	{
+		if (a.max < b.max) return 1;
+		return 0;
+	}
+
+	return 0;
+}
+
+void merge(BLOCK* block, int start, int end, int(*comp)(BLOCK, BLOCK))
+{
+	register int mid, i, j, k;
+
+	mid = (start + end) / 2;
+	i = start;
+	j = mid + 1;
+	k = 0;
+
+	while (i <= mid && j <= end)
+	{
+		if (comp(block[i], block[j])) b[k++] = block[i++];
+		else b[k++] = block[j++];
+	}
+
+	while (i <= mid) b[k++] = block[i++];
+	while (j <= end) b[k++] = block[j++];
+	for (i = start; i <= end; i++)
+		block[i] = b[i - start];
+
+}
+
+void sort(BLOCK* block, int start, int end, int(*comp)(BLOCK a, BLOCK b))
+{
+	int mid;
+	if (start >= end) return;
+
+	mid = (start + end) / 2;
+	sort(block, start, mid, comp);
+	sort(block, mid + 1, end, comp);
+	merge(block, start, end, comp);
+}
+
+BLOCK binarysearch(BLOCK* block, int* check, int value, int bidx)
+{
+	register int l, r, m;
+	BLOCK ret;
+	l = 0, r = bidx - 1;
+
+	ret.index = ret.hash = ret.max = ret.min = -1;
+
+	while (l <= r)
+	{
+		m = (l + r) / 2;
+
+		if (block[m].hash == value)
+		{
+			if (check[block[m].index] == 0) return block[m];
+			return ret;
+		}
+		else if (block[m].hash < value)
+			l = m + 1;
+		else
+			r = m - 1;
+	}
+
+	return ret;
+}
+
+
+int makeBlock(int module[][4][4])
+{
+	register int i, k;
+	int ret;
+
+	midx1 = midx2 = bidx1 = bidx2 = 0;
+	for (i = 0; i < 30000; i++) check1[i] = check2[i] = 0;
+
+	for (i = 0; i < 30000; i++)
+	{
+		BLOCK tmp;
+		tmp = findMinMax(module[i]);
+		CutBase(module[i], tmp.min);
+
+		if (tmp.max - tmp.min == 1)
+		{
+			match1[midx1].hash = makehash(module[i]);
+			match1[midx1].min = tmp.min;
+			match1[midx1].max = tmp.max;
+			match1[midx1++].index = i;
+
+			flip(module[i]);
+			for (k = 0; k < 4; k++)
+			{
+				rotate(module[i]);
+				block1[bidx1].min = tmp.min;
+				block1[bidx1].max = tmp.max;
+				block1[bidx1].index = i;
+				block1[bidx1++].hash = makehash(module[i]);
+			}
+		}
+		else
+		{
+			match2[midx2].hash = makehash(module[i]);
+			match2[midx2].min = tmp.min;
+			match2[midx2].max = tmp.max;
+			match2[midx2++].index = i;
+
+			flip(module[i]);
+			for (k = 0; k < 4; k++)
+			{
+				rotate(module[i]);
+				block2[bidx2].min = tmp.min;
+				block2[bidx2].max = tmp.max;
+				block2[bidx2].index = i;
+				block2[bidx2++].hash = makehash(module[i]);
+			}
+		}
+
+	
+	}
+
+	sort(match1, 0, midx1 - 1, isBlockOnlyMax);
+	sort(block1, 0, bidx1 - 1, isBlockHighMin);
+	sort(match2, 0, midx2 - 1, isBlockOnlyMax);
+	sort(block2, 0, bidx2 - 1, isBlockHighMin);
+
+	ret = 0;
+
+	for (i = 0; i < midx1; i++)
+	{
+		if (check1[match1[i].index]) continue;
+
+		check1[match1[i].index] = 1;
+
+		BLOCK find = binarysearch(block1, check1, COMPLETE / 2 - match1[i].hash, bidx1);
+		if (find.min == -1) continue;
+
+		ret += find.max + match1[i].min;
+		check1[find.index] = 1;
+	}
+
+	for (i = 0; i < midx2; i++)
+	{
+		if (check2[match2[i].index]) continue;
+
+		check2[match2[i].index] = 1;
+
+		BLOCK find = binarysearch(block2, check2, COMPLETE - match2[i].hash, bidx2);
+		if (find.min == -1) continue;
+
+		ret += find.max + match2[i].min;
+		check2[find.index] = 1;
+	}
+
+	return ret;
+}
