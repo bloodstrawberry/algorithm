@@ -94,6 +94,9 @@ void update(HEAP* heap, int idx, int value)
 	heap[heapIdx[idx]].value = value;
 
 	hidx = heapIdx[idx];
+	
+	//downdate와 update의 위치는 변경될 수 있다.
+	//downdate
 	for (i = hidx; i * 2 + 1 <= hn;) // i * 2 => i * 2 + 1이 됨. update이므로 index 관리가 필요.
 	{
 		if (isMin(heap[i], heap[i * 2]) && isMin(heap[i], heap[i * 2 + 1])) break;
@@ -121,6 +124,7 @@ void update(HEAP* heap, int idx, int value)
 		}
 	}
 
+	//update
 	for (i = hidx; i > 1; i /= 2)
 	{
 		if (isMin(heap[i / 2], heap[i])) break;
