@@ -32,6 +32,9 @@ HEAP pop(HEAP* heap, int& hn)
 
 	ret = heap[1];
 	heap[1] = heap[hn];
+	
+	heapIdx[heap[1].index] = 1;
+	
 	heap[hn--].value = 0x7fff0000;
 
 	for (i = 1; i * 2 <= hn;)
