@@ -1,0 +1,45 @@
+typedef struct stt
+{
+	long long a;
+	long long b;
+}cast;
+
+void byCasting(char* src, char* dest, unsigned int length)
+{
+	// long long casting
+	//for (register int i = 0; i < (length >> 3); i++)
+	//    *(reinterpret_cast<long long*>(dest) + i) = *(reinterpret_cast<long long*>(src) + i);
+	//for (register int i = length & ~7; i < length; i++) dest[i] = src[i];
+
+	// long long * 2 casting
+	for (register int i = 0; i < (length >> 4); i++)
+		*(reinterpret_cast<cast*>(dest) + i) = *(reinterpret_cast<cast*>(src) + i);
+	for (register int i = length & ~15; i < length; i++) dest[i] = src[i];
+}
+
+int main() {
+
+	//대소문자 처리
+	char c = 'c';
+	char C = 'C';
+
+	printf("c -> C         [%c %c]\n", c, c & ~0x20);
+	printf("C -> c         [%c %c]\n", C, C | 0x20);
+	printf("c -> C, C -> c [%c %c]\n", c ^ 0x20, C ^ 0x20);
+	printf("check c        [%d %d]\n", !(c & 0x20), !(C & 0x20)); //대문자면 1, 소문자면 0
+
+	//2진수 1의 개수 세기
+	int test = 1234;
+	int counter = !!test;
+	while (test &= test - 1) counter++;
+	printf("%d\n", counter);
+
+	//swap
+	int a = 8;
+	int b = 7;
+
+	a ^= b ^= a ^= b;
+	printf("%d %d\n", a, b);
+
+	return 0;
+  }
