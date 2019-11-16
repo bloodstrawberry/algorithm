@@ -1,0 +1,224 @@
+#include <cstdio>
+#include <stdio.h>
+
+void printbinary(char a)
+{
+	unsigned int mask = 1<<7;
+
+	for (int i = 0; i < 8;i++)
+	{
+		printf("%d ", (a & mask) == mask);
+		mask /= 2;
+	}
+	putchar('\n');
+}
+
+void printbinary(int a)
+{
+	unsigned int mask = 1 << 31;
+
+	for (int i = 0; i < 32;i++)
+	{
+		printf("%d ", (a & mask) == mask);
+		mask /= 2;
+	}
+	putchar('\n');
+}
+
+void printbinary(unsigned short a)
+{
+	unsigned short mask = 1 << 15;
+
+	for (int i = 0; i < 16;i++)
+	{
+		printf("%d ", (a & mask) == mask);
+		mask /= 2;
+	}
+	putchar('\n');
+}
+
+void printbinary10(unsigned int a)
+{
+	unsigned int mask = 1 << 9;
+
+	for (int i = 0; i < 10;i++)
+	{
+		printf("%d ", (a & mask) == mask);
+		mask /= 2;
+	}
+	putchar('\n');
+}
+
+//bit flag
+//1bit씩 읽는게 가능한지 확인.
+
+//최하위비트부터 저장됨.
+//A : 8 인데 1 1111 1111을 넣으면 1111 1111만 저장.
+typedef struct st
+{
+	unsigned int A : 8;
+	unsigned int B : 8;
+	unsigned int C : 8;
+	unsigned int D : 8;
+}BitFlag;
+
+typedef struct st2
+{
+	char casting[10];
+}cast;
+
+typedef struct st3
+{
+	short word[5];
+}short_ST;
+
+typedef struct bf1
+{
+	unsigned short A : 10;
+	unsigned short B : 6;
+}bf_10_6;
+
+typedef struct bf2
+{
+	unsigned short A : 4;
+	unsigned short B : 10;
+	unsigned short C : 2;
+}bf_4_10_2;
+
+typedef struct bf3
+{
+	unsigned short A : 8;
+	unsigned short B : 8;
+}bf_8_8;
+
+typedef struct bf4
+{
+	unsigned short A : 2;
+	unsigned short B : 10;
+	unsigned short C : 4;
+}bf_2_10_4;
+
+typedef struct bf5
+{
+	unsigned short A : 6;
+	unsigned short B : 10;
+}bf_6_10;
+
+
+
+int main() 
+{
+	BitFlag bf;
+
+	bf.A = 'a';
+	bf.B = 'b';
+	bf.C = 'c';
+	bf.D = 'd';
+
+	int intbf = *(int*)&bf;
+	int comp = ('d' << 24) | ('c' << 16) | ('b' << 8) | ('a');
+	printf("%d %d\n", intbf, comp);
+	
+
+	char wordlist[10] = { 0,10,20,30,40,50,60,70,80,90 };
+	short_ST shortlist;
+
+	*(cast*)&shortlist = *(cast*)wordlist;
+
+	for (int i = 0; i < 10;i++) printbinary(wordlist[i]);
+	putchar('\n');
+	
+	for (int i = 0; i < 5;i++) printbinary(shortlist.word[i]);
+	putchar('\n');
+
+	unsigned int indexes[8] = { 1000, 256, 12, 123, 567 , 321, 35, 32};
+	unsigned short answer[5] = { 0 };
+	unsigned short and_bit[11] = { 0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023 };
+	unsigned int decoding[8] = { 0 };
+	printf("----------------------- test ---------------------------\n");
+	// 10bit 8개
+	for (int i = 0; i < 8;i++) printbinary10(indexes[i]);
+	putchar('\n');
+	// 16bit 5개로 변경.
+	// 1 10
+	// 2 10 6 [1] / 4	[1] : 10(1) + 6(2)
+	// 3 10		
+	// 4 10 2 [2] / 8	[2] : 4(2) + 10(3) + 2(4)
+	// 5 10 8 [3] / 2   [3] : 8(4) + 8(5)
+	// 6 10 
+	// 7 10 4 [4] / 6   [4] : 2(5) + 10(6) + 4(7)
+	// 8 10 [5]			[5] : 6(7) + 10(8)
+
+	bf_10_6   b_10_6;
+	bf_4_10_2 b_4_10_2;
+	bf_8_8	  b_8_8;
+	bf_2_10_4 b_2_10_4;
+	bf_6_10   b_6_10;
+
+	b_10_6.A = indexes[0];
+	b_10_6.B = indexes[1];
+
+	printf("here 1: %d %d\n", b_10_6.A, b_10_6.B);
+
+	b_4_10_2.A = indexes[1] >> 6;
+	b_4_10_2.B = indexes[2];
+	b_4_10_2.C = indexes[3];
+
+	printf("here 2: %d %d %d\n", b_4_10_2.A, b_4_10_2.B, b_4_10_2.C);
+
+	b_8_8.A = indexes[3] >> 2;
+	b_8_8.B = indexes[4];
+
+	printf("here 3: %d %d\n", b_8_8.A, b_8_8.B);
+
+	b_2_10_4.A = indexes[4] >> 8;
+	b_2_10_4.B = indexes[5];
+	b_2_10_4.C = indexes[6];
+
+	printf("here 4: %d %d %d\n", b_2_10_4.A, b_2_10_4.B, b_2_10_4.C);
+
+	b_6_10.A = indexes[6] >> 4;
+	b_6_10.B = indexes[7];
+
+	printf("here 5: %d %d\n", b_6_10.A, b_6_10.B);
+
+	answer[0] = *(unsigned short*)&b_10_6;
+	answer[1] = *(unsigned short*)&b_4_10_2;
+	answer[2] = *(unsigned short*)&b_8_8;
+	answer[3] = *(unsigned short*)&b_2_10_4;
+	answer[4] = *(unsigned short*)&b_6_10;
+
+	for (int i = 0; i < 5;i++) printbinary(answer[i]);
+
+	int check = answer[0] & and_bit[10];
+	
+	b_10_6 = *(bf_10_6*)&answer[0];
+	printf("here : %d %d\n", b_10_6.A, b_10_6.B);
+
+	b_4_10_2 = *(bf_4_10_2*)&answer[1];
+	printf("here 2: %d %d %d\n", b_4_10_2.A, b_4_10_2.B, b_4_10_2.C);
+
+	b_8_8 = *(bf_8_8*)&answer[2];
+	printf("here 3: %d %d\n", b_8_8.A, b_8_8.B);
+
+	b_2_10_4 = *(bf_2_10_4*)&answer[3];
+	printf("here 4: %d %d %d\n", b_2_10_4.A, b_2_10_4.B, b_2_10_4.C);
+
+	b_6_10 = *(bf_6_10*)&answer[4];
+	printf("here 5: %d %d\n", b_6_10.A, b_6_10.B);
+
+	decoding[0] = b_10_6.A;
+	decoding[1] = b_10_6.B | b_4_10_2.A << 6;
+	decoding[2] = b_4_10_2.B;
+	decoding[3] = b_2_10_4.C | b_8_8.A << 2;
+	decoding[4] = b_8_8.B | b_2_10_4.A << 8;
+	decoding[5] = b_2_10_4.B;
+	decoding[6] = b_2_10_4.C | b_6_10.A << 4;
+	decoding[7] = b_6_10.B;
+
+	for (int i = 0; i < 8;i++)
+	{
+		printf("%d %d\n", indexes[i], decoding[i]);
+	}
+	putchar('\n');
+}
