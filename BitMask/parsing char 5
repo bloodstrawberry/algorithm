@@ -1,0 +1,53 @@
+#include <stdio.h>
+
+typedef struct st11
+{
+	unsigned char a : 3;
+	unsigned char b : 5;
+}ST1;
+
+
+typedef struct st22
+{
+	unsigned char a : 7;
+	unsigned char b : 1;
+}ST2;
+
+typedef struct st33
+{
+	ST1 stt1;
+	ST2 stt2;
+	ST1 stt3;
+	ST1 stt4;
+	ST1 stt5;
+}ST3;
+
+void printbinary(char a)
+{
+	unsigned int mask = 1 << 7;
+
+	for (int i = 0; i < 8;i++)
+	{
+		printf("%d ", (a & mask) == mask);
+		mask /= 2;
+	}
+	putchar('\n');
+}
+
+int main(void)
+{
+	char a[5] = { 128,128, 128, 128, 127 };
+
+	printbinary(a[0]);
+	printbinary(a[1]);
+
+
+	ST3 st3;
+	st3 = *(ST3*)a;
+
+	printf("%d %d %d %d %d %d %d %d %d %d\n", st3.stt1.a, st3.stt1.b, st3.stt2.a, st3.stt2.b, st3.stt3.a, st3.stt3.b, st3.stt4.a, st3.stt4.b, st3.stt5.a, st3.stt5.b);
+
+	return 0;
+ }
+
+
