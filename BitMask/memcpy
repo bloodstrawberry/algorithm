@@ -1,0 +1,653 @@
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#include <stdio.h>
+#include <time.h>
+#include <memory.h>
+#include <stdlib.h>
+
+static char dummy1[5][1024][1024];
+static char disk[16][1024][1024];
+static int disk_id;
+static int disk_total;
+static char file_name[100][16];
+static int file_size[100];
+static char dummy2[6][1024][1024];
+
+static int SCORE = 0;
+static int seed = 3;
+static int MOD = 1 << 16;
+static int PANELTY = 1000000;
+
+extern void init();
+extern void read_file(char* filename, int offset, char* data, int size);
+extern void insert_file(char* filename, int offset, char* data, int size);
+extern void delete_file(char* filename, int offset, int size);
+
+static int pseudo_rand(void)
+{
+	seed = seed * 214013 + 2531011;
+	return (seed >> 16) & 0x7FFF;
+}
+
+static unsigned long hash(const char *str, int str_len)
+{
+	unsigned long hash = 5381;
+
+	for (int i = 0; i < str_len; i++)
+		hash = (((hash << 5) + hash) + str[i]) % MOD;
+
+	return hash % MOD;
+}
+
+bool change_disk(int disk)
+{
+	if (disk >= 16 || disk < 0) return false;
+
+	disk_id = disk;
+
+	return true;
+}
+
+
+bool read_disk(int sector, char* data)
+{
+	if (sector >= 1024 || sector < 0) return false;
+
+	memcpy(data, &(disk[disk_id][sector][0]), 1024);
+
+	return true;
+}
+
+
+bool write_disk(int sector, char* data)
+{
+	if (sector >= 1024 || sector < 0) return false;
+
+	memcpy(&(disk[disk_id][sector][0]), data, 1024);
+
+	return true;
+}
+
+static void _build(void)
+{
+	init();
+
+	for (int c = 0; c < 100; c++)
+	{
+		for (int l = 0; l < 16; l++)
+			file_name[c][l] = 'A' + (pseudo_rand() % 26);
+
+		file_size[c] = 0;
+	}
+}
+
+int max;
+
+int myfilesize[100];
+
+static void _insert(void)
+{
+	char data[4096];
+	char file_name_arg[17];
+
+	int file = pseudo_rand() % 100;
+	int offset = (pseudo_rand() * pseudo_rand()) % (file_size[file] + 1);
+	int data_size = pseudo_rand() % 4096 + 1;
+
+	for (register int i = 0; i < data_size; i++)
+		data[i] = pseudo_rand() % 255 + 1;
+
+	for (register int i = 0; i < 16; i++)
+		file_name_arg[i] = file_name[file][i];
+
+	insert_file(file_name_arg, offset, data, data_size);
+	file_size[file] += data_size;
+	disk_total += data_size;
+}
+
+
+static void _delete(void)
+{
+	char file_name_arg[17];
+	int file = pseudo_rand() % 100;
+	int offset = (pseudo_rand() * pseudo_rand()) % (file_size[file] + 1);
+	int data_size = pseudo_rand() % 4096 + 1;
+
+	if (file_size[file] - offset < data_size)
+		data_size = file_size[file] - offset;
+
+	if (data_size == 0)
+		return;
+
+	for (register int i = 0; i < 16; i++)
+		file_name_arg[i] = file_name[file][i];
+
+	delete_file(file_name_arg, offset, data_size);
+
+	file_size[file] -= data_size;
+	disk_total -= data_size;
+}
+
+
+static void _verify(int file)
+{
+	char file_name_arg[17];
+	char data[4096];
+	int correct_ans = 0;
+	int offset = (pseudo_rand() * pseudo_rand()) % (file_size[file]);
+	int data_size = pseudo_rand() % 4096 + 1;
+
+	if (file_size[file] - offset < data_size)
+		data_size = file_size[file] - offset;
+
+
+	for (register int i = 0; i < 16; i++)
+		file_name_arg[i] = file_name[file][i];
+
+	read_file(file_name_arg, offset, data, data_size);
+	int user_ans = hash(data, data_size);
+	scanf("%d", &correct_ans);
+	if(correct_ans != user_ans) printf("%d %d\n", correct_ans, user_ans);
+	if (correct_ans != user_ans)
+		SCORE += PANELTY, printf("out!\n");
+}
+
+#if 01
+typedef struct st262144
+{
+	char a[262144];
+}cast262144;
+
+typedef struct st131072
+{
+	char a[131072];
+}cast131072;
+
+typedef struct st65536
+{
+	char a[65536];
+}cast65536;
+
+typedef struct st32768
+{
+	char a[32768];
+}cast32768;
+
+typedef struct st16384
+{
+	char a[16384];
+}cast16384;
+
+typedef struct st8192
+{
+	char a[8192];
+}cast8192;
+
+typedef struct st4096
+{
+	char a[4096];
+}cast4096;
+
+typedef struct st2048
+{
+	char a[2048];
+}cast2048;
+
+typedef struct st1024
+{
+	char a[1024];
+}cast1024;
+
+typedef struct st512
+{
+	char a[512];
+}cast512;
+
+typedef struct st256
+{
+	char a[256];
+}cast256;
+
+typedef struct st128
+{
+	char a[128];
+}cast128;
+
+typedef struct st64
+{
+	char a[64];
+}cast64;
+
+typedef struct st32
+{
+	char a[32];
+}cast32;
+
+typedef struct st16
+{
+	char a[16];
+}cast16;
+
+typedef struct st8
+{
+	char a[8];
+}cast8;
+
+typedef struct st4
+{
+	char a[4];
+}cast4;
+
+typedef struct st2
+{
+	char a[2];
+}cast2;
+#endif
+void mycopy(char* a, char* b, int size)
+{
+	int mask, cp;
+
+
+	cp = 0;
+	mask = 1;
+	if (size & 1)
+	{
+		a[cp] = b[cp];
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 2;
+	if (size & 1)
+	{
+		*(cast2*)(a + cp) = *(cast2*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 4;
+	if (size & 1)
+	{
+		*(cast4*)(a + cp) = *(cast4*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 8;
+	if (size & 1)
+	{
+		*(cast8*)(a + cp) = *(cast8*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 16;
+	if (size & 1)
+	{
+		*(cast16*)(a + cp) = *(cast16*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 32;
+	if (size & 1)
+	{
+		*(cast32*)(a + cp) = *(cast32*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 64;
+	if (size & 1)
+	{
+		*(cast64*)(a + cp) = *(cast64*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 128;
+	if (size & 1)
+	{
+		*(cast128*)(a + cp) = *(cast128*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 256;
+	if (size & 1)
+	{
+		*(cast256*)(a + cp) = *(cast256*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 512;
+	if (size & 1)
+	{
+		*(cast512*)(a + cp) = *(cast512*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 1024;
+	if (size & 1)
+	{
+		*(cast1024*)(a + cp) = *(cast1024*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 2048;
+	if (size & 1)
+	{
+		*(cast2048*)(a + cp) = *(cast2048*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 4096;
+	if (size & 1)
+	{
+		*(cast4096*)(a + cp) = *(cast4096*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 8192;
+	if (size & 1)
+	{
+		*(cast8192*)(a + cp) = *(cast8192*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 16384;
+	if (size & 1)
+	{
+		*(cast16384*)(a + cp) = *(cast16384*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 32768;
+	if (size & 1)
+	{
+		*(cast32768*)(a + cp) = *(cast32768*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 65536;
+	if (size & 1)
+	{
+		*(cast65536*)(a + cp) = *(cast65536*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 131072;
+	if (size & 1)
+	{
+		*(cast131072*)(a + cp) = *(cast131072*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+
+	mask = 262144;
+	if (size & 1)
+	{
+		*(cast262144*)(a + cp) = *(cast262144*)(b + cp);
+		cp += mask;
+	}
+	size >>= 1;
+}
+
+
+char* myfiles[100];
+
+#define FRAGMENT (167500)
+
+typedef struct st
+{
+	int index;
+	char filename[16];
+	struct st* next;
+}HASH;
+
+HASH head[1010];
+HASH POOL[100];
+int pcnt;
+
+
+void init()
+{
+	myfiles[0] = (char*)disk;
+	printf("%d %d %d\n", disk, disk + 1, sizeof(disk[0]));
+
+
+	myfiles[0][0] = 1;
+	myfiles[1] = (char*)(disk[0][0] + 1024);
+	myfiles[1][0] = 2;
+	printf("%d %d\n", disk[0][0][0],disk[0][1][0]);
+
+	int i;
+	for (i = 0; i < 100;i++)
+	{
+		myfiles[i] = (char*)(disk[0][0] + FRAGMENT * i);
+		myfilesize[i] = 0;
+	}
+		
+	myfiles[1][0] = 53;
+
+	pcnt = 0;
+	for (i = 0; i < 1007;i++) head[i].next = 0;
+
+}
+
+int strcmp(char* a, char* b, int len)
+{
+	int i;
+	for (i = 0; i < 16;i++)
+		if (a[i] != b[i]) return 1;
+
+	return 0;
+}
+
+int read, insert, del;
+void read_file(char* filename, int offset, char* data, int size)
+{
+	read++;
+	
+	int i;
+	unsigned int hashkey = hash(filename, 16) % 1007;
+
+	int fileidx = -1;
+	for (HASH *p = head[hashkey].next; p; p = p->next)
+	{
+		if (!strcmp(p->filename, filename, 16))
+		{
+			fileidx = p->index;
+			break;
+		}
+	}
+
+	mycopy(data, myfiles[fileidx] + offset, size);
+}
+
+
+
+char dump[262144 * 2];
+void insert_file(char* filename, int offset, char* data, int size)
+{
+
+
+	insert++;
+	int i;
+	//for (i = 0; i < 16;i++) printf("%c", filename[i]);putchar('\n');
+	//printf("offset : %d, size : %d\n", offset, size);
+	//for (i = 0; i < size;i++) printf("%d ", data[i]); putchar('\n');
+
+	unsigned int hashkey = hash(filename, 16) % 1007;
+	//printf("%d\n", hashkey);
+	
+	int fileidx = -1;
+	for (HASH *p = head[hashkey].next; p; p = p->next)
+	{
+		if (!strcmp(p->filename, filename, 16))
+		{
+			fileidx = p->index;
+			break;
+		}
+	}
+
+	if (fileidx == -1)
+	{
+		fileidx = pcnt;
+		HASH* nd = &POOL[pcnt];
+		*(cast16*)nd->filename = *(cast16*)filename;
+		nd->index = pcnt++;
+		
+		nd->next = head[hashkey].next;
+		head[hashkey].next = nd;
+	}
+	//if (max < myfilesize[fileidx] - offset)
+	//{
+	//	max = myfilesize[fileidx] - offset;
+	//	printf("size : %d %d \n", size, myfilesize[fileidx] - offset);
+	//}
+
+	mycopy(dump, myfiles[fileidx] + offset, myfilesize[fileidx] - offset);	
+	mycopy(myfiles[fileidx] + offset + size, dump, myfilesize[fileidx] - offset);
+	mycopy(myfiles[fileidx] + offset, data, size);
+	myfilesize[fileidx] += size;
+
+
+	//if (fileidx == 8)
+	//{
+	//	printf("offset : %d, size : %d\n", offset, size);
+	//	for (int i = 0; i < size;i++) printf("%d ", data[i]);
+	//	putchar('\n');
+	//	for (int i = 0; i < myfilesize[fileidx];i++) printf("%d ", myfiles[fileidx][i]);
+	//	putchar('\n');
+	//}
+	
+	
+
+	//if (insert == 300) exit(1);
+	//printf("indesrt %d\n", insert);
+}
+
+void delete_file(char* filename, int offset, int size)
+{
+
+	del++;
+	//printf("indesrt %d\n", del);
+	int i;
+	unsigned int hashkey = hash(filename, 16) % 1007;
+
+	int fileidx = -1;
+	for (HASH *p = head[hashkey].next; p; p = p->next)
+	{
+		if (!strcmp(p->filename, filename, 16))
+		{
+			fileidx = p->index;
+			break;
+		}
+	}
+	
+	//printf("%d\n", fileidx);
+
+	if (fileidx == -1)
+	{
+		printf("here!!\n");
+		fileidx = pcnt;
+		HASH* nd = &POOL[pcnt];
+		*(cast16*)nd->filename = *(cast16*)filename;
+		nd->index = pcnt++;
+
+		nd->next = head[hashkey].next;
+		head[hashkey].next = nd;
+	}
+
+	//mycopy(dump, myfiles[fileidx] + offset, myfilesize[fileidx] - offset);
+	//mycopy(myfiles[fileidx] + offset + size, dump, myfilesize[fileidx] - offset);
+	mycopy(myfiles[fileidx] + offset, myfiles[fileidx] + offset + size, myfilesize[fileidx] - offset - size);
+	myfilesize[fileidx] -= size;
+}
+
+int main(void)
+{
+	//char a[5000];
+	//char b[5000];
+
+	//for (int i = 0; i < 5000;i++) b[i] = i % 128;
+
+	//int size = 3142;
+
+	//mycopy(a, b, size);
+
+	//for (int i = 0; i < size;i++) printf("%d %d\n", b[i], a[i]);
+
+	//return 0;
+
+
+	freopen("input.txt", "r", stdin);
+	setbuf(stdout, NULL);
+	printf("---------------\n");
+	clock_t START = clock();
+	for (int T = 0; T < 10; T++)
+	{
+		_build();
+		disk_total = 0;
+
+		while (disk_total < 10 * 1024 * 1024)
+		{
+			switch (pseudo_rand() % 10)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5: _insert(); break;
+			case 6:
+			case 7:
+			case 8:
+			case 9: _delete(); break;
+			}
+		}
+
+		for (int i = 0; i < 100; i++) {
+			if (file_size[i] == 0)continue;
+			_verify(i);
+		}
+		printf("tc : %d // score : %d\n", T, SCORE);
+
+		int cnt = 0;
+		for (int i = 0; i < 100;i++)
+		{
+			cnt += (myfilesize[i] > FRAGMENT);
+			//printf("%d %d\n", myfilesize[i], myfilesize[i] > FRAGMENT);
+			if (max < myfilesize[i])
+			{
+				max = myfilesize[i];
+				printf("max : %d\n", max);
+			}
+		}
+		printf("cnt : %d\n", cnt);
+	}
+	//int sum = 0;
+	//for (int i = 0; i < 100;i++)
+	//{
+	//	sum += file_size[i];
+	//	printf("%d %d %d\n", myfilesize[i] ,file_size[i], myfilesize[i] > FRAGMENT);
+	//}
+	//printf("%d %d\n", sum, 1024 * 1024 * 10);
+		
+	printf("%lf\n", (double)(clock() - START) / (CLOCKS_PER_SEC));
+	SCORE += (clock() - START) / (CLOCKS_PER_SEC / 1000);
+	printf("SCORE: %d\n", SCORE);
+	printf("%d %d %d\n", insert, del, read);
+}
