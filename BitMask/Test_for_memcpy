@@ -1,0 +1,425 @@
+#define _CRT_SECURE_NO_WARNINGS	// Ignore build errors when using unsafe functions in Visual Studio.
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+#define CUBE_SIZE   3
+#define FRONT       0
+#define BACK        1
+#define UP          2
+#define DOWN        3
+#define LEFT        4
+#define RIGHT       5
+
+extern void runtest(int cube[6][CUBE_SIZE][CUBE_SIZE]);
+
+
+
+static int Cube[6][CUBE_SIZE][CUBE_SIZE];
+static int CallCnt = 0;
+
+void rotate(int face, bool clockwise) {
+	int preCube[6][CUBE_SIZE][CUBE_SIZE];
+	++CallCnt;
+
+	register int s, i, j;
+	for (s = 0; s < 6; ++s)
+		for (i = 0; i < CUBE_SIZE; ++i)
+			for (j = 0; j < CUBE_SIZE; ++j)
+				preCube[s][i][j] = Cube[s][i][j];
+
+	if (clockwise) {
+		for (i = 0; i < CUBE_SIZE; ++i)
+			for (j = 0; j < CUBE_SIZE; ++j)
+				Cube[face][j][CUBE_SIZE - 1 - i] = preCube[face][i][j];
+	}
+	else {
+		for (i = 0; i < CUBE_SIZE; ++i)
+			for (j = 0; j < CUBE_SIZE; ++j)
+				Cube[face][CUBE_SIZE - 1 - j][i] = preCube[face][i][j];
+	}
+
+	switch (face)
+	{
+	case FRONT:
+		if (clockwise) {
+			Cube[UP][2][0] = preCube[LEFT][2][2];
+			Cube[UP][2][1] = preCube[LEFT][1][2];
+			Cube[UP][2][2] = preCube[LEFT][0][2];
+
+			Cube[RIGHT][0][0] = preCube[UP][2][0];
+			Cube[RIGHT][1][0] = preCube[UP][2][1];
+			Cube[RIGHT][2][0] = preCube[UP][2][2];
+
+			Cube[DOWN][0][0] = preCube[RIGHT][2][0];
+			Cube[DOWN][0][1] = preCube[RIGHT][1][0];
+			Cube[DOWN][0][2] = preCube[RIGHT][0][0];
+
+			Cube[LEFT][0][2] = preCube[DOWN][0][0];
+			Cube[LEFT][1][2] = preCube[DOWN][0][1];
+			Cube[LEFT][2][2] = preCube[DOWN][0][2];
+		}
+		else {
+			Cube[UP][2][0] = preCube[RIGHT][0][0];
+			Cube[UP][2][1] = preCube[RIGHT][1][0];
+			Cube[UP][2][2] = preCube[RIGHT][2][0];
+
+			Cube[RIGHT][0][0] = preCube[DOWN][0][2];
+			Cube[RIGHT][1][0] = preCube[DOWN][0][1];
+			Cube[RIGHT][2][0] = preCube[DOWN][0][0];
+
+			Cube[DOWN][0][0] = preCube[LEFT][0][2];
+			Cube[DOWN][0][1] = preCube[LEFT][1][2];
+			Cube[DOWN][0][2] = preCube[LEFT][2][2];
+
+			Cube[LEFT][0][2] = preCube[UP][2][2];
+			Cube[LEFT][1][2] = preCube[UP][2][1];
+			Cube[LEFT][2][2] = preCube[UP][2][0];
+		}
+		break;
+	case BACK:
+		if (clockwise) {
+			Cube[UP][0][2] = preCube[RIGHT][2][2];
+			Cube[UP][0][1] = preCube[RIGHT][1][2];
+			Cube[UP][0][0] = preCube[RIGHT][0][2];
+
+			Cube[LEFT][0][0] = preCube[UP][0][2];
+			Cube[LEFT][1][0] = preCube[UP][0][1];
+			Cube[LEFT][2][0] = preCube[UP][0][0];
+
+			Cube[DOWN][2][2] = preCube[LEFT][2][0];
+			Cube[DOWN][2][1] = preCube[LEFT][1][0];
+			Cube[DOWN][2][0] = preCube[LEFT][0][0];
+
+			Cube[RIGHT][0][2] = preCube[DOWN][2][2];
+			Cube[RIGHT][1][2] = preCube[DOWN][2][1];
+			Cube[RIGHT][2][2] = preCube[DOWN][2][0];
+		}
+		else {
+			Cube[UP][0][2] = preCube[LEFT][0][0];
+			Cube[UP][0][1] = preCube[LEFT][1][0];
+			Cube[UP][0][0] = preCube[LEFT][2][0];
+
+			Cube[LEFT][0][0] = preCube[DOWN][2][0];
+			Cube[LEFT][1][0] = preCube[DOWN][2][1];
+			Cube[LEFT][2][0] = preCube[DOWN][2][2];
+
+			Cube[DOWN][2][2] = preCube[RIGHT][0][2];
+			Cube[DOWN][2][1] = preCube[RIGHT][1][2];
+			Cube[DOWN][2][0] = preCube[RIGHT][2][2];
+
+			Cube[RIGHT][0][2] = preCube[UP][0][0];
+			Cube[RIGHT][1][2] = preCube[UP][0][1];
+			Cube[RIGHT][2][2] = preCube[UP][0][2];
+		}
+		break;
+	case UP:
+		if (clockwise) {
+			Cube[BACK][0][2] = preCube[LEFT][0][2];
+			Cube[BACK][0][1] = preCube[LEFT][0][1];
+			Cube[BACK][0][0] = preCube[LEFT][0][0];
+
+			Cube[RIGHT][0][2] = preCube[BACK][0][2];
+			Cube[RIGHT][0][1] = preCube[BACK][0][1];
+			Cube[RIGHT][0][0] = preCube[BACK][0][0];
+
+			Cube[FRONT][0][0] = preCube[RIGHT][0][0];
+			Cube[FRONT][0][1] = preCube[RIGHT][0][1];
+			Cube[FRONT][0][2] = preCube[RIGHT][0][2];
+
+			Cube[LEFT][0][0] = preCube[FRONT][0][0];
+			Cube[LEFT][0][1] = preCube[FRONT][0][1];
+			Cube[LEFT][0][2] = preCube[FRONT][0][2];
+		}
+		else {
+			Cube[BACK][0][2] = preCube[RIGHT][0][2];
+			Cube[BACK][0][1] = preCube[RIGHT][0][1];
+			Cube[BACK][0][0] = preCube[RIGHT][0][0];
+
+			Cube[RIGHT][0][2] = preCube[FRONT][0][2];
+			Cube[RIGHT][0][1] = preCube[FRONT][0][1];
+			Cube[RIGHT][0][0] = preCube[FRONT][0][0];
+
+			Cube[FRONT][0][0] = preCube[LEFT][0][0];
+			Cube[FRONT][0][1] = preCube[LEFT][0][1];
+			Cube[FRONT][0][2] = preCube[LEFT][0][2];
+
+			Cube[LEFT][0][0] = preCube[BACK][0][0];
+			Cube[LEFT][0][1] = preCube[BACK][0][1];
+			Cube[LEFT][0][2] = preCube[BACK][0][2];
+		}
+		break;
+	case DOWN:
+		if (clockwise) {
+			Cube[FRONT][2][0] = preCube[LEFT][2][0];
+			Cube[FRONT][2][1] = preCube[LEFT][2][1];
+			Cube[FRONT][2][2] = preCube[LEFT][2][2];
+
+			Cube[RIGHT][2][0] = preCube[FRONT][2][0];
+			Cube[RIGHT][2][1] = preCube[FRONT][2][1];
+			Cube[RIGHT][2][2] = preCube[FRONT][2][2];
+
+			Cube[BACK][2][2] = preCube[RIGHT][2][2];
+			Cube[BACK][2][1] = preCube[RIGHT][2][1];
+			Cube[BACK][2][0] = preCube[RIGHT][2][0];
+
+			Cube[LEFT][2][2] = preCube[BACK][2][2];
+			Cube[LEFT][2][1] = preCube[BACK][2][1];
+			Cube[LEFT][2][0] = preCube[BACK][2][0];
+		}
+		else {
+			Cube[FRONT][2][0] = preCube[RIGHT][2][0];
+			Cube[FRONT][2][1] = preCube[RIGHT][2][1];
+			Cube[FRONT][2][2] = preCube[RIGHT][2][2];
+
+			Cube[RIGHT][2][0] = preCube[BACK][2][0];
+			Cube[RIGHT][2][1] = preCube[BACK][2][1];
+			Cube[RIGHT][2][2] = preCube[BACK][2][2];
+
+			Cube[BACK][2][2] = preCube[LEFT][2][2];
+			Cube[BACK][2][1] = preCube[LEFT][2][1];
+			Cube[BACK][2][0] = preCube[LEFT][2][0];
+
+			Cube[LEFT][2][2] = preCube[FRONT][2][2];
+			Cube[LEFT][2][1] = preCube[FRONT][2][1];
+			Cube[LEFT][2][0] = preCube[FRONT][2][0];
+		}
+		break;
+	case LEFT:
+		if (clockwise) {
+			Cube[UP][0][0] = preCube[BACK][2][2];
+			Cube[UP][1][0] = preCube[BACK][1][2];
+			Cube[UP][2][0] = preCube[BACK][0][2];
+
+			Cube[FRONT][0][0] = preCube[UP][0][0];
+			Cube[FRONT][1][0] = preCube[UP][1][0];
+			Cube[FRONT][2][0] = preCube[UP][2][0];
+
+			Cube[DOWN][2][0] = preCube[FRONT][2][0];
+			Cube[DOWN][1][0] = preCube[FRONT][1][0];
+			Cube[DOWN][0][0] = preCube[FRONT][0][0];
+
+			Cube[BACK][0][2] = preCube[DOWN][2][0];
+			Cube[BACK][1][2] = preCube[DOWN][1][0];
+			Cube[BACK][2][2] = preCube[DOWN][0][0];
+		}
+		else {
+			Cube[UP][0][0] = preCube[FRONT][0][0];
+			Cube[UP][1][0] = preCube[FRONT][1][0];
+			Cube[UP][2][0] = preCube[FRONT][2][0];
+
+			Cube[FRONT][0][0] = preCube[DOWN][0][0];
+			Cube[FRONT][1][0] = preCube[DOWN][1][0];
+			Cube[FRONT][2][0] = preCube[DOWN][2][0];
+
+			Cube[DOWN][2][0] = preCube[BACK][0][2];
+			Cube[DOWN][1][0] = preCube[BACK][1][2];
+			Cube[DOWN][0][0] = preCube[BACK][2][2];
+
+			Cube[BACK][0][2] = preCube[UP][2][0];
+			Cube[BACK][1][2] = preCube[UP][1][0];
+			Cube[BACK][2][2] = preCube[UP][0][0];
+		}
+		break;
+	case RIGHT:
+		if (clockwise) {
+			Cube[UP][2][2] = preCube[FRONT][2][2];
+			Cube[UP][1][2] = preCube[FRONT][1][2];
+			Cube[UP][0][2] = preCube[FRONT][0][2];
+
+			Cube[BACK][0][0] = preCube[UP][2][2];
+			Cube[BACK][1][0] = preCube[UP][1][2];
+			Cube[BACK][2][0] = preCube[UP][0][2];
+
+			Cube[DOWN][0][2] = preCube[BACK][2][0];
+			Cube[DOWN][1][2] = preCube[BACK][1][0];
+			Cube[DOWN][2][2] = preCube[BACK][0][0];
+
+			Cube[FRONT][0][2] = preCube[DOWN][0][2];
+			Cube[FRONT][1][2] = preCube[DOWN][1][2];
+			Cube[FRONT][2][2] = preCube[DOWN][2][2];
+		}
+		else {
+			Cube[UP][2][2] = preCube[BACK][0][0];
+			Cube[UP][1][2] = preCube[BACK][1][0];
+			Cube[UP][0][2] = preCube[BACK][2][0];
+
+			Cube[BACK][0][0] = preCube[DOWN][2][2];
+			Cube[BACK][1][0] = preCube[DOWN][1][2];
+			Cube[BACK][2][0] = preCube[DOWN][0][2];
+
+			Cube[DOWN][0][2] = preCube[FRONT][0][2];
+			Cube[DOWN][1][2] = preCube[FRONT][1][2];
+			Cube[DOWN][2][2] = preCube[FRONT][2][2];
+
+			Cube[FRONT][0][2] = preCube[UP][0][2];
+			Cube[FRONT][1][2] = preCube[UP][1][2];
+			Cube[FRONT][2][2] = preCube[UP][2][2];
+		}
+		break;
+	}
+}
+
+void printface(int cube[CUBE_SIZE][CUBE_SIZE])
+{
+	int i, k;
+
+	for (i = 0; i < CUBE_SIZE;i++)
+	{
+		for (k = 0; k < CUBE_SIZE;k++)
+		{
+			printf("%d ", cube[i][k]);
+		}
+		putchar('\n');
+	}
+	putchar('\n');
+}
+
+void printfaceall(int cube[6][CUBE_SIZE][CUBE_SIZE])
+{
+	int i;
+	for (i = 0; i < 6;i++)
+	{
+		printface(cube[i]);
+	}
+	printf("--------------------\n");
+}
+
+//976MB 사용 가능한 문제.
+// 128MB == 3300만 int 
+//271453개의 경우의 수. 중복 포함.
+//271453 * 54 = 14658462 // * 2 => 29316924, 약 3000만 int
+
+typedef unsigned long long int ll;
+typedef struct st
+{
+	ll hash;
+	int Level;
+	int prev_idx;
+	int prev_face;
+	int prev_clockwise;
+	int cube[6][3][3];
+}MYCUBE;
+
+typedef struct st1
+{
+	int cube[6][3][3];
+}cast;
+
+void runtest(int cube[6][CUBE_SIZE][CUBE_SIZE])
+{
+	//merge sort 필요.
+	//struct에 Level, hash값, prev index, rotate_state., real cube[6][3][3];
+	//forward (12 ^ 6 - 1) / 5 개 hash 해보고 중복 있는지 확인해보기.
+	//backward도 같이 해보기.
+
+	
+
+	register int a, b, c;
+	int mycube[6][CUBE_SIZE][CUBE_SIZE];
+
+	for (int i = 0; i < 1000000;i++)
+	{
+		rotate(2, 1);
+		//for (a = 0; a < 6;a++)
+		//	for (b = 0; b < 3;b++)
+		//		for (c = 0; c < 3;c++)
+		//			mycube[a][b][c] = Cube[a][b][c];
+
+		//memcpy()
+		memcpy(mycube, Cube, 54 * 4);
+		*(cast*)mycube = *(cast*)Cube;
+		//*(reinterpret_cast<cast*>(mycube)) = *(reinterpret_cast<cast*>(Cube));
+	}
+
+
+	//
+	//for (a = 0; a < 6;a++)
+	//	for (b = 0; b < 3;b++)
+	//		for (c = 0; c < 3;c++)
+	//			printf("%d ", mycube[a][b][c]);
+	//putchar('\n');
+
+	//for (a = 0; a < 6;a++)
+	//	for (b = 0; b < 3;b++)
+	//		for (c = 0; c < 3;c++)
+	//			printf("%d ", cube[a][b][c]);
+	//putchar('\n');
+
+ 
+	rotate(5, 1);
+	rotate(1, 0);
+	rotate(2, 0);
+	rotate(1, 1);
+	rotate(3, 0);
+	rotate(1, 1);
+	rotate(2, 0);
+	rotate(5, 0);
+	rotate(0, 0);
+	rotate(0, 1);
+	
+	
+
+}
+
+int main(void)
+{
+
+	setbuf(stdout, NULL);
+	srand(3); // The seed will be changed.
+	unsigned long long int a = 1;
+	a = (a << 63);
+	unsigned int b = 1 << 31;
+	printf("%llu\n", a);
+	printf("%u\n", b);
+
+	//exit(1);
+	int testCnt = 20;
+	double totalCallCnt = 0.0;
+	double totalRunTime = 0.0;
+
+	for (int tc = 1; tc <= 10; ++tc)
+	{
+		int arr[6][CUBE_SIZE][CUBE_SIZE];
+		register int face, row, col;
+
+		for (face = 0; face < 6; ++face)
+			for (row = 0; row < CUBE_SIZE; ++row)
+				for (col = 0; col < CUBE_SIZE; ++col)
+					Cube[face][row][col] = face;
+
+		for (register int cnt = 0; cnt < 10; ++cnt) {
+			int s = rand() % 6;
+			bool c = rand() % 2 ? true : false;
+			//printfaceall(Cube);
+
+			//printf("%d %d\n", s, c);
+			
+			rotate(s, c);
+		}
+
+		for (face = 0; face < 6; ++face)
+			for (row = 0; row < CUBE_SIZE; ++row)
+				for (col = 0; col < CUBE_SIZE; ++col)
+					arr[face][row][col] = Cube[face][row][col];
+
+		CallCnt = 0;
+		time_t start = clock();
+		runtest(arr);
+		totalRunTime += (clock() - start) / (CLOCKS_PER_SEC / 1000);
+
+		for (face = 0; face < 6; ++face)
+			for (row = 0; row < CUBE_SIZE; ++row)
+				for (col = 0; col < CUBE_SIZE; ++col)
+					if (Cube[face][row][col] != face) CallCnt += 1000;
+
+		printf("#%d %d\n", tc, CallCnt);
+		totalCallCnt += CallCnt;
+	}
+
+
+	printf("SCORE: %.4lf\n", totalCallCnt + totalRunTime / 10000);
+	printf("TIME: %.4lf\n", totalRunTime);
+	return 0;
+}
