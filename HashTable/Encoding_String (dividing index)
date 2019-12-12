@@ -1,3 +1,36 @@
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#include <stdio.h>
+
+extern void init(int n, char init_string[]);
+extern int change(char string_A[], char string_B[]);
+extern void result(char ret[]);
+
+static int seed = 5;  // seed can be changed
+static int pseudo_rand(void)
+{
+	seed = seed * 214013 + 2531011;
+	return (seed >> 16) & 0x7FFF;
+}
+
+#define MAXL (50005)
+#define DUMMY_LEN (5959)
+
+static int init_string_len = 0, char_type = 0, query_cnt = 0;
+static char dummy1[DUMMY_LEN];
+static char init_string[MAXL];
+static char dummy2[DUMMY_LEN];
+static char result_string[MAXL];
+static char dummy3[DUMMY_LEN];
+static char user_ans_string[MAXL];
+static char dummy4[DUMMY_LEN];
+static char string_A[4], string_B[4];
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 #if 1
 #define MAX_LEN (50000)
 #define DIVIDE (12500)
@@ -25,7 +58,7 @@ void init(int N, char init_string[])
 	pcnt = 0;
 	mystr = init_string;
 	NN = N;
-	
+
 	for (i = 'a'; i <= 'z';i++)
 		for (j = 'a'; j <= 'z';j++)
 			for (k = 'a'; k <= 'z';k++)
@@ -37,12 +70,12 @@ void init(int N, char init_string[])
 
 	for (i = 0; i < NN - 2;i++)
 	{
-		
+
 		register HASH* h = &head[mystr[i]][mystr[i + 1]][mystr[i + 2]][i / DIVIDE];
 		register HASH* nd = &POOL[i];
-		
+
 		nd->index = i;
-		
+
 		nd->prev = h->prev;
 		nd->next = h;
 
@@ -62,13 +95,13 @@ int change(char string_A[], char string_B[])
 	{
 		register HASH* h = &head[string_A[0]][string_A[1]][string_A[2]][i];
 		register HASH* st = h->next;
-		
+
 		while (st != h)
 		{
 			register int idx = st->index;
 			register int start = (idx > 2) ? idx - 2 : 0;
 			register int end = (idx + 3 < NN - 2) ? idx + 3 : NN - 2;
-			
+
 			mystr[idx] = string_B[0];
 			mystr[idx + 1] = string_B[1];
 			mystr[idx + 2] = string_B[2];
@@ -84,7 +117,7 @@ int change(char string_A[], char string_B[])
 
 				register HASH* endNode = &head[mystr[k]][mystr[k + 1]][mystr[k + 2]][k / DIVIDE];
 				register HASH* stNode = endNode->next;
-				
+
 				while (stNode != endNode && stNode->index < k) stNode = stNode->next;
 
 
@@ -107,3 +140,116 @@ void result(char ret[])
 	for (i = 0; i < NN;i++) ret[i] = mystr[i];
 }
 #endif
+
+HASH Head[100];
+HASH Pool[100];
+int ppcnt;
+
+
+
+void make(int p, int idx)
+{
+	HASH* nd = &Pool[ppcnt++];
+
+	nd->index = idx;
+
+	nd->prev = Head[p].prev;
+
+	nd->next = &Head[p];
+
+	Head[p].prev->next = nd;
+
+	Head[p].prev = nd;
+}
+
+void print(int n)
+{
+	HASH* p = &Head[n];
+
+	while (p->next != &Head[n])
+	{
+		printf("%d\n", p->next->index);
+		p = p->next;
+	}
+}
+
+int main() 
+{
+	Head[1].prev = &Head[1];
+	Head[2].prev = &Head[2];
+
+
+	make(1, 1);
+	make(1, 2);
+	make(1, 3);
+	make(1, 4);
+	make(1, 5);
+
+	make(2, 11);
+	make(2, 21);
+	make(2, 13);
+	make(2, 41);
+	make(2, 15);
+
+	Pool[4].prev->next = Pool[4].next;
+	Pool[4].next->prev = Pool[4].prev;
+
+	print(1);
+	print(2);
+	putchar('\n');
+	//setbuf(stdout, NULL);
+	//	freopen("sample_input.txt", "r", stdin);
+
+
+	int T;
+	scanf("%d", &T);
+	int total_score = 0;
+	for (int TC = 1; TC <= T; TC++) {
+		int score = 100;
+		scanf("%d%d%d%d", &seed, &init_string_len, &char_type, &query_cnt);
+
+		for (int i = 0; i < init_string_len; i++)
+		{
+			init_string[i] = pseudo_rand() % char_type + 'a';
+		}
+		init_string[init_string_len] = '\0';
+
+		init(init_string_len, init_string);
+
+		string_A[3] = string_B[3] = '\0';
+		for (int i = 0; i < query_cnt; i++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				string_A[k] = pseudo_rand() % char_type + 'a';
+				string_B[k] = pseudo_rand() % char_type + 'a';
+			}
+			int user_ans = change(string_A, string_B);
+			int ans;
+			scanf("%d", &ans);
+
+			if (ans != user_ans)
+			{
+				score = 0;
+			}
+		}
+
+		result(user_ans_string);
+		scanf("%s", result_string);
+
+		for (int i = 0; i < init_string_len; i++)
+		{
+			if (result_string[i] != user_ans_string[i])
+			{
+				score = 0;
+				break;
+			}
+		}
+
+		total_score += score;
+		printf("#%d %d\n", TC, score);
+	}
+	printf("Total score : %d\n", total_score / T);
+
+	return 0;
+}
