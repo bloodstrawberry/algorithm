@@ -1,0 +1,109 @@
+#if 1
+#define MAX_LEN (50000)
+#define DIVIDE (12500)
+
+typedef struct st
+{
+	int index;
+	struct st* next;
+	struct st* prev;
+}HASH;
+
+HASH head['z' + 1]['z' + 1]['z' + 1][MAX_LEN / DIVIDE + 1];
+
+HASH POOL[50500];
+int pcnt;
+int div;
+int NN;
+char* mystr;
+
+void init(int N, char init_string[])
+{
+	register int i, j, k, l;
+
+	div = N / DIVIDE;
+	pcnt = 0;
+	mystr = init_string;
+	NN = N;
+	
+	for (i = 'a'; i <= 'z';i++)
+		for (j = 'a'; j <= 'z';j++)
+			for (k = 'a'; k <= 'z';k++)
+				for (l = 0; l <= div;l++)
+				{
+					register HASH* h = &head[i][j][k][l];
+					h->prev = h->next = h;
+				}
+
+	for (i = 0; i < NN - 2;i++)
+	{
+		
+		register HASH* h = &head[mystr[i]][mystr[i + 1]][mystr[i + 2]][i / DIVIDE];
+		register HASH* nd = &POOL[i];
+		
+		nd->index = i;
+		
+		nd->prev = h->prev;
+		nd->next = h;
+
+		h->prev->next = nd;
+		h->prev = nd;
+		//printf("here : %d\n", i);
+	}
+
+}
+
+int change(char string_A[], char string_B[])
+{
+	register int ret = 0;
+	register int i, k;
+
+	for (i = 0; i <= div;i++)
+	{
+		register HASH* h = &head[string_A[0]][string_A[1]][string_A[2]][i];
+		register HASH* st = h->next;
+		
+		while (st != h)
+		{
+			register int idx = st->index;
+			register int start = (idx > 2) ? idx - 2 : 0;
+			register int end = (idx + 3 < NN - 2) ? idx + 3 : NN - 2;
+			
+			mystr[idx] = string_B[0];
+			mystr[idx + 1] = string_B[1];
+			mystr[idx + 2] = string_B[2];
+
+			while (st != h && st->index < end) st = st->next;
+
+			ret++;
+
+			for (k = start; k < end;k++)
+			{
+				POOL[k].prev->next = POOL[k].next;
+				POOL[k].next->prev = POOL[k].prev;
+
+				register HASH* endNode = &head[mystr[k]][mystr[k + 1]][mystr[k + 2]][k / DIVIDE];
+				register HASH* stNode = endNode->next;
+				
+				while (stNode != endNode && stNode->index < k) stNode = stNode->next;
+
+
+				POOL[k].prev = stNode->prev;
+				POOL[k].next = stNode;
+
+				stNode->prev->next = &POOL[k];
+				stNode->prev = &POOL[k];
+			}
+
+		}
+	}
+
+	return ret;
+}
+
+void result(char ret[])
+{
+	register int i;
+	for (i = 0; i < NN;i++) ret[i] = mystr[i];
+}
+#endif
