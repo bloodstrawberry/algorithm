@@ -1,0 +1,425 @@
+//char
+#if 0
+#include <stdio.h>
+#define TEST (1000000)
+
+int first;
+char str[1000000];
+char cop[1000000];
+typedef struct stest
+{
+	char c[1000000];
+}cst;
+
+void byCasting(char* src, char* dec, int len)
+{
+	for (register int i = 0; i < (len >> 3);i++)
+	{
+		*(reinterpret_cast<long long*>(dec) + i) = *(reinterpret_cast<long long*>(src) + i);
+	}
+}
+
+int main()
+{
+	//setbuf(stdout, NULL);
+	//	freopen("sample_input.txt", "r", stdin);
+
+
+	int T;
+	T = 1000;
+	int total_score = 0;
+	for (int i = 0; i < TEST;i++) str[i] = first++ % 100;
+	for (int TC = 1; TC <= T; TC++) {
+
+		//for (int i = 0; i < TEST;i++) cop[i] = str[i];
+		//for (register int i = 0; i < TEST;i++) cop[i] = str[i];
+
+		//memcpy(cop, str, TEST);
+		//byCasting(str, cop, TEST);
+		*(cst*)cop = *(cst*)str;
+	}
+
+
+	for (int i = 0; i < 1000000;i++)
+		if (str[i] != cop[i])
+		{
+			printf("wong\n");
+			break;
+		}
+
+	printf("0\n");
+
+	return 0;
+}
+
+#endif
+
+//int
+#if 0
+#include <stdio.h>
+#define TEST (1000000)
+
+int first;
+int str[1000000];
+int cop[1000000];
+typedef struct stest
+{
+	int c[1000000];
+}cst;
+
+void byCasting(int* src, int* dec, int len)
+{
+	//int -> len >> 1
+	for (register int i = 0; i < (len >> 1);i++)
+	{
+		*(reinterpret_cast<long long*>(dec) + i) = *(reinterpret_cast<long long*>(src) + i);
+	}
+}
+
+int main()
+{
+	//setbuf(stdout, NULL);
+	//	freopen("sample_input.txt", "r", stdin);
+
+
+	int T;
+	T = 1000;
+	int total_score = 0;
+	for (int i = 0; i < TEST;i++) str[i] = first++ % 100;
+	for (int TC = 1; TC <= T; TC++) {
+
+		//for (int i = 0; i < TEST;i++) cop[i] = str[i];
+		//for (register int i = 0; i < TEST;i++) cop[i] = str[i];
+
+		//memcpy(cop, str, TEST * 4);
+		byCasting(str, cop, TEST);
+		//*(cst*)cop = *(cst*)str;
+	}
+
+
+	for (int i = 0; i < 1000000;i++)
+		if (str[i] != cop[i])
+		{
+			printf("wong %d\n",i);
+			break;
+		}
+
+	printf("0\n");
+
+	return 0;
+}
+
+#endif
+
+//long long int
+#if 0
+#include <stdio.h>
+#define TEST (1000000)
+
+typedef long long int ll;
+
+int first;
+ll str[1000000];
+ll cop[1000000];
+typedef struct stest
+{
+	ll c[1000000];
+}cst;
+
+void byCasting(ll* src, ll* dec, int len)
+{
+	//ll -> len
+	for (register int i = 0; i < (len);i++)
+	{
+		*(reinterpret_cast<long long*>(dec) + i) = *(reinterpret_cast<long long*>(src) + i);
+	}
+}
+
+int main()
+{
+	//setbuf(stdout, NULL);
+	//	freopen("sample_input.txt", "r", stdin);
+
+
+	int T;
+	T = 1000;
+	int total_score = 0;
+	for (int i = 0; i < TEST;i++) str[i] = first++ % 100;
+	for (int TC = 1; TC <= T; TC++) {
+
+		//for (int i = 0; i < TEST;i++) cop[i] = str[i];
+		//for (register int i = 0; i < TEST;i++) cop[i] = str[i];
+
+		//memcpy(cop, str, TEST * 4);
+		byCasting(str, cop, TEST);
+		//*(cst*)cop = *(cst*)str;
+	}
+
+
+	for (int i = 0; i < 1000000;i++)
+		if (str[i] != cop[i])
+		{
+			printf("wong %d\n", i);
+			break;
+		}
+
+	printf("0\n");
+
+	return 0;
+}
+
+#endif
+
+//char array
+#if 0
+#include <stdio.h>
+#define TEST (100*100*100)
+
+int first;
+char str[100][100][100];
+char cop[100][100][100];
+typedef struct stest
+{
+	char c[100][100][100];
+}cst;
+
+void byCasting(char* src, char* dec, int len)
+{
+	for (register int i = 0; i < (len >> 3);i++)
+	{
+		*(reinterpret_cast<long long*>(dec) + i) = *(reinterpret_cast<long long*>(src) + i);
+	}
+}
+
+int main()
+{
+	//setbuf(stdout, NULL);
+	//	freopen("sample_input.txt", "r", stdin);
+
+
+	int T;
+	T = 1000;
+	int total_score = 0;
+	
+	for (int i = 0; i < 100;i++)
+		for (int j = 0; j < 100;j++)
+			for (int k = 0; k < 100;k++)
+				str[i][j][k] = first++ % 100;
+
+	for (int TC = 1; TC <= T; TC++) {
+
+		//3750
+		for (int i = 0; i < 100;i++)
+			for (int j = 0; j < 100;j++)
+				for (int k = 0; k < 100;k++)
+					cop[i][j][k] = str[i][j][k];
+
+		//2668
+		for (register int i = 0; i < 100;i++)
+			for (register int j = 0; j < 100;j++)
+				for (register int k = 0; k < 100;k++)
+					cop[i][j][k] = str[i][j][k];
+
+		//memcpy(cop, str, TEST * 4);
+		//0154
+		//byCasting((char*)str, (char*)cop, TEST);
+		//0088
+		//*(cst*)cop = *(cst*)str;
+	}
+
+
+	for (int i = 0; i < 100;i++)
+		for (int j = 0; j < 100;j++)
+			for (int k = 0; k < 100;k++)
+				if (str[i][j][k] != cop[i][j][k])
+				{
+					printf("wong %d\n", i);
+					break;
+				}
+
+	printf("0\n");
+
+	return 0;
+}
+
+#endif
+
+//pointer struct -> len 조절
+#if 0
+#include <stdio.h>
+#define TEST (100*100*100)
+
+typedef struct st
+{
+	int a;
+	struct st* next;
+	struct st* prev;
+}CAST;
+
+int first;
+CAST str[100][100][100];
+CAST cop[100][100][100];
+typedef struct stest
+{
+	CAST c[100][100][100];
+}cst;
+
+CAST nullstr[100][100][100] = { 0 };
+
+void byCasting(char* src, char* dec, int len)
+{
+	for (register int i = 0; i < (len);i++)
+	{
+		*(reinterpret_cast<long long*>(dec) + i) = *(reinterpret_cast<long long*>(src) + i);
+	}
+}
+
+int main()
+{
+	//setbuf(stdout, NULL);
+	//	freopen("sample_input.txt", "r", stdin);
+
+
+	int T;
+	T = 1000;
+	int total_score = 0;
+
+	for (int i = 0; i < 100;i++)
+		for (int j = 0; j < 100;j++)
+			for (int k = 0; k < 100;k++)
+			{
+				str[i][j][k].a = first++ % 100;
+				str[i][j][k].next = str[i][j][k].prev = &str[i][j][k];
+			}
+	printf("%x\n", str[1][1][1].prev);
+	for (int TC = 1; TC <= T; TC++) {
+
+		//6187
+		//for (int i = 0; i < 100;i++)
+		//	for (int j = 0; j < 100;j++)
+		//		for (int k = 0; k < 100;k++)
+		//			cop[i][j][k] = str[i][j][k];
+
+		////4228
+		//for (register int i = 0; i < 100;i++)
+		//	for (register int j = 0; j < 100;j++)
+		//		for (register int k = 0; k < 100;k++)
+		//			cop[i][j][k] = str[i][j][k];
+
+		//memcpy(cop, str, TEST * 4);
+
+		//4483
+		//byCasting((char*)str, (char*)cop, TEST);
+
+		//2504
+		//*(cst*)cop = *(cst*)str;
+		//*(cst*)cop = *(cst*)nullstr;
+	}
+	printf("%x\n", cop[1][1][1].prev);
+
+	for (int i = 0; i < 100;i++)
+		for (int j = 0; j < 100;j++)
+			for (int k = 0; k < 100;k++)
+				if (str[i][j][k].a != cop[i][j][k].a || str[i][j][k].prev != &str[i][j][k])
+				{
+					printf("wong %d\n", i);
+					break;
+				}
+
+	printf("0\n");
+
+	return 0;
+}
+
+#endif
+
+//rand struct
+#if 01
+#include <stdio.h>
+#define TEST (100*100*100)
+
+typedef struct st
+{
+	int a;
+	char b;
+	short c;
+	char d;
+}CAST;
+
+int first;
+CAST str[100][100][100];
+CAST cop[100][100][100];
+typedef struct stest
+{
+	CAST c[100][100][100];
+}cst;
+
+CAST nullstr[100][100][100] = { 0 };
+
+void byCasting(char* src, char* dec, int len)
+{
+	for (register int i = 0; i < (len);i++)
+	{
+		*(reinterpret_cast<long long*>(dec) + i) = *(reinterpret_cast<long long*>(src) + i);
+	}
+}
+
+int main()
+{
+	//setbuf(stdout, NULL);
+	//	freopen("sample_input.txt", "r", stdin);
+
+
+	int T;
+	T = 1000;
+	int total_score = 0;
+
+	for (int i = 0; i < 100;i++)
+		for (int j = 0; j < 100;j++)
+			for (int k = 0; k < 100;k++)
+			{
+				str[i][j][k].a = first++ % 100;
+				str[i][j][k].b = first++ % 100;
+				str[i][j][k].c = first++ % 100;
+				str[i][j][k].d = first++ % 100;
+			}
+
+	for (int TC = 1; TC <= T; TC++) {
+
+		//4222
+		//for (int i = 0; i < 100;i++)
+		//	for (int j = 0; j < 100;j++)
+		//		for (int k = 0; k < 100;k++)
+		//			cop[i][j][k] = str[i][j][k];
+
+		//1721
+		//for (register int i = 0; i < 100;i++)
+		//	for (register int j = 0; j < 100;j++)
+		//		for (register int k = 0; k < 100;k++)
+		//			cop[i][j][k] = str[i][j][k];
+
+		//memcpy(cop, str, TEST * 4);
+
+		//4483
+		//byCasting((char*)str, (char*)cop, TEST);
+
+		//978
+		//*(cst*)cop = *(cst*)str;
+		//*(cst*)cop = *(cst*)nullstr;
+	}
+
+	for (int i = 0; i < 100;i++)
+		for (int j = 0; j < 100;j++)
+			for (int k = 0; k < 100;k++)
+				if (str[i][j][k].a != cop[i][j][k].a || str[i][j][k].b != cop[i][j][k].b || str[i][j][k].c != cop[i][j][k].c || str[i][j][k].d != cop[i][j][k].d)
+				{
+					printf("wong %d\n", i);
+					break;
+				}
+
+	printf("0\n");
+
+	return 0;
+}
+
+#endif
