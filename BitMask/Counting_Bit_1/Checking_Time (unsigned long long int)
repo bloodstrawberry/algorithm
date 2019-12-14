@@ -1,0 +1,56 @@
+
+#include <stdio.h>
+
+typedef long long int ll;
+
+int main()
+{
+	int T;
+	scanf("%d", &T);
+	printf("%d\n", T);
+	register ll y;
+
+
+	printf("%llu\n", 0xFFFFFFFFFFFFFFFF);
+	for (register int i = 0; i < 1;i++)
+	{
+		for (register ll k = 0xFFFFFFFFF0000000; k < 0xFFFFFFFFFFFFFFFF;k++)
+		{
+			ll a, b, c;
+			//1.053
+			y = k;
+			y = (y & 0x5555555555555555) + ((y >> 1) & 0x5555555555555555);
+			y = (y & 0x3333333333333333) + ((y >> 2) & 0x3333333333333333);
+			y = (y & 0x0F0F0F0F0F0F0F0F) + ((y >> 4) & 0x0F0F0F0F0F0F0F0F);
+			y = (y & 0x00FF00FF00FF00FF) + ((y >> 8) & 0x00FF00FF00FF00FF);
+			y = (y & 0x0000FFFF0000FFFF) + ((y >> 16) & 0x0000FFFF0000FFFF);
+			y = (y & 0x00000000FFFFFFFF) + ((y >> 32) & 0x00000000FFFFFFFF);
+			a = y;
+			//printf("%llu ", y);
+
+			//0.7928
+			y = k;
+			y = y - ((y >> 1) & 0x5555555555555555);
+			y = (y & 0x3333333333333333) + ((y >> 2) & 0x3333333333333333);
+			y = (y + (y >> 4)) & 0x0F0F0F0F0F0F0F0F;
+			y = y + (y >> 8);
+			y = y + (y >> 16);
+			y = y + (y >> 32);
+			y &= 0x0000007F;
+			b = y;
+
+			//15초 이상..
+			y = k;
+			int cnt = !!k;
+			while (y &= y - 1) cnt++;
+			//printf("%d\n", cnt);
+			c = cnt;
+
+			if (a != b || b != c || c != a)printf("here!\n");
+		}
+	}
+
+	return 0;
+}
+
+
