@@ -1,0 +1,66 @@
+#include <stdio.h>
+
+void printbinary(unsigned int a)
+{
+	unsigned int mask = 1 << 31;
+	for (int i = 0; i < 32;i++)
+	{
+		printf("%d ", (a & mask) == mask);
+		mask >>= 1;
+	}
+	putchar('\n');
+}
+
+typedef unsigned long long int ll;
+void printbinary_long(ll a)
+{
+	ll mask = 1ull << 63;
+	for (int i = 0; i < 64;i++)
+	{
+		printf("%d ", (a & mask) == mask);
+		mask >>= 1;
+	}
+	putchar('\n');
+}
+
+int main()
+{
+	unsigned int x, y;
+
+	x = 0x01234567;
+	y = 0xE6A2C480;
+
+	printbinary(x);
+	printbinary(y);
+
+	x = (x & 0x55555555) << 1 | (x & 0xAAAAAAAA) >> 1; //0101 = 5, 1010 = A
+	x = (x & 0x33333333) << 2 | (x & 0xCCCCCCCC) >> 2; //0011 = 3, 1100 = C
+	x = (x & 0x0F0F0F0F) << 4 | (x & 0xF0F0F0F0) >> 4;
+	x = (x & 0x00FF00FF) << 8 | (x & 0xFF00FF00) >> 8;
+	x = (x & 0x0000FFFF) << 16 | (x & 0xFFFF0000) >> 16;
+
+	printbinary(x);
+
+	ll xx, yy;
+
+	xx = 0x0123456701234567;
+	//xx = 0xABCDEF00000000;
+	yy = 0xE6A2C480E6A2C480;
+
+	printbinary_long(xx);
+	printbinary_long(yy);
+
+	xx = (xx & 0x5555555555555555) << 1 | (xx & 0xAAAAAAAAAAAAAAAA) >> 1; //0101 = 5, 1010 = A
+	xx = (xx & 0x3333333333333333) << 2 | (xx & 0xCCCCCCCCCCCCCCCC) >> 2; //0011 = 3, 1100 = C
+	xx = (xx & 0x0F0F0F0F0F0F0F0F) << 4 | (xx & 0xF0F0F0F0F0F0F0F0) >> 4;
+	xx = (xx & 0x00FF00FF00FF00FF) << 8 | (xx & 0xFF00FF00FF00FF00) >> 8;
+	xx = (xx & 0x0000FFFF0000FFFF) << 16 | (xx & 0xFFFF0000FFFF0000) >> 16;
+	xx = (xx & 0x00000000FFFFFFFF) << 32 | (xx & 0xFFFFFFFF00000000) >> 32;
+
+	printbinary_long(xx);
+
+	return 0;
+}
+
+
+
