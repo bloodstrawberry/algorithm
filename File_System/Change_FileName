@@ -1,0 +1,168 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <io.h>
+#include <Windows.h>
+#include <direct.h>
+#include <string>
+
+using namespace std;
+
+struct _finddata_t fd;
+
+int isFileOrDir()
+{
+	if (fd.attrib & _A_SUBDIR)
+		return 0; // 디렉토리면 0 반환
+	else
+		return 1; // 그밖의 경우는 "존재하는 파일"이기에 1 반환
+
+}
+
+int find_len(char file_pt[])
+{
+	int len, Length;
+	for (len = 0; file_pt[len];len++);
+
+	Length = len;
+
+	while (1)
+	{
+		if ('0' <= file_pt[len] && file_pt[len] <= '9')
+		{
+
+			while (1)
+			{
+				if (file_pt[len] == ' ') break;
+				len--;
+			}
+
+
+		}
+
+		len--;
+	}
+
+	return Length - len;
+
+}
+
+string makestring(char* file_path, int len, char* file_pt)
+{
+	char realName[100] = { 0 };
+	int pathlen;
+	for (pathlen = 0; file_path[pathlen]; pathlen++);
+	
+	int stlen = pathlen - 1;
+	for (int i = 0; i < pathlen - 1; i++)
+		realName[i] = file_path[i];
+
+	int backlen = 0;
+	for (backlen = 0; file_pt[backlen];backlen++);
+
+	string ret = string(realName);
+	ret += "High-Rise Invasion";
+	char buff[10] = { 0 };
+	itoa(len, buff, 10);
+	if (len < 10)
+	{
+		ret += "00";
+		ret += buff;
+		
+	}
+	else if (len < 100)
+	{
+		ret += "0";
+		ret += buff;
+	}
+	else
+	{
+		ret += buff;
+	}
+
+	ret += '_';
+	ret += (file_pt + backlen - 7);
+	//printf("make string %s\n", ret.c_str());
+
+	
+
+
+	return ret;
+}
+
+void FileSearch(char file_path[], int len = 0)
+{
+	intptr_t handle;
+	int check = 0;
+	char file_path2[_MAX_PATH];
+
+	strcat(file_path, "\\");
+	strcpy(file_path2, file_path);
+	strcat(file_path, "*");
+
+	if ((handle = _findfirst(file_path, &fd)) == -1)
+	{
+		printf("No such file or directory\n");
+		return;
+	}
+
+	//High-Rise Invasion
+	while (_findnext(handle, &fd) == 0)
+	{
+		char file_pt[_MAX_PATH] = { 0 };
+		strcpy(file_pt, file_path2);
+		strcat(file_pt, fd.name);
+
+		check = isFileOrDir();    //파일인지 디렉토리 인지 식별
+
+		//int len = find_len(file_pt);
+		//printf("%s\n", file_pt + 41);
+		int chapter = atoi(file_pt + 41);
+		/*char changeName[100] = "D:\High-Rise Invasion\\";
+
+		int c = 1;
+		for (int i = 20; file_pt[i];i++)
+		{
+			changeName[20 + c++] = file_pt[i];
+		}
+
+		changeName[19 + c - 2] = 0;
+
+		printf("changeName = %s\n", changeName);
+*/
+		//rename(file_pt, changeName);
+		if (check == 0 && fd.name[0] != '.')
+		{
+			FileSearch(file_pt, chapter);    //하위 디렉토리 검색 재귀함수
+			
+			//printf("%s\n", file_pt);
+
+		}
+		else if (check == 1 && fd.size != 0 && fd.name[0] != '.')
+		{
+			//printf("파일명 : %s, 크기:%d chapter : %d\n", file_pt, fd.size, len);
+			int pathlen = 0;
+			for (pathlen = 0; file_path[pathlen]; pathlen++);
+
+			string str = makestring(file_path, len, file_pt);
+
+			printf("%s\n", str.c_str());
+			rename(file_pt, str.c_str());
+		}
+	}
+	_findclose(handle);
+}
+
+int main()
+{
+	//char file_path[_MAX_PATH] = "D:\chungong";    //C:\ 경로 탐색
+	//char strNewName[] = "D:\High-Rise Invasion";
+
+	//rename(file_path, strNewName);
+	
+	char file_path[_MAX_PATH] ="D:\High-Rise Invasion";    //C:\ 경로 탐색
+
+	FileSearch(file_path);
+
+	return 0;
+}
